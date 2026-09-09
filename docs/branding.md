@@ -47,3 +47,19 @@ existing installations and saved settings:
 The current local checkout may still be named `joypad-air`; launchers locate the
 project relative to their own files. Fresh clones use `motion-air`. Historical
 verification reports and screenshots retain the name shown when they were captured.
+
+## Rebrand verification — September 9, 2026
+
+- Xcode built `MotionAir.app` for iOS Simulator; the compiled display name and
+  primary icon name are both Motion Air. The existing bundle identifier is retained.
+- Expo SDK 54 exported its iOS bundle successfully.
+- Node checks passed: 56 smoke assertions, 27 pairing/launcher/motion/focus/language
+  tests, and 9 emulator-profile tests, including legacy profile recognition.
+- The local pairing page was inspected in English on desktop and Spanish at 390px:
+  the mark loads, the credit is translated, and the phone layout has no horizontal overflow.
+  The web controller and setup dashboard also show the renamed wordmarks and titles.
+- The package preview contains source and documentation, excluding generated
+  emulator binaries and private runtime data. Launcher shell syntax checks pass.
+
+These checks cover the rebrand and local build. They do not establish a new
+physical iPhone installation or Just Dance scoring result.
