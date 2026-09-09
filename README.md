@@ -1,15 +1,34 @@
-# 🎮 joypad-air — iPhone as a game controller for macOS emulators
+# Motion Air
 
-Turn your iPhone (or Android) into a wireless gamepad for **Ryujinx**,
-**Dolphin** and **Cemu** on your Mac. Low-latency buttons over Wi-Fi plus
-real **motion controls** (gyro) via the DSU/cemuhook protocol. Free, open
-source, no ads, no tracking.
+Your iPhone, a wireless controller for **Just Dance and other motion games on Mac**.
+Motion Air combines buttons over Wi-Fi with gyroscope and accelerometer input
+through DSU/cemuhook. The native Swift app focuses on dancing and game navigation;
+the browser and Expo controllers remain available for broader emulator use.
 
-A.K.A. **"El Control Super Pro Max"** · Guía en español: [README.es.md](README.es.md)
+Built with **Joypad Air in mind**, and directly based on
+[Joypad Air by David García (mindavidev)](https://github.com/mindavidev/joypad-air).
+This independent continuation builds on its phone-to-Mac controller foundation.
+The original MIT copyright and license are retained. See [acknowledgements](ACKNOWLEDGEMENTS.md).
+
+Guía en español: [README.es.md](README.es.md) · [Branding and compatibility](docs/branding.md)
 
 ## Local Swift app for Just Dance
 
-The native iPhone controller, local pairing bridge and separate patched Ryujinx build are available for testing. Start with the [implementation status](docs/motion-implementation-status.md), [iPhone installation guide](docs/local-device-setup.md), and [sensor contract](docs/motion-coordinate-contract.md). Double-click **Joypad Air.command** in Finder to start the pairing bridge, open its pairing page, and launch the selected Ryujinx Motion build. Connect your saved Mac on the iPhone and turn on **Enable Motion**. Keep the launcher's Terminal window open while playing. The real-phone Just Dance scoring test is still required; the full Swift app plan is not complete.
+Clone [this repository](https://github.com/cplus2jules/motion-air) with your
+authenticated GitHub account, then install the bridge dependencies:
+
+```bash
+git clone https://github.com/cplus2jules/motion-air.git
+cd motion-air
+npm install
+```
+
+Open `native/MotionAir.xcworkspace` in Xcode and select the **MotionAir** scheme.
+Follow the device guide below for signing and local emulator setup.
+
+The native iPhone controller, local pairing bridge and separate patched Ryujinx build are available for testing. Start with the [implementation status](docs/motion-implementation-status.md), [iPhone installation guide](docs/local-device-setup.md), and [sensor contract](docs/motion-coordinate-contract.md). Double-click **Motion Air.command** in Finder to start the pairing bridge, open its pairing page, and launch the selected Ryujinx Motion build. Connect your saved Mac on the iPhone and turn on **Enable Motion**. Keep the launcher's Terminal window open while playing. The real-phone Just Dance scoring test is still required; the full Swift app plan is not complete.
+
+The refreshed native controller, Mac pairing page, and layered app icon are documented in the [UI verification report](docs/design/ui-verification.md) and [Icon Composer package](assets/icon-composer/README.md).
 
 The launcher reuses a running paired bridge and brings the selected emulator forward if it is already open. If it reuses a bridge, keep that bridge's original Terminal open. Closing Terminal stops its bridge; quit the emulator normally when finished. Keep the launcher in this project folder, or make a Finder alias for your Desktop. The equivalent command is `npm run play`; `npm run start:paired` still starts only the bridge.
 
@@ -17,10 +36,9 @@ Use `npm run start:dance` for the isolated Just Dance preset and `npm run ryujin
 
 ## Why this exists
 
-Every "phone as gamepad" project is Android→Windows. On macOS there was no
-way to get buttons *and* motion into Ryujinx from an iPhone — iOS DSU apps
-are motion-only, and the ones with buttons need a Windows-only companion.
-joypad-air does both, macOS-first:
+Motion Air carries Joypad Air's combined button and motion approach into a
+native iPhone experience for motion games, with secure local pairing and a
+single Mac launcher:
 
 - **Buttons** → injected as keyboard events (nut-js / CGEventPost), the only
   input path Ryujinx supports on macOS without a physical controller. Server-side
@@ -30,21 +48,27 @@ joypad-air does both, macOS-first:
   and Citra consume it natively; for Ryujinx there's a local source patch you
   build locally (below).
 
-## Install (macOS)
+## Browser / Expo fallback install (macOS)
+
+For the Swift Just Dance workflow, use the [iPhone installation guide](docs/local-device-setup.md)
+and the **Motion Air.command** launcher in your local checkout. The installer below
+starts the browser bridge; it does not install the Swift app or build Ryujinx.
+The one-line download commands require a public repository release. While this
+repository is private, use an authenticated clone and run `npm start` instead.
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mindavidev/joypad-air/main/install.sh)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/cplus2jules/motion-air/main/install.sh)"
 ```
 
 The script checks for Node ≥18 (opens the official installer if missing) and
-drops a **"🎮 El Control"** launcher on your Desktop. Then:
+drops a **"Motion Air"** launcher on your Desktop. Then:
 
 1. Double-click the launcher; grant **Accessibility** to Terminal the first
    time (the app waits for you).
 2. Scan the QR with your phone → Safari → Share → **Add to Home Screen** →
    open from the icon (true fullscreen; iOS never hides Safari's bar in-tab).
 3. Configure Ryujinx once (with Ryujinx closed):
-   `npx -y github:mindavidev/joypad-air ryujinx-setup`
+   `npx -y github:cplus2jules/motion-air ryujinx-setup`
 4. Open Ryujinx and play. Live dashboard at <http://localhost:3001/setup>.
 
 Updates are automatic — every launch resolves the latest version.
@@ -59,7 +83,7 @@ Two halves: the phone must *send* motion, and the emulator must *listen*.
   tells you honestly.
 - ✅ The native app (Expo) has full gyro. Run from source:
   ```bash
-  git clone https://github.com/mindavidev/joypad-air && cd joypad-air
+  git clone https://github.com/cplus2jules/motion-air && cd motion-air
   npm install && npm start              # terminal 1 — server
   cd app && npm install && npx expo start   # terminal 2 — app
   ```

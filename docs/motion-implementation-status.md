@@ -4,7 +4,7 @@ Updated September 8, 2026. Phase 1 is implemented for testing; the physical Just
 
 ## Available now
 
-- Native iPhone probe: `native/JoypadAir.xcworkspace`, scheme `JoypadAirProbe`, Swift 6.3.3 / Xcode 26.6, iOS 17+. See [device setup](local-device-setup.md).
+- Native iPhone probe: `native/MotionAir.xcworkspace`, scheme `MotionAir`, Swift 6.3.3 / Xcode 26.6, iOS 17+. See [device setup](local-device-setup.md).
 - Shared Swift motion/protocol core with unit and transport tests. The phone sends raw Core Motion vectors with timestamps; the Mac applies the dance coordinate transform exactly once. See [coordinate contract](motion-coordinate-contract.md).
 - Explicit `just-dance` handshake, portrait grip, gain 1, gyro degrees/second, acceleration including gravity in g.
 - Node bridge supports the probe, ordered button events, diagnostic sample/sequence fields, duplicate suppression, reconnect reset, and a 250 ms stale-sensor stop.
@@ -19,7 +19,7 @@ The user subsequently requested full native menu controls and device pairing. Th
 
 ## Start the local test
 
-For a single daily entry point, double-click **Joypad Air.command** in the project folder, or run `npm run play`. It starts or reuses the paired bridge, opens the pairing page, then launches the selected local emulator. Keep the bridge's Terminal window open, connect your saved Mac on the iPhone, and turn on **Enable Motion**. The launcher simplifies startup; it does not calibrate motion or change reconnect timing.
+For a single daily entry point, double-click **Motion Air.command** in the project folder, or run `npm run play`. It starts or reuses the paired bridge, opens the pairing page, then launches the selected local emulator. Keep the bridge's Terminal window open, connect your saved Mac on the iPhone, and turn on **Enable Motion**. The launcher simplifies startup; it does not calibrate motion or change reconnect timing.
 
 Use Terminal, which already had Accessibility permission during the working browser-button test:
 
@@ -28,7 +28,7 @@ cd /Users/juliansalas/Desktop/joypad-air
 npm run start:paired
 ```
 
-Leave that Terminal open. This command reads the isolated preset and stops on occupied ports instead of silently changing HTTP ports while DSU fails. Stop an older Joypad Air server with Ctrl+C in its own Terminal before starting another. No process is killed automatically. For Spanish startup text, use `JOYPAD_LANG=es npm run start:paired`.
+Leave that Terminal open. This command reads the isolated preset and stops on occupied ports instead of silently changing HTTP ports while DSU fails. Stop an older Motion Air server with Ctrl+C in its own Terminal before starting another. No process is killed automatically. For Spanish startup text, use `JOYPAD_LANG=es npm run start:paired`.
 
 Open `http://127.0.0.1:3444/` on this Mac. In the iPhone app choose **Pair a Mac → Scan Mac QR code**, review the Mac identity and confirm. Pairing text is available if scanning is inconvenient. The invitation lasts five minutes and works once. The saved connection uses HTTPS/WSS on port 3443; the phone must be on the same reachable local network. Removing a phone on this page revokes its credential and closes its active connection.
 

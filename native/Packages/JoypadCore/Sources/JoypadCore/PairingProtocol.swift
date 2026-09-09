@@ -8,7 +8,7 @@ public enum PairingError: Error, LocalizedError, Sendable {
 
     public var errorDescription: String? {
         switch self {
-        case .invalidInvitation: "This is not a valid Joypad Air pairing code. Scan the QR shown on your Mac."
+        case .invalidInvitation: "This is not a valid Motion Air pairing code. Scan the QR shown on your Mac."
         case .expiredInvitation: "This QR code expired. Generate a new code on the Mac and scan again."
         case .unavailable(let message): message
         case .keychain: "The pairing could not be saved securely. Unlock your iPhone and try again."
@@ -55,7 +55,7 @@ public struct SavedMac: Codable, Sendable, Identifiable, Equatable {
     public let id: String
     public let name: String
     public var hosts: [String]
-    public let port: Int
+    public private(set) var port: Int
     public let fingerprint: String
     public let token: String
     public let clientID: String
@@ -83,6 +83,15 @@ public struct SavedMac: Codable, Sendable, Identifiable, Equatable {
         url.path = path
         url.query = nil
         return url.url
+    }
+
+    /// An address candidate, not a trust decision. Verify the existing fingerprint before saving it.
+    public func relocating(to host: String, port: Int) -> Self? {
+        guard let url = BridgeEndpoint.url(host: host, port: String(port)), let normalized = url.host else { return nil }
+        var updated = self
+        updated.hosts = Array(([normalized] + hosts.filter { $0 != normalized }).prefix(8))
+        updated.port = port
+        return updated
     }
 }
 

@@ -1,13 +1,13 @@
 #!/bin/bash
-# Instalador de El Control Super Pro Max (joypad-air) para macOS.
+# Instalador de Motion Air (motion-air) para macOS.
 #
-#   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mindavidev/joypad-air/main/install.sh)"
+#   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/cplus2jules/motion-air/main/install.sh)"
 #
 # Qué hace (idempotente, sin sudo):
 #   1. Comprueba Node ≥18; si falta, descarga el instalador OFICIAL de
 #      nodejs.org (.pkg) y lo abre — tú le das "Continuar".
-#   2. Crea "🎮 El Control.command" en tu Escritorio: doble-click y juega.
-#      El launcher ejecuta `npx -y joypad-air@latest`, así que SIEMPRE usa
+#   2. Crea "Motion Air.command" en tu Escritorio: doble-click y juega.
+#      El launcher ejecuta `npx -y motion-air@latest`, así que SIEMPRE usa
 #      la última versión sin que hagas nada.
 #
 # Todo el script corre dentro de main() — si la descarga se corta a la mitad,
@@ -17,9 +17,9 @@ set -euo pipefail
 
 # Mientras el paquete no esté publicado en npm, npx lo ejecuta directo
 # desde GitHub (resuelve la rama main en cada arranque = auto-update).
-# Cuando se publique en npm, cambiar a: joypad-air@latest  (ver RELEASING.md)
-PKG_SPEC="github:mindavidev/joypad-air"
-LAUNCHER="$HOME/Desktop/🎮 El Control.command"
+# Cuando se publique en npm, cambiar a: motion-air@latest  (ver RELEASING.md)
+PKG_SPEC="github:cplus2jules/motion-air"
+LAUNCHER="$HOME/Desktop/Motion Air.command"
 NODE_LTS_LINE="v22.x"
 
 say() { printf "\n\033[1m%s\033[0m\n" "$1"; }
@@ -69,11 +69,11 @@ create_launcher() {
   say "→ Creando el launcher en tu Escritorio…"
   cat > "$LAUNCHER" <<EOF
 #!/bin/bash
-# El Control Super Pro Max — doble click para jugar.
+# Motion Air — doble click para jugar.
 # Cierra esta ventana de Terminal para detener los mandos.
 export PATH="/usr/local/bin:/opt/homebrew/bin:\$PATH"
 clear
-echo "🎮 El Control Super Pro Max"
+echo "🎮 Motion Air"
 echo "Arrancando (la primera vez tarda un poco)…"
 echo
 npx -y ${PKG_SPEC}
@@ -83,7 +83,7 @@ EOF
 }
 
 main() {
-  say "🎮 Instalador de El Control Super Pro Max"
+  say "🎮 Instalador de Motion Air"
 
   if have_node; then
     say "✓ Node $(node -v) detectado."
@@ -94,7 +94,7 @@ main() {
   create_launcher
 
   say "✓ Listo. Así se juega:"
-  echo "  1. Doble click en \"🎮 El Control\" (está en tu Escritorio)."
+  echo "  1. Doble click en \"Motion Air\" (está en tu Escritorio)."
   echo "  2. La primera vez, macOS pedirá el permiso de Accesibilidad para"
   echo "     Terminal — actívalo y vuelve: el programa sigue solo."
   echo "     (Si el firewall pregunta por \"node\", dale Permitir.)"

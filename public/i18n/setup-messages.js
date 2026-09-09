@@ -1,7 +1,7 @@
 // Connection setup and controller readiness copy.
 export const setupMessages = {
   "en": {
-    "setup.pageTitle": "Connection setup — Joypad Air",
+    "setup.pageTitle": "Connection setup — Motion Air",
     "setup.navigation": "Main navigation",
     "setup.openController": "Open controller",
     "setup.eyebrow": "YOUR MAC / CONNECTION SETUP",
@@ -104,7 +104,7 @@ export const setupMessages = {
     "aria.rightStickClick": "Right stick click"
   },
   "es": {
-    "setup.pageTitle": "Configuración de la conexión — Joypad Air",
+    "setup.pageTitle": "Configuración de la conexión — Motion Air",
     "setup.navigation": "Navegación principal",
     "setup.openController": "Abrir mando",
     "setup.eyebrow": "TU MAC / CONFIGURACIÓN DE LA CONEXIÓN",

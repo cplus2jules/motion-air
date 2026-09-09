@@ -1,15 +1,30 @@
-# 🎮 El Control Super Pro Max
+# Motion Air
 
-Convierte tu iPhone (o Android) en un mando inalámbrico para **Ryujinx**,
-**Dolphin** y **Cemu** en tu Mac. Botones de baja latencia por WiFi +
-**control por movimiento real (giroscopio)** vía protocolo DSU/cemuhook.
-Gratis, open source, sin anuncios y sin tracking.
+Tu iPhone como mando inalámbrico para **Just Dance y otros juegos de movimiento en Mac**.
+Motion Air combina botones por Wi-Fi con giroscopio y acelerómetro mediante
+DSU/cemuhook. La app nativa en Swift se centra en bailar y navegar por los juegos;
+los mandos web y Expo siguen disponibles para otros emuladores.
+
+Creado con **Joypad Air como referencia** y basado directamente en
+[Joypad Air de David García (mindavidev)](https://github.com/mindavidev/joypad-air).
+Esta continuación independiente conserva el copyright y la licencia MIT originales.
+Consulta los [agradecimientos](ACKNOWLEDGEMENTS.md).
 
 > English README: [README.md](README.md)
 
 ## App local en Swift para Just Dance
 
-El mando nativo para iPhone, el puente de emparejamiento local y una versión independiente de Ryujinx con movimiento están disponibles para pruebas. Consulta el [estado de implementación](docs/motion-implementation-status.md), la [guía de instalación en iPhone](docs/local-device-setup.md) y el [contrato de sensores](docs/motion-coordinate-contract.md). Haz doble clic en **Joypad Air.command** desde Finder para iniciar el puente, abrir su página de emparejamiento y lanzar la versión seleccionada de Ryujinx Motion. Conecta el Mac guardado desde el iPhone y activa **Enable Motion**. Mantén abierta la ventana de Terminal mientras juegas. Todavía falta verificar la puntuación real en Just Dance; el plan completo de las apps Swift sigue en desarrollo.
+Clona el repositorio con tu cuenta de GitHub autenticada e instala las dependencias:
+
+```bash
+git clone https://github.com/cplus2jules/motion-air.git
+cd motion-air
+npm install
+```
+
+Abre `native/MotionAir.xcworkspace` en Xcode y elige el esquema **MotionAir**.
+
+El mando nativo para iPhone, el puente de emparejamiento local y una versión independiente de Ryujinx con movimiento están disponibles para pruebas. Consulta el [estado de implementación](docs/motion-implementation-status.md), la [guía de instalación en iPhone](docs/local-device-setup.md) y el [contrato de sensores](docs/motion-coordinate-contract.md). Haz doble clic en **Motion Air.command** desde Finder para iniciar el puente, abrir su página de emparejamiento y lanzar la versión seleccionada de Ryujinx Motion. Conecta el Mac guardado desde el iPhone y activa **Enable Motion**. Mantén abierta la ventana de Terminal mientras juegas. Todavía falta verificar la puntuación real en Just Dance; el plan completo de las apps Swift sigue en desarrollo.
 
 El lanzador reutiliza un puente de emparejamiento activo y muestra el emulador seleccionado si ya está abierto. Si reutiliza un puente, mantén abierta su Terminal original. Cerrar Terminal detiene su puente; cierra el emulador normalmente al terminar. Deja el lanzador en la carpeta del proyecto o crea un alias en Finder para el Escritorio. El comando equivalente en español es `JOYPAD_LANG=es npm run play`; `npm run start:paired` sigue iniciando solo el puente.
 
@@ -22,22 +37,28 @@ Usa `npm run start:dance` para el perfil aislado de Just Dance y `npm run ryujin
 - Ambos en la **misma WiFi** (la de casa — las redes "de invitados" aíslan
   los dispositivos entre sí y no funcionará)
 
-## Instalar (una sola vez)
+## Instalación alternativa para navegador / Expo
+
+Para la app Swift y Just Dance, sigue la [guía de instalación en iPhone](docs/local-device-setup.md)
+y usa **Motion Air.command** dentro del proyecto. El instalador de abajo inicia
+el puente web; no instala la app Swift ni compila Ryujinx.
+Los comandos de descarga directa requieren una versión pública del repositorio.
+Mientras sea privado, usa un clon autenticado y ejecuta `npm start`.
 
 Abre **Terminal** (⌘+Espacio, escribe "Terminal", Enter), pega esta línea y
 presiona Enter:
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mindavidev/joypad-air/main/install.sh)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/cplus2jules/motion-air/main/install.sh)"
 ```
 
 ¿Quieres ver qué hace antes de correrlo? Es [install.sh](install.sh): comprueba
 Node (si falta, abre el instalador oficial — dale "Continuar" y vuelve) y crea
-**🎮 El Control** en tu Escritorio. Nada más.
+**Motion Air** en tu Escritorio. Nada más.
 
 ## Jugar
 
-1. Doble click en **🎮 El Control** (Escritorio).
+1. Doble click en **Motion Air** (Escritorio).
 2. La primera vez macOS abrirá "Privacidad y seguridad → Accesibilidad":
    activa la casilla **Terminal** y vuelve — el programa espera y sigue solo.
    (Si el firewall pregunta por "node", dale Permitir.)
@@ -47,7 +68,7 @@ Node (si falta, abre el instalador oficial — dale "Continuar" y vuelve) y crea
    de navegación no se puede ocultar — es una regla de iOS).
 4. Configura Ryujinx una sola vez (con Ryujinx cerrado):
    ```bash
-   npx -y github:mindavidev/joypad-air ryujinx-setup
+   npx -y github:cplus2jules/motion-air ryujinx-setup
    ```
    …o si clonaste el repo: `npm run ryujinx:setup`. Esto genera los perfiles
    de los dos mandos y parchea la config (con backup automático).
@@ -57,7 +78,7 @@ Node (si falta, abre el instalador oficial — dale "Continuar" y vuelve) y crea
 checklist en vivo de permisos, configuración de Ryujinx, foco, jugadores,
 latencia y motion. Si algo no funciona, esta página te dice qué es.
 
-**Actualizar:** nada — cada vez que abres 🎮 El Control se usa la última versión.
+**Actualizar:** nada — cada vez que abres Motion Air se usa la última versión.
 
 ## 🎯 Control por movimiento (giroscopio)
 
@@ -72,7 +93,7 @@ giro, y que el emulador lo *escuche*.
   te lo avisa. Los botones funcionan perfecto — solo el giro está vetado.
 - ✅ **La app nativa (Expo) SÍ tiene giro.** Corre desde el código:
   ```bash
-  git clone https://github.com/mindavidev/joypad-air && cd joypad-air
+  git clone https://github.com/cplus2jules/motion-air && cd motion-air
   npm install && npm start            # terminal 1 — el server
   cd app && npm install && npx expo start   # terminal 2 — la app
   ```

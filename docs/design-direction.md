@@ -1,4 +1,4 @@
-# Joypad Air interface
+# Motion Air interface
 
 Build target: the existing dark Joy-Con interface, reworked as a usable hardware control surface. Direct implementation follows the user's request to redesign and test the app.
 

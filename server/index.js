@@ -209,7 +209,7 @@ const focusWatcher = createFocusWatcher({
     console.log(
       state.ok
         ? t("focus.ready")
-        : t("focus.other", { app: state.app })
+        : state.ok === null ? t("focus.unknown") : t("focus.other", { app: state.app })
     );
     if (!state.ok) for (const p of Object.values(players)) releaseAllForPlayer(p);
     broadcast({ t: "focus", ok: state.ok, app: state.app });
@@ -235,6 +235,7 @@ wss.on("connection", (socket, req) => {
   const url = new URL(req.url, "http://x");
   const playerNum = url.searchParams.get("p") === "2" ? 2 : 1;
   const p = players[playerNum];
+  const resumingFromIdle = !Object.values(players).some(player => player.connected);
 
   // Takeover de slot: soltar las teclas del cliente viejo ANTES de reasignar.
   // Sus handlers close/error comprueban identidad de socket y ya no tocarán
@@ -256,6 +257,8 @@ wss.on("connection", (socket, req) => {
   socket.isAlive = true;
   const allowed = makeRateLimiter(300);
   console.log(t("ws.connected", { player: displayName(p), ip }));
+
+  if (resumingFromIdle) void focusWatcher.refresh();
 
   send(socket, {
     t: "hello",
@@ -429,7 +432,8 @@ app.get("/status", async (req, res) => {
   }
   res.set("Access-Control-Allow-Origin", "*");
   res.json({
-    app: "joypad-air",
+    app: "joypad-air", // Stable protocol identifier for existing clients.
+    displayName: "Motion Air",
     v: 1,
     version: VERSION,
     port: activePort,

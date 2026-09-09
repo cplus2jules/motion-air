@@ -307,7 +307,7 @@ export default function Pad({ player, layout, compact, onToggleCompact, onBack, 
         {layout === 'full' && (
           <>
             <LeftJoycon width={shellWidth} send={send} compact={compact} theme={theme} profile={profile} />
-            <View pointerEvents="none" style={s.hardwareGap}><Text style={s.hardwareBrand}>JOYPAD AIR</Text><View style={s.hardwareLed} /></View>
+            <View pointerEvents="none" style={s.hardwareGap}><Text style={s.hardwareBrand}>MOTION AIR</Text><View style={s.hardwareLed} /></View>
             <RightJoycon width={shellWidth} send={send} compact={compact} theme={theme} profile={profile} />
           </>
         )}

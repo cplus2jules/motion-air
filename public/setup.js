@@ -56,7 +56,7 @@ function renderStatus() {
     check('focus', s.ryujinxFocused, t(s.ryujinxFocused ? 'setup.focusReady' : s.ryujinxFocused === false ? 'setup.focusResume' : 'setup.focusWaiting'));
     const count = [s.native, s.accessibility === true, s.ryujinx?.synced, s.ryujinxFocused].filter(Boolean).length;
     $('ready-count').textContent = t('setup.readyCount', { count });
-    $('server-version').textContent = `JOYPAD AIR / ${s.version}`;
+    $('server-version').textContent = `MOTION AIR / ${s.version}`;
   }
   let connected = 0;
   for (const n of [1, 2]) {

@@ -1,4 +1,4 @@
-// El Control Super Pro Max — cliente PWA (Safari iOS 17+, vanilla JS, sin deps).
+// Motion Air — cliente PWA (Safari iOS 17+, vanilla JS, sin deps).
 //
 // Protocolo WS (el server hace la conversión stick→8 direcciones, SOCD, etc.):
 //   → {t:'btn',k,d} · {t:'stick',s,x,y} crudos [-1,1] · {t:'config',...}
@@ -65,7 +65,7 @@ const state = {
   wsStatus: "idle",        // idle | connecting | open | reconnecting
   rtt: null,
   motionOn: false,
-  focusOk: true,
+  focusOk: null,
   focusApp: null,
   accessibilityOk: true,   // true | false | "unknown"
   nativeOk: true,          // false ⇒ nut-js no cargó en el Mac (modo log)
@@ -121,6 +121,8 @@ function setWsStatus(status) {
 
 function wsConnect() {
   if (!state.player || !shouldReconnect) return;
+  state.focusOk = null;
+  state.focusApp = null;
   clearTimeout(reconnectTimer);
   const proto = location.protocol === "https:" ? "wss:" : "ws:";
   let socket;
@@ -210,7 +212,7 @@ function handleServerMessage(msg) {
       // native:false ⇒ las teclas se imprimen en consola y no llegan a
       // Ryujinx (también con FORCE_LOG=1, donde el aviso es igual de cierto)
       state.nativeOk = msg.native !== false;
-      state.focusOk = msg.focus ? !!msg.focus.ok : true;
+      state.focusOk = typeof msg.focus?.ok === "boolean" ? msg.focus.ok : null;
       state.focusApp = (msg.focus && msg.focus.app) || null;
       updateBanner();
       break;
@@ -223,7 +225,7 @@ function handleServerMessage(msg) {
       break;
     }
     case "focus":
-      state.focusOk = !!msg.ok;
+      state.focusOk = typeof msg.ok === "boolean" ? msg.ok : null;
       state.focusApp = msg.app || null;
       updateBanner();
       break;
@@ -291,6 +293,9 @@ function bannerMessage() {
   }
   if (state.focusOk === false) {
     return t("focusBanner");
+  }
+  if (state.focusOk === null) {
+    return t("checkingFocus");
   }
   return null;
 }

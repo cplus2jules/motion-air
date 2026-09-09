@@ -6,9 +6,8 @@
 // prompts de TCC, a diferencia de osascript+System Events) y avisamos a los
 // iPhones para que muestren un banner.
 //
-// Si lsappinfo falla o cambia de formato, el estado queda en "unknown" y no
-// se molesta a nadie (nunca usar osascript aquí: correría cada 2s y pediría
-// el permiso de Automation).
+// Si lsappinfo falla, invalidamos el resultado anterior para pausar las
+// teclas. Nunca usar osascript aquí: pediría permiso de Automation.
 
 import { execFile } from "node:child_process";
 
@@ -34,40 +33,55 @@ function getFrontApp() {
 
 // match: substring case-insensitive del nombre de la app objetivo.
 // isActive: solo sondear cuando hay players conectados (no gastar CPU).
-export function createFocusWatcher({ match = "ryujinx", intervalMs = 2000, isActive = () => true, onChange } = {}) {
+export function createFocusWatcher({ match = "ryujinx", intervalMs = 2000, isActive = () => true, onChange, readFrontApp = getFrontApp } = {}) {
   let last = null; // { ok, app } | null
   let timer = null;
-  let polling = false;
+  let polling = null;
+  let generation = 0;
+  let stopped = false;
 
-  async function poll() {
-    if (polling || !isActive()) return;
-    polling = true;
-    try {
-      const app = await getFrontApp();
-      if (app === null) return; // unknown — no cambiar estado
-      const ok = app.toLowerCase().includes(match.toLowerCase());
-      if (!last || last.ok !== ok || last.app !== app) {
-        last = { ok, app };
-        onChange?.(last);
-      }
-    } finally {
-      polling = false;
+  function publish(app) {
+    const ok = app === null ? null : app.toLowerCase().includes(match.toLowerCase());
+    if (!last || last.ok !== ok || last.app !== app) {
+      last = { ok, app };
+      onChange?.(last);
     }
+  }
+
+  function poll() {
+    if (stopped || polling) return polling;
+    if (!isActive()) { publish(null); return; }
+    const current = generation;
+    polling = Promise.resolve().then(readFrontApp).catch(() => null).then(app => {
+      if (!stopped && current === generation) publish(typeof app === "string" && app.trim() ? app.trim() : null);
+    }).finally(() => { polling = null; });
+    return polling;
   }
 
   return {
     start() {
       if (!timer) {
+        stopped = false;
         timer = setInterval(poll, intervalMs);
         timer.unref?.();
         poll();
       }
     },
     stop() {
+      stopped = true;
+      generation++;
+      publish(null);
       if (timer) {
         clearInterval(timer);
         timer = null;
       }
+    },
+    // A newly connected controller must not inherit a result from before
+    // its session. Ignore any in-flight result, then check the current app.
+    refresh() {
+      generation++;
+      publish(null);
+      return Promise.resolve(polling).then(poll);
     },
     get last() {
       return last;

@@ -2,8 +2,13 @@
 
 ## Estado actual de distribución
 
-- Los usuarios instalan vía `install.sh`, cuyo launcher ejecuta
-  `npx -y github:mindavidev/joypad-air` → npm resuelve la rama `main` en
+Motion Air comienza como un repositorio privado independiente. Para instalarlo,
+usa un clon autenticado de `cplus2jules/motion-air` y ejecuta `npm install`.
+Los comandos públicos de abajo solo aplican cuando el propietario publique el
+repositorio; el instalador no incluye credenciales ni acceso a repositorios privados.
+
+- Para una distribución pública, los usuarios instalan vía `install.sh`, cuyo launcher ejecuta
+  `npx -y github:cplus2jules/motion-air` → npm resuelve la rama `main` en
   cada arranque (= auto-update con cada push a main, sin publicar nada).
 - Ventaja: cero infraestructura. Coste: el primer arranque de cada versión
   descarga el repo (~unos segundos más).
@@ -12,10 +17,10 @@
 
 1. `npm login` (cuenta personal).
 2. Subir versión: `npm version patch` (o minor/major) — commitea y taggea.
-3. `npm publish` (el `files` whitelist ya limita el paquete a ~62 kB).
+3. Revisa `npm pack --dry-run` y publica con `npm publish` solo cuando el nombre esté disponible.
 4. Cambiar el spec del launcher en `install.sh`:
-   `PKG_SPEC="joypad-air@latest"` — y avisar en el README que el comando
-   manual es `npx -y joypad-air@latest`.
+   `PKG_SPEC="motion-air@latest"` — y avisar en el README que el comando
+   manual es `npx -y motion-air@latest`.
 5. `git push && git push --tags` + crear release en GitHub
    (`gh release create vX.Y.Z --generate-notes`).
 

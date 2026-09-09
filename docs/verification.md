@@ -1,5 +1,7 @@
 # Joypad Air verification — 2026-09-07
 
+> Historical verification captured under the Joypad Air name, before the Motion Air rebrand. See [Motion Air branding](branding.md).
+
 ## Visual reference
 
 Nintendo's official front-view Neon Red/Neon Blue Joy-Con photo was inspected in the browser. The playable UI follows its narrow silhouettes, inner rails, curved outside edges, vertically arranged controls, and dark recessed buttons. The rejected stretched color panels have been replaced.
@@ -22,3 +24,13 @@ The setup page applied profiles successfully while Ryujinx was closed (additiona
 ## Remaining verification boundary
 
 macOS reports Accessibility denied for the server's responsible application. User permission was requested before granting that OS access. No successful real game input or gyro gameplay is claimed. A phone over actual Wi-Fi and a native device gyro run are also not yet verified; the available browser checks used the local Mac. Stock Ryujinx still needs the existing motion patch for DSU with keyboard input.
+
+## Follow-up — September 9, 2026
+
+The existing live paired bridge now reports native keyboard input and Accessibility granted. Its isolated Just Dance profile matches one right Joy-Con, and the running Ryujinx Motion build has one DSU subscription. Computer use showed Just Dance 2021. Neither saved iPhone was connected during this check; no physical motion or gameplay result is claimed.
+
+Fixed the web controller reporting input ready before its first focus check. Unknown focus now shows the existing localized checking message. The server clears cached focus after a failed lookup or idle period, rechecks when the first controller connects, ignores outdated pending results, and pauses/releases input when focus becomes unknown. Connecting another player does not interrupt an already active session.
+
+Validation: 56 controller smoke checks, 6 focus lifecycle tests, 4 motion tests, 3 secure pairing tests, 8 Ryujinx profile tests and 10 localization tests passed (87 total). Browser fixtures with no keyboard backend verified unknown-focus messages in English/Spanish and ready status only with confirmed focus. Syntax and diff checks passed.
+
+The existing live bridge was left running with its saved pairing identity and emulator settings. Server-side focus changes require restarting that bridge. Computer use could inspect the game but could not establish sustained foreground focus for a web-button test; Terminal access through computer use was unavailable. The iPhone connection, physical motion and game-response checks remain pending.

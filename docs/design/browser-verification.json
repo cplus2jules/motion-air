@@ -1,0 +1,157 @@
+{
+  "results": [
+    {
+      "name": "320px light en",
+      "passed": true
+    },
+    {
+      "name": "320px light es",
+      "passed": true
+    },
+    {
+      "name": "320px dark en",
+      "passed": true
+    },
+    {
+      "name": "320px dark es",
+      "passed": true
+    },
+    {
+      "name": "375px light en",
+      "passed": true
+    },
+    {
+      "name": "375px light es",
+      "passed": true
+    },
+    {
+      "name": "375px dark en",
+      "passed": true
+    },
+    {
+      "name": "375px dark es",
+      "passed": true
+    },
+    {
+      "name": "390px light en",
+      "passed": true
+    },
+    {
+      "name": "390px light es",
+      "passed": true
+    },
+    {
+      "name": "390px dark en",
+      "passed": true
+    },
+    {
+      "name": "390px dark es",
+      "passed": true
+    },
+    {
+      "name": "430px light en",
+      "passed": true
+    },
+    {
+      "name": "430px light es",
+      "passed": true
+    },
+    {
+      "name": "430px dark en",
+      "passed": true
+    },
+    {
+      "name": "430px dark es",
+      "passed": true
+    },
+    {
+      "name": "768px light en",
+      "passed": true
+    },
+    {
+      "name": "768px light es",
+      "passed": true
+    },
+    {
+      "name": "768px dark en",
+      "passed": true
+    },
+    {
+      "name": "768px dark es",
+      "passed": true
+    },
+    {
+      "name": "1024px light en",
+      "passed": true
+    },
+    {
+      "name": "1024px light es",
+      "passed": true
+    },
+    {
+      "name": "1024px dark en",
+      "passed": true
+    },
+    {
+      "name": "1024px dark es",
+      "passed": true
+    },
+    {
+      "name": "1440px light en",
+      "passed": true
+    },
+    {
+      "name": "1440px light es",
+      "passed": true
+    },
+    {
+      "name": "1440px dark en",
+      "passed": true
+    },
+    {
+      "name": "1440px dark es",
+      "passed": true
+    },
+    {
+      "name": "Copy, keyboard feedback, language persistence",
+      "passed": true
+    },
+    {
+      "name": "Renew invitation through real local API",
+      "passed": true
+    },
+    {
+      "name": "Long names, connected/saved devices, safe DOM content",
+      "passed": true
+    },
+    {
+      "name": "Remove dialog cancel, Escape, focus trap and confirmed revoke",
+      "passed": true
+    },
+    {
+      "name": "Failed removal preserves phone and translates error",
+      "passed": true
+    },
+    {
+      "name": "Offline status hides stale QR, disables copying, retry recovers",
+      "passed": true
+    },
+    {
+      "name": "Expired invitations cannot be copied or scanned",
+      "passed": true
+    },
+    {
+      "name": "Clipboard denial reveals and selects manual code",
+      "passed": true
+    },
+    {
+      "name": "Reduced motion and 200 percent text",
+      "passed": true
+    },
+    {
+      "name": "No uncaught browser errors",
+      "passed": true
+    }
+  ],
+  "errors": []
+}

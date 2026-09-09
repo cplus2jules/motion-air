@@ -1,11 +1,11 @@
 {
-  "name": "joypad-air",
+  "name": "motion-air",
   "version": "2.0.0",
-  "description": "Turn your iPhone into a gamepad for Ryujinx, Dolphin & Cemu on macOS \u2014 DSU (cemuhook) motion + low-latency buttons over Wi-Fi. A.K.A. \"El Control Super Pro Max\"",
+  "description": "Wireless iPhone controller for Just Dance and motion games on Mac. Built on Joypad Air.",
   "license": "MIT",
   "type": "module",
   "bin": {
-    "joypad-air": "server/cli.js"
+    "motion-air": "server/cli.js"
   },
   "files": [
     "server/",
@@ -15,7 +15,10 @@
     "README.md",
     "README.es.md",
     "LICENSE",
-    "RELEASING.md"
+    "RELEASING.md",
+    "ACKNOWLEDGEMENTS.md",
+    "docs/*.md",
+    "Motion Air.command"
   ],
   "engines": {
     "node": ">=18"
@@ -27,6 +30,7 @@
     "play": "node tools/start-pairing.mjs --launch",
     "dev": "node --watch server/index.js",
     "test": "node tools/smoke-test.mjs",
+    "test:focus": "node --test tools/focus-test.mjs",
     "ryujinx:setup": "node tools/ryujinx-setup.mjs",
     "ryujinx:pro": "node tools/ryujinx-setup.mjs",
     "ryujinx:sideways": "node tools/ryujinx-setup.mjs --sideways",
@@ -53,7 +57,9 @@
     "macos",
     "ios",
     "pwa",
-    "motion-controls"
+    "motion-controls",
+    "just-dance",
+    "motion-air"
   ],
   "dependencies": {
     "@nut-tree-fork/nut-js": "4.2.6",
@@ -61,5 +67,13 @@
     "qrcode": "^1.5.4",
     "qrcode-terminal": "^0.12.0",
     "ws": "^8.18.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cplus2jules/motion-air.git"
+  },
+  "homepage": "https://github.com/cplus2jules/motion-air#readme",
+  "bugs": {
+    "url": "https://github.com/cplus2jules/motion-air/issues"
   }
 }

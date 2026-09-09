@@ -1,5 +1,5 @@
 #!/bin/bash
-# Doble-click para arrancar El Control Super Pro Max.
+# Doble-click para arrancar Motion Air.
 # Esta Terminal queda viva mientras quieras jugar. Ciérrala para detener todo.
 
 set -e
@@ -20,7 +20,7 @@ URL_EXPO="exp://${IP}:${PORT_EXPO}"
 
 echo ""
 echo "════════════════════════════════════════════════════════"
-echo "   EL CONTROL SUPER PRO MAX"
+echo "   MOTION AIR"
 echo "════════════════════════════════════════════════════════"
 echo ""
 echo "   Mac IP:   $IP"

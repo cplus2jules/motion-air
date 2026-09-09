@@ -16,9 +16,9 @@ test('terminal catalogs cover both languages and preserve diagnostic values', ()
     assert.ok(terminalMessages.en[key].trim() && terminalMessages.es[key].trim(), key);
     assert.deepEqual(placeholders(terminalMessages.en[key]), placeholders(terminalMessages.es[key]), key);
   }
-  assert.equal(createTerminalTranslator()('server.ready'), 'Joypad Air — server running');
-  assert.equal(createTerminalTranslator('es-MX')('server.ready'), 'Joypad Air — servidor en marcha');
-  assert.equal(createTerminalTranslator('fr')('server.ready'), 'Joypad Air — server running');
+  assert.equal(createTerminalTranslator()('server.ready'), 'Motion Air — server running');
+  assert.equal(createTerminalTranslator('es-MX')('server.ready'), 'Motion Air — servidor en marcha');
+  assert.equal(createTerminalTranslator('fr')('server.ready'), 'Motion Air — server running');
   assert.equal(createTerminalTranslator()('ws.named', { n: 1, name: '$& {n}' }), '[ws] Player 1 is now named "$& {n}"');
 });
 

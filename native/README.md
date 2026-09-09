@@ -1,23 +1,21 @@
-# Joypad Air native controller and motion probe
+# Motion Air native controller and motion probe
 
-Open **JoypadAir.xcworkspace** in Xcode and choose **JoypadAirProbe**. The iPhone app pairs with the Mac's local bridge, remembers its identity securely, provides a menu joystick and navigation buttons, and streams Core Motion after the bridge acknowledges the `just-dance` profile. Navigation and pairing were brought forward from the plan at the user's request; actual game scoring remains unverified.
+Open **MotionAir.xcworkspace** in Xcode and choose **MotionAir**. The iPhone app pairs with the Mac's local bridge, remembers its identity securely, provides a menu joystick and navigation buttons, and streams Core Motion after the bridge acknowledges the `just-dance` profile. Navigation and pairing were brought forward from the plan at the user's request; actual game scoring remains unverified.
 
 - [Install, pair, and verify](../docs/local-device-setup.md)
 - [Sensor, wire, and coordinate contract](../docs/motion-coordinate-contract.md)
 - [Master implementation plan](../docs/swift-local-just-dance-plan.md)
 
-`Packages/JoypadCore` contains sensor conversions, wire messages, safe endpoints, invitation parsing, session sequencing, bounded output buffering, and Swift Testing tests. `iOS/JoypadAirProbe` owns Core Motion, the ordered WebSocket sender, lifecycle cleanup, touch controls, Bonjour browsing, the QR scanner, pinned TLS, and Keychain persistence. The Mac pairing service is currently Node; no Swift Mac companion exists yet.
+`Packages/JoypadCore` contains sensor conversions, wire messages, safe endpoints, invitation parsing, session sequencing, bounded output buffering, and Swift Testing tests. `iOS/MotionAir` owns Core Motion, the ordered WebSocket sender, lifecycle cleanup, touch controls, Bonjour browsing, the QR scanner, pinned TLS, and Keychain persistence. The Mac pairing service is currently Node; no Swift Mac companion exists yet.
 
-## Reference lock
+## UI and icon
 
-Use native grouped iOS surfaces, system typography, clear state text, and compact controls. Keep the connected Mac row short so the joystick, ABXY, pause, SL/SR, and D-pad fit on the connected screen. Put connection diagnostics and extra shoulders behind disclosures. Preserve Dynamic Type, dark mode, at least 44 pt buttons, and VoiceOver actions.
+The controller uses red and blue grips, dark tactile buttons, a device sheet, and separate settings. Motion and Dance Lock actions use native Liquid Glass on iOS 26, with solid controls when Reduce Transparency is enabled. Extra shoulders and SL/SR are under More buttons. All control input still uses the existing ordered sender and release timing.
 
-| Decision | Evidence | Role |
-| --- | --- | --- |
-| Grouped device state and settings | [Telegram connected-device screen](https://refero.design/screens/18e53b31-8dcc-40ff-8d7a-d8ff56a2ac4d) | Connected-device hierarchy |
-| Scan or paste, then review the decoded identity | [Fuse QR selection flow](https://refero.design/flows/8737) | Pairing entry alternatives and confirmation sequence only |
-| System type and interactive-color actions | Apple reference `c1811968-89c8-4c63-9ffc-aaeaa204ca4f` | Native legibility and action color |
-| Monospaced diagnostic values | Ui reference `c14c0a94-1037-449e-bf5b-4cb972656ac7` | Technical data readability |
-| 44 pt touch targets, labeled fields, inline errors | Refero craft-details | Touch and accessibility |
+The current [Refero reference lock](../docs/design/reference-lock.md) documents the design sources. The [verification report](../docs/design/ui-verification.md) records rendered checks and their limits.
 
-The QR flow confirms a specific Mac before trust is saved. Discovery alone never authorizes a connection. Error text should lead to a concrete recovery action; a successful socket connection must not be described as successful game scoring.
+The target compiles `assets/icon-composer/Motion Air.icon`. Open it in Icon Composer to edit lighting and appearances. The [icon package](../assets/icon-composer/README.md) includes five aligned PNG layers, editable SVGs, and a flat composite. Xcode generates older-system icon images from the Composer document.
+
+Debug builds support `--ui-preview-connected`, `--ui-preview-motion`, and `--ui-preview-dance` for repeatable visual verification. These fixtures are labeled on screen and produce no game or sensor output. Release builds exclude them. Use normal pairing to verify actual transport.
+
+The QR flow confirms a specific Mac before trust is saved. Discovery alone never authorizes a connection. A successful socket connection does not establish successful game scoring.

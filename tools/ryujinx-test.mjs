@@ -64,3 +64,17 @@ test('bad DSU port fails before creating any backup or changing config',()=>fixt
   save(dir,base());assert.throws(()=>configureRyujinx({configDir:dir,preset:'just-dance',dsuPort:NaN},stopped),{code:'invalid_dsu_port'});
   assert.equal(readdirSync(dir).length,1);
 }));
+test('renamed and existing Joypad Air dance profiles are discovered without rewriting settings', () => fixture(dir => {
+  save(dir, base());
+  configureRyujinx({ configDir: dir, preset: 'just-dance' }, stopped);
+  const configured = read(dir);
+  assert.equal(configured.input_config[0].name, 'Motion Air Just Dance');
+  for (const name of ['Motion Air Just Dance', 'Joypad Air Just Dance']) {
+    configured.input_config[0].name = name;
+    save(dir, configured);
+    const before = readFileSync(join(dir, 'Config.json'), 'utf8');
+    assert.equal(inspectRyujinx(dir).preset, 'just-dance');
+    assert.equal(inspectRyujinx(dir).synced, true);
+    assert.equal(readFileSync(join(dir, 'Config.json'), 'utf8'), before);
+  }
+}));

@@ -193,6 +193,12 @@ export async function startPairingServer({ directory, httpsPort = 3443, setupPor
       res.end(pairingPage);
       return;
     }
+    const assets = { '/pairing.css': 'text/css; charset=utf-8', '/pairing.js': 'text/javascript; charset=utf-8', '/motion-mark.svg': 'image/svg+xml' };
+    if (req.method === 'GET' && Object.hasOwn(assets, url.pathname)) {
+      res.writeHead(200, { 'content-type': assets[url.pathname], 'cache-control': 'no-cache', 'x-content-type-options': 'nosniff' });
+      res.end(readFileSync(new URL(`../public${url.pathname}`, import.meta.url)));
+      return;
+    }
     if (req.method === 'GET' && url.pathname === '/api/state') {
       const payload = invitation();
       const text = `joypadair://pair?data=${Buffer.from(JSON.stringify(payload)).toString('base64url')}`;
@@ -232,7 +238,7 @@ export async function startPairingServer({ directory, httpsPort = 3443, setupPor
   heartbeat.unref();
   let advertisement;
   if (advertise && process.platform === 'darwin') {
-    advertisement = spawn('/usr/bin/dns-sd', ['-R', `${identity.state.name} · Joypad Air`, '_joypadair._tcp', 'local', String(secure.address().port), `id=${identity.state.id}`, 'v=1', 'tls=1'], { stdio: 'ignore' });
+    advertisement = spawn('/usr/bin/dns-sd', ['-R', `${identity.state.name} · Motion Air`, '_joypadair._tcp', 'local', String(secure.address().port), `id=${identity.state.id}`, 'v=1', 'tls=1'], { stdio: 'ignore' });
     advertisement.on('error', () => { console.warn('[pairing] Bonjour unavailable. QR and pairing text still work.'); });
   }
   return {

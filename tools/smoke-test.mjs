@@ -123,8 +123,8 @@ proc.stdout.on("data", (d) => { serverLog += d.toString(); });
 proc.stderr.on("data", (d) => { serverLog += d.toString(); });
 
 // esperar arranque
-for (let i = 0; i < 50 && !serverLog.includes("Joypad Air — server running"); i++) await sleep(100);
-check("server arranca", serverLog.includes("Joypad Air — server running"));
+for (let i = 0; i < 50 && !serverLog.includes("Motion Air — server running"); i++) await sleep(100);
+check("server arranca", serverLog.includes("Motion Air — server running"));
 
 // Setup cannot be triggered by other origins or by an invalid layout.
 {
@@ -403,8 +403,8 @@ console.log("\n[5] fallback de puerto: segunda instancia no crashea");
   });
   proc2.stdout.on("data", (d) => { log2 += d.toString(); });
   proc2.stderr.on("data", (d) => { log2 += d.toString(); });
-  for (let i = 0; i < 50 && !log2.includes("Joypad Air — servidor en marcha"); i++) await sleep(100);
-  check("segunda instancia arranca en español (no EADDRINUSE fatal)", log2.includes("Joypad Air — servidor en marcha"));
+  for (let i = 0; i < 50 && !log2.includes("Motion Air — servidor en marcha"); i++) await sleep(100);
+  check("segunda instancia arranca en español (no EADDRINUSE fatal)", log2.includes("Motion Air — servidor en marcha"));
   check("avisa del puerto ocupado en español", log2.includes(`Puerto ${PORT} ocupado`));
   check("explica el conflicto DSU en español", log2.includes(`[dsu] El puerto de movimiento 127.0.0.1:${DSU_TEST_PORT} ya está en uso.`));
   let st2 = null;

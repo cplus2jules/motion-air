@@ -1,4 +1,4 @@
-# Joypad Air: local Swift controller for Just Dance
+# Motion Air: local Swift controller for Just Dance
 
 Planning baseline: September 7, 2026. This is an implementation plan, not a claim that motion scoring already works.
 
@@ -11,8 +11,8 @@ Build a native Swift iPhone controller and a native Swift Mac companion for the 
 
 The finished daily workflow should be:
 
-1. Open Joypad Air Bridge on the Mac.
-2. Open Joypad Air on the iPhone and select the remembered Mac.
+1. Open Motion Air Bridge on the Mac.
+2. Open Motion Air on the iPhone and select the remembered Mac.
 3. Select the Just Dance profile, hold the phone as illustrated, and calibrate.
 4. Open the verified local Ryujinx build and Just Dance.
 5. Use the phone's buttons in menus, then enter Dance Mode to prevent accidental touches.
@@ -195,7 +195,7 @@ Use SwiftUI controls for ordinary settings. For the controller surface, choose S
 - On interruption, backgrounding, screen lock, permission loss, or connection failure, neutralize controls and stop the session safely.
 - The Mac also enforces its own timeout because a suspended or terminated app may never send a final release.
 - Restore the normal idle timer when the session ends.
-- Do not depend on background motion streaming while the Ubisoft controller app is foreground. In this mode, Joypad Air itself is the live controller.
+- Do not depend on background motion streaming while the Ubisoft controller app is foreground. In this mode, Motion Air itself is the live controller.
 - Local haptics confirm taps, pairing, and calibration. Game-driven rumble is a separate return channel and should not be described as implemented by local button vibration.
 
 Use String Catalogs for English and Spanish, preserving the terminology already established in the web interface. Give controls useful accessibility labels, adequate touch targets, and a readable connection recovery state. The hardware screen should remain straightforward; detailed packet information belongs in Diagnostics.
@@ -225,7 +225,7 @@ Address the exact failure already encountered:
 
 1. Enforce one running companion per user/session.
 2. Check both the chosen phone-connection port and DSU port before reporting readiness.
-3. Identify an existing Joypad Air instance and offer to reveal/use it or explicitly replace it.
+3. Identify an existing Motion Air instance and offer to reveal/use it or explicitly replace it.
 4. If an unrelated process occupies a port, show the owner and resolution. Do not kill arbitrary processes.
 5. Never silently move the phone connection to another port while motion remains bound to the old server.
 6. If the user selects a different DSU port, update and verify the emulator endpoint too.
@@ -311,8 +311,8 @@ Proposed additions, keeping the working web and Expo clients intact during migra
 
 ```text
 native/
-  JoypadAir.xcworkspace
-  iOS/JoypadAir/
+  MotionAir.xcworkspace
+  iOS/MotionAir/
     App/
     Connection/
     Controller/
@@ -320,7 +320,7 @@ native/
     Calibration/
     Diagnostics/
     Resources/Localizable.xcstrings
-  macOS/JoypadAirBridge/
+  macOS/MotionAirBridge/
     App/
     Sessions/
     Keyboard/
@@ -370,7 +370,7 @@ The next implementation milestone should be narrow: **a minimal Swift iPhone app
 ## 13. Boundaries and known risks
 
 - This work supplies local controller input. It does not recreate Nintendo or Ubisoft servers or guarantee the old Just Dance Controller app's network service.
-- If Joypad Air is the motion source, it must remain the active phone app during play. The earlier browser-for-menus plus Ubisoft-app workflow is a different mode.
+- If Motion Air is the motion source, it must remain the active phone app during play. The earlier browser-for-menus plus Ubisoft-app workflow is a different mode.
 - Just Dance scoring is a physical integration test. We can aim for useful playability; equivalent scoring to a genuine Joy-Con is not established in advance.
 - The iPhone's mass, shape, sensor position, and grip differ from a Joy-Con. Document a secure grip or suitable strap/case for actual dance testing and avoid accidental touch input.
 - Full right-Joy-Con behavior, motion packet receipt, and game scoring are separate milestones. The interface and reports must not collapse them into one misleading green status.

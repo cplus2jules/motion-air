@@ -94,7 +94,7 @@ export function inspectRyujinx(configDir = DEFAULT_CONFIG_DIR, { preset, dsuPort
   try {
     const config = JSON.parse(readFileSync(path, "utf8"));
     const flags = config.enable_keyboard === true && config.use_input_global_config === true;
-    const dance = preset === "just-dance" || (preset === undefined && config.input_config?.length === 1 && config.input_config[0].name === "Joypad Air Just Dance");
+    const dance = preset === "just-dance" || (preset === undefined && config.input_config?.length === 1 && ["Motion Air Just Dance", "Joypad Air Just Dance"].includes(config.input_config[0].name));
     const players = (dance ? [1] : [1,2]).map(n => {
       const actual = config.input_config?.find(p => p.player_index === `Player${n}`);
       const supported = ["ProController", "JoyconPair", "JoyconLeft", "JoyconRight"].includes(actual?.controller_type);
@@ -103,7 +103,7 @@ export function inspectRyujinx(configDir = DEFAULT_CONFIG_DIR, { preset, dsuPort
       return { player: n, type: actual?.controller_type ?? null, synced: flags && supported && matches(actual, expected) };
     });
     const synced = players.every(p => p.synced) && (!dance || config.input_config.length === 1);
-    return { found: true, synced, preset: dance ? "just-dance" : "standard", configVersion: config.version, players, issue: synced ? null : "Configure the Joypad Air input profiles with Ryujinx closed." };
+    return { found: true, synced, preset: dance ? "just-dance" : "standard", configVersion: config.version, players, issue: synced ? null : "Configure the Motion Air input profiles with Ryujinx closed." };
   } catch {
     return { found: true, synced: false, players: [], issue: "Ryujinx Config.json could not be read. Check it before running setup." };
   }
@@ -126,7 +126,7 @@ export function configureRyujinx({ configDir = DEFAULT_CONFIG_DIR, types = ["Pro
   copyFileSync(path, join(configDir, backup));
   const dance = preset === "just-dance";
   const profiles = (dance ? ["JoyconRight"] : types).map((type, i) => buildProfile(i + 1, type, dance || motion, { dsuPort, deadzone: dance ? 0 : 1 }));
-  if (dance) profiles[0].name = "Joypad Air Just Dance";
+  if (dance) profiles[0].name = "Motion Air Just Dance";
   config.enable_keyboard = true;
   config.use_input_global_config = true;
   config.input_config = dance ? profiles : [...profiles, ...(config.input_config ?? []).filter(p => !["Player1","Player2"].includes(p.player_index))];

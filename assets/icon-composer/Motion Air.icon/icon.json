@@ -1,0 +1,44 @@
+{
+  "fill" : {
+    "automatic-gradient" : "extended-srgb:0.96078,0.96078,0.96863,1.00000"
+  },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "hidden" : false,
+          "image-name" : "05-air.png",
+          "name" : "05-air"
+        },
+        {
+          "hidden" : false,
+          "image-name" : "04-controls.png",
+          "name" : "04-controls"
+        },
+        {
+          "hidden" : false,
+          "image-name" : "03-right-grip.png",
+          "name" : "03-right-grip"
+        },
+        {
+          "image-name" : "02-left-grip.png",
+          "name" : "02-left-grip"
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}

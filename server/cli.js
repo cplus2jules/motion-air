@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-// Punto de entrada del paquete (npx joypad-air / npx github:mindavidev/joypad-air).
+// Punto de entrada del paquete (npx motion-air / npx github:cplus2jules/motion-air).
 //
-//   joypad-air                      → arranca el server (mando + DSU + /setup)
-//   joypad-air ryujinx-setup [...]  → configura Ryujinx (perfiles + Config.json)
+//   motion-air                      → arranca el server (mando + DSU + /setup)
+//   motion-air ryujinx-setup [...]  → configura Ryujinx (perfiles + Config.json)
 //                                     flags: --check --restore --sideways --motion --patched
 
 const [cmd, ...rest] = process.argv.slice(2);

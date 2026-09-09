@@ -1,4 +1,4 @@
-/* Joypad Air: functional hardware surfaces, responsive thumb zones. */
+/* Motion Air: functional hardware surfaces, responsive thumb zones. */
 *{box-sizing:border-box} [hidden]{display:none!important}
 :root{--bg:#101112;--ink:#eeeef2;--ink-dim:#a4a7ad;--chip:#232529;--ok:#77dca5;--warn:#ffcb77;--err:#ff8490;--l0:#ff5366;--l1:#ff3d54;--l2:#c01a30;--r0:#2dd4ff;--r1:#00c3e2;--r2:#0080a3;--accent-l:#ff3d54;--accent-r:#00c3e2;--on-joy:#f5f6f8;--safe-l:env(safe-area-inset-left,0px);--safe-r:env(safe-area-inset-right,0px);--safe-b:env(safe-area-inset-bottom,0px);--btn-top:#36383c;--btn-mid:#25272a;--btn-bot:#151619}
 html,body{margin:0;width:100%;min-height:100%;background:var(--bg);color:var(--ink);font-family:"Helvetica Neue",Arial,sans-serif;-webkit-tap-highlight-color:transparent}
