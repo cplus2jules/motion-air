@@ -1,5 +1,15 @@
 # Releasing / mantenimiento
 
+## iPhone app releases
+
+The native iPhone app has its own [CI and release workflow](docs/ios-releases.md).
+Push an `ios/vMAJOR.MINOR.PATCH` tag from a commit on `main` to test, archive, and
+publish an unsigned IPA for sideloading. Manual Actions runs produce downloadable
+builds without publishing a release. Apple signing happens in your sideloading
+tool; no signing secrets are required in GitHub.
+
+The sections below cover the separate Mac bridge / npm distribution.
+
 ## Estado actual de distribución
 
 Motion Air comienza como un repositorio privado independiente. Para instalarlo,

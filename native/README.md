@@ -3,6 +3,7 @@
 Open **MotionAir.xcworkspace** in Xcode and choose **MotionAir**. The iPhone app pairs with the Mac's local bridge, remembers its identity securely, provides a menu joystick and navigation buttons, and streams Core Motion after the bridge acknowledges the `just-dance` profile. Navigation and pairing were brought forward from the plan at the user's request; actual game scoring remains unverified.
 
 - [Install, pair, and verify](../docs/local-device-setup.md)
+- [Download iPhone builds and publish releases](../docs/ios-releases.md)
 - [Sensor, wire, and coordinate contract](../docs/motion-coordinate-contract.md)
 - [Master implementation plan](../docs/swift-local-just-dance-plan.md)
 

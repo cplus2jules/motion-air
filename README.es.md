@@ -14,6 +14,10 @@ Consulta los [agradecimientos](ACKNOWLEDGEMENTS.md).
 
 ## App local en Swift para Just Dance
 
+Descarga una IPA desde **Releases**, o una compilación de desarrollo desde
+**Actions → iPhone CI and Releases**. Son IPAs sin firmar; tu herramienta de
+sideloading las firma antes de instalarlas. Consulta la [guía de compilaciones y versiones](docs/ios-releases.md).
+
 Clona el repositorio con tu cuenta de GitHub autenticada e instala las dependencias:
 
 ```bash

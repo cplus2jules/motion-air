@@ -1,0 +1,124 @@
+name: iPhone CI and Releases
+
+on:
+  push:
+    branches: [main]
+    tags: ['ios/v*']
+    paths:
+      - 'native/**'
+      - 'assets/icon-composer/**'
+      - 'tools/ios/**'
+      - '.github/workflows/ios.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'native/**'
+      - 'assets/icon-composer/**'
+      - 'tools/ios/**'
+      - '.github/workflows/ios.yml'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'IPA version (for example 0.2.0). Leave empty to use the Xcode project version. This builds an artifact without publishing a release.'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+jobs:
+  build:
+    name: Test and build iPhone IPA
+    runs-on: macos-26
+    timeout-minutes: 30
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+    outputs:
+      version: ${{ steps.metadata.outputs.version }}
+      build_number: ${{ steps.metadata.outputs.build_number }}
+      artifact_name: ${{ steps.metadata.outputs.artifact_name }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify release source
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          # A release tag must identify a commit already merged into main.
+          git merge-base --is-ancestor HEAD refs/remotes/origin/main
+
+      - name: Validate version and release tooling
+        id: metadata
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          python3 -m unittest discover -s tools/ios -p 'test_*.py' -v
+          python3 tools/ios/release.py metadata \
+            --project native/iOS/MotionAir.xcodeproj/project.pbxproj \
+            --ref="$GITHUB_REF" --version="$INPUT_VERSION" \
+            --run-number="$GITHUB_RUN_NUMBER" --attempt="$GITHUB_RUN_ATTEMPT"
+
+      - name: Test Swift core, archive iPhone app, and package IPA
+        env:
+          MOTION_AIR_OUTPUT_DIR: ${{ runner.temp }}/motion-air-release
+          VERSION: ${{ steps.metadata.outputs.version }}
+          BUILD_NUMBER: ${{ steps.metadata.outputs.build_number }}
+        run: bash tools/ios/build-release.sh
+
+      - name: Save downloadable iPhone build
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ${{ steps.metadata.outputs.artifact_name }}
+          path: ${{ runner.temp }}/motion-air-release/dist/*
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
+
+      - name: Save failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ios-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/motion-air-release/logs/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  publish:
+    name: Publish versioned GitHub release
+    needs: build
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/ios/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Download the tested iPhone build
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: ${{ needs.build.outputs.artifact_name }}
+          path: dist
+
+      - name: Verify checksums and publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          cd dist
+          sha256sum --check SHA256SUMS.txt
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo 'This version already has a release. Create a new version tag instead of replacing its IPA.' >&2
+            exit 1
+          fi
+          gh release create "$RELEASE_TAG" ./*.ipa ./*.dSYMs.zip \
+            build-info.json RELEASE_NOTES.md SHA256SUMS.txt \
+            --verify-tag --title "Motion Air $RELEASE_VERSION" \
+            --notes-file RELEASE_NOTES.md

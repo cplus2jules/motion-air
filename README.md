@@ -14,6 +14,10 @@ Guía en español: [README.es.md](README.es.md) · [Branding and compatibility](
 
 ## Local Swift app for Just Dance
 
+Download a versioned iPhone IPA from **Releases**, or a development build from
+**Actions → iPhone CI and Releases**. These are unsigned IPAs that your sideloading
+tool signs before installation. See [iPhone builds and releases](docs/ios-releases.md).
+
 Clone [this repository](https://github.com/cplus2jules/motion-air) with your
 authenticated GitHub account, then install the bridge dependencies:
 
