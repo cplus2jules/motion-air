@@ -1,0 +1,12 @@
+<resources>
+    <style name="Theme.MotionAir.Base" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">#126DCE</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">#F5F6F8</item>
+        <item name="android:navigationBarColor">#F5F6F8</item>
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:windowBackground">#F5F6F8</item>
+    </style>
+    <style name="Theme.MotionAir" parent="Theme.MotionAir.Base" />
+</resources>

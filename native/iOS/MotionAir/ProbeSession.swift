@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import OSLog
 import UIKit
 import JoypadCore
 
@@ -24,6 +25,12 @@ final class ProbeSession {
     private(set) var samplesSent: UInt64 = 0
     private(set) var keyboardReady = "Unknown"
     private(set) var connectedMacName: String?
+    private(set) var connectionRecovering = false
+    private(set) var lastDisconnectReason: String?
+    private(set) var lastConnectionDuration = 0.0
+    private(set) var motionReceivers: Int?
+    private(set) var bridgeMotionAgeMilliseconds: Double?
+    @ObservationIgnored private let logger = Logger(subsystem: "com.juliansalas.joypadair.probe", category: "connection")
 
     @ObservationIgnored private let capture = MotionCapture()
     @ObservationIgnored private let feedback = ControllerFeedback()
@@ -79,7 +86,7 @@ final class ProbeSession {
         #endif
         return capture.isAvailable
     }
-    var controlsEnabled: Bool { connected && !danceLocked }
+    var controlsEnabled: Bool { connected && !danceLocked && !connectionRecovering }
     var motionIsFresh: Bool {
         connected && motionEnabled && lastSensorArrival.map { now - $0 < 0.25 } == true
     }
@@ -139,6 +146,8 @@ final class ProbeSession {
                     reason = "Another controller took Player 1. Connect again when ready."
                 } else if socket.closeCode.rawValue == 4001 || (socket.response as? HTTPURLResponse)?.statusCode == 401 {
                     reason = "This pairing was removed on the Mac. Forget this Mac and scan its QR code again."
+                } else if socket.closeCode.rawValue == 4002 {
+                    reason = "Wi-Fi stopped responding. Keep Motion Air open and reconnect to your Mac."
                 } else {
                     reason = "Connection closed: \(error.localizedDescription)"
                 }
@@ -155,15 +164,20 @@ final class ProbeSession {
                     }
                     continue
                 }
-                if self.now - self.lastPong > 2 {
-                    self.disconnect(reason: "The bridge stopped responding. Reconnect to start a fresh session.")
+                let replyAge = self.now - self.lastPong
+                let sendAge = self.sendingSince.map { self.now - $0 } ?? 0
+                let recovering = replyAge > 1 || sendAge > 1
+                if recovering && !self.connectionRecovering { self.releaseControls() }
+                self.connectionRecovering = recovering
+                if replyAge > 8 {
+                    self.disconnect(reason: "Your Mac did not reply for 8 seconds. Check Wi-Fi, then reconnect. Motion stopped with the connection.")
                     return
                 }
-                if let since = self.sendingSince, self.now - since > 1 {
-                    self.disconnect(reason: "Sending stalled. Old motion was discarded; reconnect to continue.")
+                if sendAge > 8 {
+                    self.disconnect(reason: "Wi-Fi could not send input for 8 seconds. Reconnect to continue.")
                     return
                 }
-                if self.pendingMotion != nil, self.now - self.configRequestedAt > 2 {
+                if self.pendingMotion != nil, self.now - self.configRequestedAt > 8 {
                     self.disconnect(reason: "The bridge did not acknowledge the dance profile. Update and restart the bridge.")
                     return
                 }
@@ -173,6 +187,11 @@ final class ProbeSession {
     }
 
     func disconnect(reason: String = "Disconnected. Inputs released.") {
+        if connected || connecting {
+            lastDisconnectReason = reason
+            lastConnectionDuration = max(0, now - connectionStarted)
+            logger.notice("Session ended after \(self.lastConnectionDuration, privacy: .public)s: \(reason, privacy: .public)")
+        }
         if danceLocked { feedback.play(.warning) }
         danceLocked = false
         connectionID = UUID() // Invalidate every callback before cancellation or a new connection.
@@ -196,10 +215,13 @@ final class ProbeSession {
         sendingSince = nil
         connected = false
         connecting = false
+        connectionRecovering = false
         compatible = false
         aPressed = false
         motionPending = false
         roundTripMilliseconds = nil
+        motionReceivers = nil
+        bridgeMotionAgeMilliseconds = nil
         keyboardReady = "Unknown"
         status = "Disconnected"
         notice = reason
@@ -222,6 +244,12 @@ final class ProbeSession {
     func lockForDance() {
         guard connected, motionEnabled, !motionPending, !danceLocked else { return }
         danceLocked = true // Close the input gate before any UIKit cancellation callback.
+        releaseControls()
+        if connected { feedback.play(.success) }
+    }
+
+    /// System overlays can cancel a touch without ending the foreground motion session.
+    func releaseControls() {
         let buttonsToRelease = Array(buttonTiming.keys)
         buttonTapTasks.values.forEach { $0.cancel() }; buttonTapTasks.removeAll()
         buttonReleaseTasks.values.forEach { $0.cancel() }; buttonReleaseTasks.removeAll()
@@ -237,7 +265,6 @@ final class ProbeSession {
         // just been discarded even if the physical finger is already lifted.
         for button in buttonsToRelease { enqueue(ButtonPacket(button: button, isDown: false)) }
         enqueue(StickPacket(position: .center))
-        if connected { feedback.play(.success) }
     }
 
     func unlockControls() {
@@ -343,6 +370,9 @@ final class ProbeSession {
             guard roundTrip >= 0, roundTrip < 10_000 else { return }
             lastPong = now
             roundTripMilliseconds = roundTrip
+        case "motion-status":
+            if let receivers = message.receivers, receivers >= 0 { motionReceivers = receivers }
+            bridgeMotionAgeMilliseconds = message.motionAgeMs.flatMap { $0.isFinite && $0 >= 0 ? $0 : nil }
         default: break
         }
     }

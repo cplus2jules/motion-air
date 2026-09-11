@@ -37,8 +37,10 @@ public struct BridgeMessage: Decodable, Sendable {
     public let native: Bool?
     public let accessibility: Bool?
     public let ts: Double?
+    public let receivers: Int?
+    public let motionAgeMs: Double?
     private enum CodingKeys: String, CodingKey {
-        case t, player, motionProfiles, motionProfile, orientation, motion, native, accessibility, ts
+        case t, player, motionProfiles, motionProfile, orientation, motion, native, accessibility, ts, receivers, motionAgeMs
     }
     public init(from decoder: any Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
@@ -52,6 +54,8 @@ public struct BridgeMessage: Decodable, Sendable {
         // The Node bridge deliberately returns "unknown" before a permission check.
         accessibility = try? values.decodeIfPresent(Bool.self, forKey: .accessibility)
         ts = try values.decodeIfPresent(Double.self, forKey: .ts)
+        receivers = try values.decodeIfPresent(Int.self, forKey: .receivers)
+        motionAgeMs = try values.decodeIfPresent(Double.self, forKey: .motionAgeMs)
     }
     public var supportsDance: Bool { motionProfiles?.contains("just-dance") == true }
     public func acknowledges(motion expected: Bool) -> Bool {

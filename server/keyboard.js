@@ -27,7 +27,7 @@ export async function createKeyboard() {
     };
 
     return {
-      name: "nut-js (native macOS)",
+      name: `nut-js (native ${process.platform === 'win32' ? 'Windows' : 'macOS'})`,
       label: t("keyboard.native"),
       isNative: true,
       down: async (name) => {

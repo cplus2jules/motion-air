@@ -32,7 +32,7 @@ test('reuses an already running paired bridge, including the pre-launcher API', 
 
 test('opens pairing before the exact emulator launcher, without requesting a duplicate app', async () => {
   const calls = [];
-  await openDesktop('http://127.0.0.1:3444/', { run: async (...args) => calls.push(args) });
+  await openDesktop('http://127.0.0.1:3444/', { platform: 'darwin', run: async (...args) => calls.push(args) });
   assert.deepEqual(calls[0].slice(0, 2), ['/usr/bin/open', ['http://127.0.0.1:3444/']]);
   assert.equal(calls[1][0], '/bin/bash');
   assert.ok(calls[1][1][0].endsWith('/tools/ryujinx-build/launch-local.sh'));
@@ -43,12 +43,14 @@ test('browser failure leaves a usable URL and still opens the emulator; emulator
   let calls = 0;
   const warnings = [];
   await openDesktop('http://127.0.0.1:3444/', {
+    platform: 'darwin',
     run: async () => { if (++calls === 1) throw new Error('No browser'); },
     warn: message => warnings.push(message),
   });
   assert.equal(calls, 2);
   assert.match(warnings[0], /http:\/\/127.0.0.1:3444\//);
   await assert.rejects(openDesktop('http://127.0.0.1:3444/', {
+    platform: 'darwin',
     run: async command => { if (command === '/bin/bash') throw new Error('Missing emulator'); },
   }), /Missing emulator/);
 });
@@ -83,17 +85,19 @@ test('paired startup becomes reusable, then closing Terminal releases its own TC
   child.stderr.on('data', bytes => { log += bytes; });
   await until(() => {
     if (child.exitCode !== null) throw new Error(`Startup failed: ${log}`);
-    return log.includes('Open pairing on this Mac:');
+    return log.includes('Open pairing on this computer:');
   }, 'paired startup');
   assert.equal(await runningPairing(selected), true);
   const exited = once(child, 'exit');
-  child.kill('SIGHUP');
+  child.kill(process.platform === 'win32' ? 'SIGTERM' : 'SIGHUP');
   const [code] = await exited;
-  assert.equal(code, 0);
+  if (process.platform !== 'win32') assert.equal(code, 0);
   for (const [name, port] of Object.entries(selected)) {
-    const socket = name === 'dsuPort' ? dgram.createSocket('udp4') : net.createServer();
-    if (name === 'dsuPort') socket.bind(port, '127.0.0.1'); else socket.listen(port, '127.0.0.1');
-    await once(socket, 'listening');
-    await new Promise(resolve => socket.close(resolve));
+    await until(() => new Promise(resolve => {
+      const socket = name === 'dsuPort' ? dgram.createSocket('udp4') : net.createServer();
+      socket.once('error', () => { if (name === 'dsuPort') socket.close(); resolve(false); });
+      socket.once('listening', () => socket.close(() => resolve(true)));
+      if (name === 'dsuPort') socket.bind(port, '127.0.0.1'); else socket.listen(port, '127.0.0.1');
+    }), `${name} released after launcher exit`);
   }
 });

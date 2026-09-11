@@ -1,7 +1,7 @@
 {
   "name": "motion-air",
   "version": "2.0.0",
-  "description": "Wireless iPhone controller for Just Dance and motion games on Mac. Built on Joypad Air.",
+  "description": "Wireless phone controller for Just Dance and motion games on Mac and Windows. Built on Joypad Air.",
   "license": "MIT",
   "type": "module",
   "bin": {
@@ -18,10 +18,12 @@
     "RELEASING.md",
     "ACKNOWLEDGEMENTS.md",
     "docs/*.md",
-    "Motion Air.command"
+    "Motion Air.command",
+    "Motion Air.cmd",
+    "Build Ryujinx Motion.cmd"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "start": "node server/index.js",
@@ -43,7 +45,8 @@
     "test:launcher": "node --test tools/launcher-test.mjs",
     "ryujinx:check": "node tools/ryujinx-setup.mjs --check",
     "test:i18n": "node --test tools/i18n-test.mjs",
-    "test:ryujinx": "node --test tools/ryujinx-test.mjs"
+    "test:ryujinx": "node --test tools/ryujinx-test.mjs",
+    "test:windows": "node --test tools/windows-test.mjs"
   },
   "keywords": [
     "gamepad",
@@ -66,6 +69,7 @@
     "express": "^4.21.2",
     "qrcode": "^1.5.4",
     "qrcode-terminal": "^0.12.0",
+    "selfsigned": "5.5.0",
     "ws": "^8.18.0"
   },
   "repository": {

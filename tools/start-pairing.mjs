@@ -6,9 +6,11 @@ import { startPairingServer } from '../server/pairing.js';
 import { inspectRyujinx } from '../server/ryujinx.js';
 import { createLauncherUI } from './launcher-ui.mjs';
 import { checkDesktopLaunch, runningPairing, openDesktop } from './paired-desktop.mjs';
+import { prepareWindowsDesktop } from './windows-desktop.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const configDir = process.env.RYUJINX_CONFIG_DIR || fileURLToPath(new URL('../.local/ryujinx-motion-data', import.meta.url));
+let configDir = process.env.RYUJINX_CONFIG_DIR || fileURLToPath(new URL('../.local/ryujinx-motion-data', import.meta.url));
+let desktop;
 const spanish = /^es(?:[-_]|$)/i.test(process.env.JOYPAD_LANG || '');
 const say = (en, es) => console.log(spanish ? es : en);
 const launchDesktop = process.argv.includes('--launch');
@@ -43,6 +45,10 @@ try {
   const httpsPort = port('PAIRING_HTTPS_PORT', 3443);
   const setupPort = port('PAIRING_SETUP_PORT', 3444);
   if (new Set([upstreamPort, httpsPort, setupPort]).size !== 3) throw new Error('HTTP, setup and internal bridge ports must differ.');
+  if (launchDesktop && process.platform === 'win32') {
+    desktop = await prepareWindowsDesktop({ dsuPort, reset: process.argv.includes('--setup') });
+    configDir = desktop.configDir;
+  }
   if (process.env.FORCE_LOG !== '1' && !inspectRyujinx(configDir, { preset:'just-dance', dsuPort }).synced) {
     throw new Error(spanish ? 'Falta el perfil local de Just Dance. Consulta docs/motion-implementation-status.md.' : 'The isolated Just Dance profile is missing or changed. See docs/motion-implementation-status.md.');
   }
@@ -51,9 +57,9 @@ try {
     if (stopped) throw new Error('Startup was interrupted.');
     if (await runningPairing({ setupPort, upstreamPort, httpsPort, dsuPort })) {
       if (stopped) throw new Error('Startup was interrupted.');
-      say('Motion Air is already running. Reusing the bridge in its original Terminal window.',
-        'Motion Air ya está activo. Se usará el puente de su ventana original de Terminal.');
-      await openDesktop(`http://127.0.0.1:${setupPort}/`);
+      say('Motion Air is already running. Reusing the bridge in its original launcher window.',
+        'Motion Air ya está activo. Se usará el puente de su ventana original del lanzador.');
+      await openDesktop(`http://127.0.0.1:${setupPort}/`, { desktop });
       launcherUI.ready(`http://127.0.0.1:${setupPort}/`, true);
       process.exit(0);
     }
@@ -64,7 +70,7 @@ try {
   child = spawn(process.execPath, ['server/index.js'], {
     cwd: root,
     env: { ...process.env, PORT:String(upstreamPort), DSU_PORT:String(dsuPort), DSU_HOST:'127.0.0.1', DSU_OFF:'0',
-      JOYPAD_BIND_HOST:'127.0.0.1', JOYPAD_QUIET_STARTUP:'1', JOYPAD_STRICT_PORTS:'1', RYUJINX_CONFIG_DIR:configDir },
+      JOYPAD_PARENT_PID:String(process.pid), JOYPAD_BIND_HOST:'127.0.0.1', JOYPAD_QUIET_STARTUP:'1', JOYPAD_STRICT_PORTS:'1', RYUJINX_CONFIG_DIR:configDir },
     stdio: ['ignore','pipe','pipe'],
   });
   child.on('error', error => { console.error(error.message); void stop(1); });
@@ -81,18 +87,18 @@ try {
   // Check the exact child-selected port; never relay to an unrelated old server.
   const status = await (await fetch(`http://127.0.0.1:${upstreamPort}/status`, {signal:AbortSignal.timeout(3000)})).json();
   if (status.app !== 'joypad-air' || !status.dsu?.listening) throw new Error('Internal motion bridge is not ready.');
-  if (launchDesktop) launcherUI.step('Preparing secure iPhone pairing…', 'Preparando la conexión segura del iPhone…');
+  if (launchDesktop) launcherUI.step('Preparing secure phone pairing…', 'Preparando la conexión segura del teléfono…');
   pairing = await startPairingServer({
     directory: process.env.JOYPAD_PAIRING_DIR || fileURLToPath(new URL('../.local/pairing', import.meta.url)),
     httpsPort, setupPort, upstreamPort, advertise: process.env.JOYPAD_BONJOUR !== '0',
   });
   if (stopped) { await pairing.close(); throw new Error('Pairing startup was interrupted.'); }
-  say(`Open pairing on this Mac: ${pairing.setupURL}`, `Abre el enlace de emparejamiento en este Mac: ${pairing.setupURL}`);
-  say('Scan its QR in Motion Air on your iPhone. Saved phones reconnect securely. Leave Terminal open.',
-    'Escanea el QR desde Motion Air en el iPhone. Los teléfonos guardados se reconectan de forma segura. Deja Terminal abierto.');
+  say(`Open pairing on this computer: ${pairing.setupURL}`, `Abre el enlace de emparejamiento en este equipo: ${pairing.setupURL}`);
+  say('Scan its QR in Motion Air on your phone. Saved phones reconnect securely. Leave this window open.',
+    'Escanea el QR desde Motion Air en el teléfono. Los teléfonos guardados se reconectan de forma segura. Deja esta ventana abierta.');
   if (launchDesktop) {
     launcherUI.step('Opening pairing and Ryujinx…', 'Abriendo el emparejamiento y Ryujinx…');
-    await openDesktop(pairing.setupURL);
+    await openDesktop(pairing.setupURL, { desktop });
     launcherUI.ready(pairing.setupURL);
   }
 } catch (error) {

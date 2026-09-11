@@ -3,7 +3,8 @@ import { createServer as createHTTPSServer } from 'node:https';
 import { randomUUID, randomInt, randomBytes, createHash, timingSafeEqual, X509Certificate, createPrivateKey } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync, renameSync, chmodSync } from 'node:fs';
 import { join } from 'node:path';
-import { execFileSync, spawn } from 'node:child_process';
+import { spawn } from 'node:child_process';
+import { generate } from 'selfsigned';
 import { hostname, networkInterfaces } from 'node:os';
 import { WebSocket, WebSocketServer } from 'ws';
 import QRCode from 'qrcode';
@@ -23,7 +24,7 @@ function writePrivate(path, value) {
   chmodSync(path, 0o600);
 }
 
-export function loadPairingIdentity(directory) {
+export async function loadPairingIdentity(directory) {
   mkdirSync(directory, { recursive: true, mode: 0o700 });
   chmodSync(directory, 0o700);
   const statePath = join(directory, 'identity.json');
@@ -38,8 +39,11 @@ export function loadPairingIdentity(directory) {
   } else {
     if (existsSync(keyPath) || existsSync(certPath)) throw new Error('An incomplete pairing identity exists. Inspect it before creating a replacement.');
     state = { v: 1, id: randomUUID(), name: cleanName(hostname().replace(/\.local$/, '')), paired: [] };
-    execFileSync('/usr/bin/openssl', ['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-sha256', '-days', '365',
-      '-keyout', keyPath, '-out', certPath, '-subj', `/CN=Joypad-Air-${state.id}`], { stdio: 'ignore' });
+    const pems = await generate([{ name: 'commonName', value: `Joypad-Air-${state.id}` }], {
+      keySize: 2048, algorithm: 'sha256', notAfterDate: new Date(Date.now() + 365 * 86400_000),
+    });
+    writeFileSync(keyPath, pems.private, { mode: 0o600, flag: 'wx' });
+    writeFileSync(certPath, pems.cert, { mode: 0o600, flag: 'wx' });
     writePrivate(statePath, state);
   }
   chmodSync(keyPath, 0o600); chmodSync(certPath, 0o600);
@@ -127,10 +131,16 @@ async function readJSON(request) {
   return JSON.parse(data);
 }
 
-export async function startPairingServer({ directory, httpsPort = 3443, setupPort = 3444, upstreamPort = 3001, advertise = true, hosts, heartbeatMs = 1000 } = {}) {
-  const identity = loadPairingIdentity(directory);
+export async function startPairingServer({ directory, httpsPort = 3443, setupPort = 3444, upstreamPort = 3001, advertise = true, hosts, heartbeatMs = 1000, heartbeatTimeoutMs = 8000 } = {}) {
+  const identity = await loadPairingIdentity(directory);
   const authority = createPairingAuthority(identity);
   const sessions = new Map();
+  const networkEvents = [];
+  const recordNetwork = (stage, socket, code = null) => {
+    // Local setup diagnostics only: never retain request bodies, codes, or tokens.
+    networkEvents.push({ at: new Date().toISOString(), stage, peer: socket?.remoteAddress ?? null, code });
+    if (networkEvents.length > 24) networkEvents.shift();
+  };
   const wss = new WebSocketServer({ noServer: true, maxPayload: 16 * 1024 });
   const advertisedHosts = () => hosts ?? localPairingHosts();
   const invitation = () => ({ v: 1, id: identity.state.id, name: identity.state.name,
@@ -142,12 +152,16 @@ export async function startPairingServer({ directory, httpsPort = 3443, setupPor
     try {
       const body = await readJSON(req);
       const result = authority.claim(body.code, body.name, req.socket.remoteAddress);
+      recordNetwork('pairing-response', req.socket, result.status);
       sendJSON(res, result.status, result.body ?? { error: result.error });
     } catch { sendJSON(res, 400, { error: 'Invalid pairing request.' }); }
   });
   secure.requestTimeout = 10_000;
   secure.headersTimeout = 10_000;
   secure.maxConnections = 64;
+  secure.on('connection', socket => recordNetwork('tcp-connected', socket));
+  secure.on('secureConnection', socket => recordNetwork('tls-connected', socket));
+  secure.on('tlsClientError', (error, socket) => recordNetwork('tls-failed', socket, error.code ?? 'TLS_ERROR'));
   secure.on('upgrade', (req, socket, head) => {
     const authorization = req.headers.authorization;
     const paired = typeof authorization === 'string' && authorization.startsWith('Bearer ') ? authority.authorize(authorization.slice(7)) : null;
@@ -158,8 +172,8 @@ export async function startPairingServer({ directory, httpsPort = 3443, setupPor
     if (sessions.size >= 16) { socket.end('HTTP/1.1 503 Service Unavailable\r\nConnection: close\r\n\r\n'); return; }
     wss.handleUpgrade(req, socket, head, client => {
       const upstream = new WebSocket(`ws://127.0.0.1:${upstreamPort}/?p=1`, { maxPayload: 64 * 1024, handshakeTimeout: 5000 });
-      sessions.set(client, { upstream, clientID: paired.id, alive: true });
-      client.on('pong', () => { const session = sessions.get(client); if (session) session.alive = true; });
+      sessions.set(client, { upstream, clientID: paired.id, lastPongAt: performance.now() });
+      client.on('pong', () => { const session = sessions.get(client); if (session) session.lastPongAt = performance.now(); });
       const close = (code = 1011, message = 'Connection closed') => {
         if (client.readyState < WebSocket.CLOSING) client.close(code, message);
         upstream.terminate();
@@ -203,6 +217,7 @@ export async function startPairingServer({ directory, httpsPort = 3443, setupPor
       const payload = invitation();
       const text = `joypadair://pair?data=${Buffer.from(JSON.stringify(payload)).toString('base64url')}`;
       return sendJSON(res, 200, { name: identity.state.name, invitation: text, expiresAt: payload.expiresAt,
+        networkEvents,
         qr: await QRCode.toDataURL(text, { width: 420, margin: 2, errorCorrectionLevel: 'M' }),
         paired: identity.state.paired.map(({ id, name, createdAt }) => ({ id, name, createdAt, connected: [...sessions.values()].some(session => session.clientID === id) })) });
     }
@@ -227,10 +242,13 @@ export async function startPairingServer({ directory, httpsPort = 3443, setupPor
   catch (error) { secure.close(); throw error; }
   const heartbeat = setInterval(() => {
     for (const [client, session] of sessions) {
-      if (!session.alive) {
-        client.terminate(); session.upstream.terminate(); sessions.delete(client);
+      if (performance.now() - session.lastPongAt >= heartbeatTimeoutMs) {
+        // Let a short Wi-Fi stall recover. The bridge's separate 250 ms motion
+        // watchdog still neutralizes stale sensor input during this grace period.
+        console.warn('[pairing] Phone stopped answering heartbeats; controller released.');
+        client.close(4002, 'Phone heartbeat timed out');
+        session.upstream.terminate(); sessions.delete(client);
       } else {
-        session.alive = false;
         client.ping();
       }
     }
@@ -253,4 +271,3 @@ export async function startPairingServer({ directory, httpsPort = 3443, setupPor
     },
   };
 }
-

@@ -367,6 +367,19 @@ const heartbeat = setInterval(() => {
 }, 5000);
 heartbeat.unref?.();
 
+// Phone connectivity and an emulator consuming motion are separate signals.
+const motionStatus = setInterval(() => {
+  const state = dsu?.status();
+  for (const p of Object.values(players)) {
+    if (p.connected) send(p.socket, {
+      t: "motion-status",
+      receivers: state?.subscribers ?? 0,
+      motionAgeMs: state?.slots[p.num - 1]?.ageMs ?? null,
+    });
+  }
+}, 1000);
+motionStatus.unref?.();
+
 // Tasa de mensajes (ventana de 5s) para /status
 const rateTick = setInterval(() => {
   for (const p of Object.values(players)) {
@@ -567,3 +580,13 @@ async function shutdown() {
 }
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
+// Windows can close the console without delivering SIGTERM to its child.
+// The internal bridge must then release keys and its ports, leaving Ryujinx alone.
+if (process.platform === 'win32' && /^\d+$/.test(process.env.JOYPAD_PARENT_PID || '')) {
+  const owner = Number(process.env.JOYPAD_PARENT_PID);
+  const ownerCheck = setInterval(() => {
+    try { process.kill(owner, 0); }
+    catch (error) { if (error.code === 'ESRCH' && !shuttingDown) void shutdown(); }
+  }, 1000);
+  ownerCheck.unref();
+}

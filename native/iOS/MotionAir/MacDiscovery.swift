@@ -113,8 +113,10 @@ private final class BonjourResolution {
     private func changed(_ state: NWConnection.State) {
         switch state {
         case .ready:
-            if case .hostPort(let host, let port) = connection.currentPath?.remoteEndpoint {
-                finish(.success(MacDiscovery.Endpoint(host: host.debugDescription, port: Int(port.rawValue))))
+            if case .hostPort(.ipv4(let address), let port) = connection.currentPath?.remoteEndpoint {
+                // Host.debugDescription can append %en0, which is not an IPv4 URL host.
+                let host = address.rawValue.map { String($0) }.joined(separator: ".")
+                finish(.success(MacDiscovery.Endpoint(host: host, port: Int(port.rawValue))))
             } else { finish(.success(nil)) }
         case .failed, .waiting, .cancelled: finish(.success(nil))
         default: break

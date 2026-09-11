@@ -1,24 +1,24 @@
 const strings={
   "en": {
-    "tag": "YOUR MAC, READY TO PLAY",
+    "tag": "YOUR COMPUTER, READY TO PLAY",
     "title": "Game night starts here.",
-    "loading": "Finding your Mac…",
-    "scan": "Bring your iPhone along.",
-    "instructions": "Pair your iPhone once. Next time, choose this Mac in Motion Air and jump back in.",
+    "loading": "Finding your computer…",
+    "scan": "Bring your phone along.",
+    "instructions": "Pair your phone once. Next time, choose this computer in Motion Air and jump back in.",
     "copy": "Copy pairing code",
     "renew": "New QR code",
     "manual": "Paste a code instead",
     "devices": "Your players",
-    "privacy": "Your controller stays on this network. Saved connections are encrypted. Keep the launcher’s Terminal window open while you play.",
+    "privacy": "Your controller stays on this network. Saved connections are encrypted. Keep the launcher window open while you play.",
     "language": "Language",
-    "empty": "A spot for your iPhone.",
+    "empty": "A spot for your phone.",
     "connected": "Connected",
     "saved": "Saved",
     "remove": "Remove",
     "expires": "New code in",
-    "copied": "Copied. Paste it in Motion Air on your iPhone.",
+    "copied": "Copied. Paste it in Motion Air on your phone.",
     "selectCopy": "Select and copy the code below.",
-    "readError": "Can’t reach the launcher. Open Motion Air.command on this Mac, then try again.",
+    "readError": "Can’t reach the launcher. Open the Motion Air launcher on this computer, then try again.",
     "updateError": "That didn’t go through. Check the launcher and try again.",
     "qrAlt": "One-time pairing QR code",
     "payloadLabel": "Pairing code",
@@ -28,14 +28,14 @@ const strings={
     "offline": "Launcher unavailable",
     "expired": "Code expired. Get a new QR code.",
     "retry": "Try again",
-    "step1": "Open Motion Air on iPhone",
-    "step1Detail": "Keep your iPhone and Mac on the same Wi-Fi or Personal Hotspot.",
+    "step1": "Open Motion Air on phone",
+    "step1Detail": "Keep your phone and computer on the same Wi-Fi or Personal Hotspot.",
     "step2": "Scan this QR code",
-    "step2Detail": "Choose Pair a Mac, then Scan Mac QR code. Check the Mac’s name and confirm.",
+    "step2Detail": "Choose the pairing or scan option in Motion Air. Check the computer’s name and confirm.",
     "step3": "Make your move",
-    "step3Detail": "Open your game on the Mac. Enable Motion on iPhone when you’re ready to dance.",
+    "step3Detail": "Open your game on the computer. Enable Motion on phone when you’re ready to dance.",
     "qrLabel": "SCAN TO JOIN",
-    "macLabel": "THIS MAC",
+    "macLabel": "THIS COMPUTER",
     "keepOpen": "Keep this window handy.",
     "local": "Local connection",
     "phoneCount": "phones saved",
@@ -44,34 +44,34 @@ const strings={
     "removeDetail": "It will disconnect and need to scan a new code to play again.",
     "cancel": "Keep phone",
     "confirmRemove": "Forget phone",
-    "savedDetail": "Ready to reconnect from iPhone",
-    "connectedDetail": "Connected to this Mac",
-    "newCode": "New code ready. Scan it with your iPhone.",
+    "savedDetail": "Ready to reconnect from phone",
+    "connectedDetail": "Connected to this computer",
+    "newCode": "New code ready. Scan it with your phone.",
     "footer": "Made for one more round.",
     "credits": "Built on Joypad Air by David García.",
     "pairedTitle": "You’re in. Pick your game.",
-    "pairedSubtitle": "Your phone is connected. Keep Motion Air open on iPhone while you play."
+    "pairedSubtitle": "Your phone is connected. Keep Motion Air open on phone while you play."
   },
   "es": {
-    "tag": "TU MAC, LISTO PARA JUGAR",
+    "tag": "TU EQUIPO, LISTO PARA JUGAR",
     "title": "Aquí empieza la partida.",
-    "loading": "Buscando tu Mac…",
-    "scan": "Trae tu iPhone.",
-    "instructions": "Empareja el iPhone una vez. La próxima vez, elige este Mac en Motion Air y sigue jugando.",
+    "loading": "Buscando tu equipo…",
+    "scan": "Trae tu teléfono.",
+    "instructions": "Empareja el teléfono una vez. La próxima vez, elige este equipo en Motion Air y sigue jugando.",
     "copy": "Copiar código de conexión",
     "renew": "Nuevo código QR",
     "manual": "Pegar un código",
     "devices": "Tus jugadores",
-    "privacy": "El mando permanece en esta red. Las conexiones guardadas están cifradas. Mantén abierta la ventana de Terminal del lanzador mientras juegas.",
+    "privacy": "El mando permanece en esta red. Las conexiones guardadas están cifradas. Mantén abierta la ventana del lanzador mientras juegas.",
     "language": "Idioma",
-    "empty": "Un sitio para tu iPhone.",
+    "empty": "Un sitio para tu teléfono.",
     "connected": "Conectado",
     "saved": "Guardado",
     "remove": "Eliminar",
     "expires": "Nuevo código en",
-    "copied": "Copiado. Pégalo en Motion Air en tu iPhone.",
+    "copied": "Copiado. Pégalo en Motion Air en tu teléfono.",
     "selectCopy": "Selecciona y copia el código de abajo.",
-    "readError": "No se puede conectar con el lanzador. Abre Motion Air.command en este Mac y vuelve a intentarlo.",
+    "readError": "No se puede conectar con el lanzador. Abre el lanzador de Motion Air en este equipo y vuelve a intentarlo.",
     "updateError": "No se pudo completar la acción. Revisa el lanzador y vuelve a intentarlo.",
     "qrAlt": "Código QR de un solo uso",
     "payloadLabel": "Código de conexión",
@@ -81,29 +81,29 @@ const strings={
     "offline": "Lanzador no disponible",
     "expired": "El código venció. Genera un nuevo QR.",
     "retry": "Reintentar",
-    "step1": "Abre Motion Air en el iPhone",
-    "step1Detail": "Conecta el iPhone y el Mac a la misma Wi-Fi o a un punto de acceso personal.",
+    "step1": "Abre Motion Air en el teléfono",
+    "step1Detail": "Conecta el teléfono y el equipo a la misma Wi-Fi o a un punto de acceso personal.",
     "step2": "Escanea este código QR",
-    "step2Detail": "Elige Pair a Mac y luego Scan Mac QR code. Revisa el nombre del Mac y confirma.",
+    "step2Detail": "Elige la opción de emparejar o escanear en Motion Air. Revisa el nombre del equipo y confirma.",
     "step3": "Haz tu jugada",
-    "step3Detail": "Abre el juego en el Mac. Activa Enable Motion en el iPhone cuando quieras bailar.",
+    "step3Detail": "Abre el juego en el equipo. Activa Enable Motion en el teléfono cuando quieras bailar.",
     "qrLabel": "ESCANEA PARA UNIRTE",
-    "macLabel": "ESTE MAC",
+    "macLabel": "ESTE EQUIPO",
     "keepOpen": "Ten esta ventana a mano.",
     "local": "Conexión local",
-    "phoneCount": "teléfonos guardados",
-    "phoneCountOne": "teléfono guardado",
+    "teléfonoCount": "teléfonos guardados",
+    "teléfonoCountOne": "teléfono guardado",
     "removeTitle": "¿Olvidar este teléfono?",
     "removeDetail": "Se desconectará y tendrá que escanear un nuevo código para volver a jugar.",
     "cancel": "Conservar teléfono",
     "confirmRemove": "Olvidar teléfono",
-    "savedDetail": "Listo para reconectar desde el iPhone",
-    "connectedDetail": "Conectado a este Mac",
-    "newCode": "Nuevo código listo. Escanéalo con tu iPhone.",
+    "savedDetail": "Listo para reconectar desde el teléfono",
+    "connectedDetail": "Conectado a este equipo",
+    "newCode": "Nuevo código listo. Escanéalo con tu teléfono.",
     "footer": "Siempre hay otra partida.",
     "credits": "Basado en Joypad Air de David García.",
     "pairedTitle": "Ya estás dentro. Elige un juego.",
-    "pairedSubtitle": "El teléfono está conectado. Mantén Motion Air abierto en el iPhone mientras juegas."
+    "pairedSubtitle": "El teléfono está conectado. Mantén Motion Air abierto en el teléfono mientras juegas."
   }
 };
 const $ = id => document.getElementById(id);
@@ -113,7 +113,7 @@ try { language = localStorage.getItem('joypad-air-language') || navigator.langua
 language = new URL(location.href).searchParams.get('lang') || language;
 language = /^es/i.test(language) ? 'es' : 'en';
 const text = key => strings[language][key];
-const phoneIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 5h4m-3 14h2"/></svg>';
+const teléfonoIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 5h4m-3 14h2"/></svg>';
 function setError(key = '') { errorKey = key; $('error').textContent = key ? text(key) : ''; $('error-box').hidden = !key; }
 function feedback(key = '') { feedbackKey = key; $('feedback').textContent = key ? text(key) : ''; }
 function updateExpiry() {
@@ -123,7 +123,7 @@ function updateExpiry() {
   $('qr-placeholder').hidden = !$('qr').hidden;
   $('copy').disabled = !online || !state || remaining === 0 || mutating;
   $('renew').disabled = !online || mutating;
-  document.querySelectorAll('[data-phone-id]').forEach(button => { button.disabled = !online || mutating; });
+  document.querySelectorAll('[data-teléfono-id]').forEach(button => { button.disabled = !online || mutating; });
 }
 function renderDevices() {
   const paired = state?.paired || [];
@@ -132,25 +132,25 @@ function renderDevices() {
   if (signature === deviceSignature) return;
   deviceSignature = signature;
   const list = $('devices'); list.replaceChildren();
-  $('phone-count').textContent = paired.length ? paired.length + ' ' + text(paired.length === 1 ? 'phoneCountOne' : 'phoneCount') : '';
+  $('teléfono-count').textContent = paired.length ? paired.length + ' ' + text(paired.length === 1 ? 'teléfonoCountOne' : 'teléfonoCount') : '';
   if (!paired.length) {
     const empty = document.createElement('div'); empty.className = 'empty';
-    empty.innerHTML = phoneIcon;
+    empty.innerHTML = teléfonoIcon;
     const description = document.createElement('div'), title = document.createElement('strong'), detail = document.createElement('p');
     title.textContent = text('empty'); detail.textContent = text('emptyDetail');
     description.append(title, detail); empty.append(description); list.append(empty);
   }
-  for (const phone of paired) {
+  for (const teléfono of paired) {
     const row = document.createElement('div'); row.className = 'device';
-    const icon = document.createElement('span'); icon.className = 'device-icon'; icon.innerHTML = phoneIcon;
+    const icon = document.createElement('span'); icon.className = 'device-icon'; icon.innerHTML = teléfonoIcon;
     const info = document.createElement('div'); info.className = 'device-info';
-    const name = document.createElement('strong'); name.textContent = phone.name;
-    const detail = document.createElement('p'); detail.textContent = text(phone.connected ? 'connectedDetail' : 'savedDetail');
+    const name = document.createElement('strong'); name.textContent = teléfono.name;
+    const detail = document.createElement('p'); detail.textContent = text(teléfono.connected ? 'connectedDetail' : 'savedDetail');
     info.append(name, detail);
     const button = document.createElement('button'); button.className = 'secondary'; button.textContent = text('remove');
-    button.setAttribute('aria-label', text('remove') + ' ' + phone.name);
-    button.dataset.phoneId = phone.id;
-    button.onclick = () => { pendingRemoval = phone; $('remove-dialog').returnValue = ''; $('remove-name').textContent = phone.name; $('remove-dialog').showModal(); };
+    button.setAttribute('aria-label', text('remove') + ' ' + teléfono.name);
+    button.dataset.teléfonoId = teléfono.id;
+    button.onclick = () => { pendingRemoval = teléfono; $('remove-dialog').returnValue = ''; $('remove-name').textContent = teléfono.name; $('remove-dialog').showModal(); };
     row.append(icon, info, button); list.append(row);
   }
 }
@@ -158,7 +158,7 @@ function render() {
   document.documentElement.lang = language; document.title = 'Motion Air · ' + text('title'); $('language').value = language;
   document.querySelectorAll('[data-i18n]').forEach(element => element.textContent = text(element.dataset.i18n));
   $('pair-card').setAttribute('aria-label', text('qrLabel')); $('qr').alt = text('qrAlt'); $('payload').setAttribute('aria-label', text('payloadLabel'));
-  const connected = state?.paired.some(phone => phone.connected) && online;
+  const connected = state?.paired.some(teléfono => teléfono.connected) && online;
   $('connection').dataset.state = !online ? 'offline' : connected ? 'connected' : 'ready';
   $('connection-label').textContent = text(!loaded ? 'loading' : !online ? 'offline' : connected ? 'live' : 'ready');
   $('mac').textContent = state?.name || text('loading');
@@ -213,9 +213,9 @@ $('copy').onclick = async event => {
 $('renew').onclick = async () => { if (await mutate('/api/renew')) feedback('newCode'); };
 $('retry').onclick = refresh;
 $('remove-dialog').addEventListener('close', async () => {
-  const phone = pendingRemoval; pendingRemoval = undefined;
-  if ($('remove-dialog').returnValue !== 'confirm' || !phone) return;
-  if (await mutate('/api/revoke', { id: phone.id })) $('devices-title').focus({ preventScroll: true });
+  const teléfono = pendingRemoval; pendingRemoval = undefined;
+  if ($('remove-dialog').returnValue !== 'confirm' || !teléfono) return;
+  if (await mutate('/api/revoke', { id: teléfono.id })) $('devices-title').focus({ preventScroll: true });
 });
 $('devices-title').tabIndex = -1;
 document.addEventListener('keydown', event => { if ((event.key === ' ' || event.key === 'Enter') && event.target instanceof HTMLButtonElement) event.target.classList.add('keyboard-activate'); });

@@ -27,6 +27,7 @@ async function viaNodeMacPermissions() {
 }
 
 export async function checkAccessibility() {
+  if (process.platform === 'win32') return (cached = true);
   try {
     cached = await viaNodeMacPermissions();
   } catch {
@@ -42,6 +43,7 @@ export function accessibilityStatus() {
 // Pre-inserta la app en la lista de Accesibilidad (aparece desmarcada) y
 // abre el panel correcto de Ajustes del Sistema. Para el onboarding guiado.
 export async function requestAccessibility() {
+  if (process.platform !== 'darwin') return;
   try {
     const mod = await import("@nut-tree-fork/node-mac-permissions");
     const api = mod.default ?? mod;

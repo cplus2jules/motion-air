@@ -61,6 +61,7 @@ test('native WebSocket samples become ordered DSU packets, pause safely and reco
     ws.send(JSON.stringify({t:'config',motion:true,motionProfile:'just-dance',orientation:'portrait'}));
     const ack=await until(()=>messages.find(m=>m.t==='config-ack'),'config-ack');
     assert.deepEqual(ack,{t:'config-ack',motionProfile:'just-dance',motion:true,orientation:'portrait'});
+    return messages;
   }
   await connect();await sleep(50);
   ws.send(JSON.stringify(raw));
@@ -78,11 +79,13 @@ test('native WebSocket samples become ordered DSU packets, pause safely and reco
   const count=packets.length;
   ws.send(JSON.stringify({t:'config',motion:false}));ws.send(JSON.stringify({...raw,seq:2}));
   await sleep(60);assert.equal(packets.length,count);
-  ws.close();await once(ws,'close');await connect();
+  ws.close();await once(ws,'close');const messages=await connect();
   ws.send(JSON.stringify({...raw,seq:0,ts:100}));
   await until(()=>packets.length>count,'reconnected sample');
   assert.ok(packets.at(-1).tsUs>idle.tsUs,'published clock cannot go backwards after reconnect');
   assert.ok(packets.every(p=>p.crcOk));
+  const receiverStatus=await until(()=>messages.find(m=>m.t==='motion-status'),'live receiver diagnostics');
+  assert.equal(receiverStatus.receivers,1,'the phone can distinguish a subscribed receiver from connection alone');
 });
 
 test('strict dance startup stops when the DSU port belongs to another process', {timeout:6000}, async t=>{

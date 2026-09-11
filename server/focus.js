@@ -10,8 +10,10 @@
 // teclas. Nunca usar osascript aquí: pediría permiso de Automation.
 
 import { execFile } from "node:child_process";
+import { windowsAction } from "./windows.js";
 
 function getFrontApp() {
+  if (process.platform === 'win32') return windowsAction('Focus').catch(() => null);
   return new Promise((resolve) => {
     execFile("lsappinfo", ["front"], { timeout: 1500 }, (err, stdout) => {
       const asn = (stdout || "").trim();

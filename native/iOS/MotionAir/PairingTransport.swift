@@ -74,19 +74,33 @@ enum PairingTransport {
         throw PairingError.unavailable("Could not reach or verify this Mac. Keep both devices on the same network and scan its current QR code.")
     }
 
-    static func reachableHost(for mac: SavedMac) async throws -> String {
+    static func reachableMac(for mac: SavedMac, discovered: SavedMac? = nil) async throws -> SavedMac {
         let session = session(fingerprint: mac.fingerprint)
         defer { session.invalidateAndCancel() }
-        for host in mac.hosts {
-            try Task.checkCancellation()
-            guard let url = mac.url(host: host, path: "/") else { continue }
-            do {
-                let (_, response) = try await session.data(from: url)
-                if response is HTTPURLResponse { return host } // A pinned 404 also proves this known Mac is reachable.
-            } catch is CancellationError { throw CancellationError() }
-            catch { continue }
+        // Race address hints, never claims: the QR's one-use code is submitted only by pair().
+        var candidates = mac.hosts.compactMap { mac.relocating(to: $0, port: mac.port) }
+        if let discovered { candidates.insert(discovered, at: 0) }
+        let verified: SavedMac? = await withTaskGroup(of: SavedMac?.self) { group in
+            var urls: Set<URL> = []
+            for candidate in candidates {
+                guard let host = candidate.hosts.first, let url = candidate.url(host: host, path: "/"),
+                      urls.insert(url).inserted else { continue }
+                group.addTask {
+                    do {
+                        let (_, response) = try await session.data(from: url)
+                        // Even a 404 verifies reachability, but only after the saved TLS pin matches.
+                        return response is HTTPURLResponse ? candidate : nil
+                    } catch { return nil }
+                }
+            }
+            for await result in group {
+                if let result { group.cancelAll(); return result }
+            }
+            return nil
         }
-        throw PairingError.unavailable("Your Mac is unavailable or its identity changed. Open the paired bridge on the Mac. If you replaced its identity, pair again.")
+        try Task.checkCancellation()
+        if let verified { return verified }
+        throw PairingError.unavailable("Could not reach or verify your Mac. Open Motion Air.command and use the same Wi-Fi or Personal Hotspot. On Wi-Fi, avoid a guest network and check that the router allows devices to connect to each other. If the Mac was reset, scan its new QR code.")
     }
 
     private struct Claim: Encodable { let code: String; let name: String }

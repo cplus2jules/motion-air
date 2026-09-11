@@ -1,12 +1,14 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
+import { windowsAction } from '../server/windows.js';
 
 const execute = promisify(execFile);
 const emulatorLauncher = fileURLToPath(new URL('./ryujinx-build/launch-local.sh', import.meta.url));
 
-export async function checkDesktopLaunch(run = execute) {
-  if (process.platform !== 'darwin') throw new Error('The double-click launcher requires macOS.');
+export async function checkDesktopLaunch(run = execute, platform = process.platform) {
+  if (platform === 'win32') return; // Validated by prepareWindowsDesktop before bridge startup.
+  if (platform !== 'darwin') throw new Error('The double-click launcher supports Windows and macOS.');
   try { await run('/bin/bash', [emulatorLauncher, '--check'], { timeout: 5000 }); }
   catch (error) { throw new Error(error.stdout?.trim() || error.stderr?.trim() || error.message); }
 }
@@ -36,7 +38,14 @@ async function readJSON(url) {
   } catch { return null; }
 }
 
-export async function openDesktop(setupURL, { run = execute, warn = console.warn } = {}) {
+export async function openDesktop(setupURL, { run = execute, warn = console.warn, platform = process.platform, desktop } = {}) {
+  if (platform === 'win32') {
+    if (!desktop?.executable || !desktop?.configDir) throw new Error('Choose Ryujinx with Motion Air.cmd first.');
+    try { await windowsAction('Browser', { MOTION_AIR_URL: setupURL }, run); }
+    catch { warn(`Open the pairing page in your browser: ${setupURL}`); }
+    await windowsAction('Launch', { MOTION_AIR_EXE: desktop.executable, MOTION_AIR_CONFIG: desktop.configDir }, run);
+    return;
+  }
   // Open the page first; the emulator is brought forward last for menu input.
   try { await run('/usr/bin/open', [setupURL], { timeout: 5000 }); }
   catch { warn(`Open the pairing page in your browser: ${setupURL}`); }

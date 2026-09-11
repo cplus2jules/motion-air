@@ -29,10 +29,10 @@ struct DanceLockView: View {
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     TimelineView(.periodic(from: .now, by: 0.5)) { _ in
-                        Label(session.motionIsFresh ? "Motion streaming" : "Waiting for motion",
-                              systemImage: session.motionIsFresh ? "waveform" : "exclamationmark.circle")
+                        Label(session.connectionRecovering ? "Wi-Fi is catching up…" : session.motionReceivers == 0 ? "Waiting for the game" : session.motionIsFresh ? "Sending motion" : "Waiting for motion",
+                              systemImage: session.connectionRecovering ? "wifi.exclamationmark" : session.motionIsFresh ? "waveform" : "exclamationmark.circle")
                             .font(.subheadline.weight(.medium))
-                            .foregroundStyle(session.motionIsFresh ? Color.green : Color.orange)
+                            .foregroundStyle(session.motionIsFresh && !session.connectionRecovering && session.motionReceivers != 0 ? Color.green : Color.orange)
                     }
                     Spacer(minLength: 32)
                     VStack(spacing: 12) {

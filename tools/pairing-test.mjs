@@ -18,8 +18,8 @@ const fixture = t => { const dir=mkdtempSync(join(tmpdir(),'joypad-pairing-'));t
 async function until(fn,label,timeout=5000) { const end=Date.now()+timeout;while(Date.now()<end){const r=fn();if(r)return r;await sleep(10);}throw new Error(`Timed out: ${label}`); }
 async function freePort(udp=false) { const s=udp?dgram.createSocket('udp4'):net.createServer();if(udp)s.bind(0,'127.0.0.1');else s.listen(0,'127.0.0.1');await once(s,'listening');const port=s.address().port;await new Promise(r=>s.close(r));return port; }
 
-test('pairing codes expire, are single use, and tokens persist only as hashes', t=>{
-  const dir=fixture(t), identity=loadPairingIdentity(dir);let now=1000000;
+test('pairing codes expire, are single use, and tokens persist only as hashes', async t=>{
+  const dir=fixture(t), identity=await loadPairingIdentity(dir);let now=1000000;
   const authority=createPairingAuthority(identity,()=>now);
   const invitation=authority.current();const old=invitation.code;
   now=invitation.expiresAt+1;
@@ -29,10 +29,12 @@ test('pairing codes expire, are single use, and tokens persist only as hashes', 
   assert.equal(authority.claim(code,'Replay','127.0.0.1').status,403);
   assert.equal(authority.authorize('wrong'),null);
   assert.equal(authority.authorize(result.body.token).name,'My phone');
-  const reloaded=loadPairingIdentity(dir);assert.equal(reloaded.fingerprint,identity.fingerprint);
+  const reloaded=await loadPairingIdentity(dir);assert.equal(reloaded.fingerprint,identity.fingerprint);
   const remembered=createPairingAuthority(reloaded);assert.ok(remembered.authorize(result.body.token));
   assert.ok(!readFileSync(join(dir,'identity.json'),'utf8').includes(result.body.token));
-  assert.equal(statSync(join(dir,'key.pem')).mode & 0o777,0o600);assert.equal(statSync(dir).mode & 0o777,0o700);
+  if (process.platform !== 'win32') {
+    assert.equal(statSync(join(dir,'key.pem')).mode & 0o777,0o600);assert.equal(statSync(dir).mode & 0o777,0o700);
+  }
   remembered.revoke(result.body.clientID);assert.equal(remembered.authorize(result.body.token),null);
 });
 test('pairing limits per-peer and distributed guesses, then permits a new time window',()=>{
@@ -51,7 +53,7 @@ test('TLS pairing authenticates the actual bridge, rejects replay and revokes li
   const child=spawn(process.execPath,['server/index.js'],{cwd:new URL('../',import.meta.url),env:{...process.env,FORCE_LOG:'1',PORT:String(upstreamPort),DSU_PORT:String(dsuPort),JOYPAD_BIND_HOST:'127.0.0.1',JOYPAD_QUIET_STARTUP:'1',JOYPAD_STRICT_PORTS:'1'},stdio:['ignore','pipe','pipe']});
   t.after(()=>child.kill('SIGTERM'));child.stdout.on('data',s=>log+=s);child.stderr.on('data',s=>log+=s);
   await until(()=>log.includes('Internal bridge listening'),'loopback bridge');
-  const server=await startPairingServer({directory:dir,httpsPort:0,setupPort:0,upstreamPort,advertise:false,hosts:['127.0.0.1'],heartbeatMs:100});
+  const server=await startPairingServer({directory:dir,httpsPort:0,setupPort:0,upstreamPort,advertise:false,hosts:['127.0.0.1'],heartbeatMs:100,heartbeatTimeoutMs:600});
   t.after(()=>server.close());
   const pin=server.identity.fingerprint;
   const tls={ca:server.identity.cert,checkServerIdentity(_host,cert){return createHash('sha256').update(cert.raw).digest('hex')===pin?undefined:new Error('Certificate pin mismatch');}};
@@ -68,6 +70,12 @@ test('TLS pairing authenticates the actual bridge, rejects replay and revokes li
   assert.equal((await api('/api/pairing/claim',{code:qr.code},{headers:{origin:'https://evil.invalid'}})).status,403);
   await assert.rejects(api('/api/pairing/claim',{code:qr.code},{checkServerIdentity(){return new Error('Certificate pin mismatch');}}),/pin mismatch/);
   const claimed=await api('/api/pairing/claim',{code:qr.code,name:'Contract iPhone'});assert.equal(claimed.status,200);
+  const networkEvents=(await(await fetch(server.setupURL+'api/state')).json()).networkEvents;
+  assert.ok(networkEvents.some(event=>event.stage==='tcp-connected'));
+  assert.ok(networkEvents.some(event=>event.stage==='tls-connected'));
+  assert.ok(networkEvents.some(event=>event.stage==='pairing-response' && event.code===200));
+  assert.ok(!JSON.stringify(networkEvents).includes(claimed.body.token));
+  assert.ok(!JSON.stringify(networkEvents).includes(qr.code));
   assert.equal((await api('/api/pairing/claim',{code:qr.code})).status,403);
   const unauthorized=new WebSocket(`wss://127.0.0.1:${server.httpsPort}/controller`,tls);unauthorized.on('error',()=>{});
   assert.match((await once(unauthorized,'error'))[0].message,/401/);
@@ -75,6 +83,9 @@ test('TLS pairing authenticates the actual bridge, rejects replay and revokes li
   const client=new WebSocket(`wss://127.0.0.1:${server.httpsPort}/controller`,{...tls,headers:{authorization:`Bearer ${claimed.body.token}`}});
   t.after(()=>client.terminate());client.on('message',b=>messages.push(JSON.parse(b)));client.on('error',()=>{});
   await until(()=>messages.find(m=>m.t==='hello'),'authenticated hello');
+  const receiverStatus=await until(()=>messages.find(m=>m.t==='motion-status'),'receiver diagnostics through authenticated relay');
+  assert.equal(receiverStatus.receivers,0);
+  assert.equal(receiverStatus.motionAgeMs,null);
   client.send(JSON.stringify({t:'config',motionProfile:'just-dance',orientation:'portrait',motion:true}));
   await until(()=>messages.find(m=>m.t==='config-ack'),'profile ack');
   client.send(JSON.stringify({t:'btn',k:'a',d:true}));
@@ -87,7 +98,17 @@ test('TLS pairing authenticates the actual bridge, rejects replay and revokes li
 
   // Simulate a phone that stays TCP-connected but stops answering WS pings.
   const nextCode=server.authority.current().code;const next=await api('/api/pairing/claim',{code:nextCode});
+  // Several missed ping intervals must not end an otherwise recoverable session.
+  const delayed=new WebSocket(`wss://127.0.0.1:${server.httpsPort}/controller`,{...tls,headers:{authorization:`Bearer ${next.body.token}`},autoPong:false});
+  t.after(()=>delayed.terminate());delayed.on('error',()=>{});
+  delayed.on('ping', data=>{setTimeout(()=>{if(delayed.readyState===WebSocket.OPEN)delayed.pong(data);},350);});
+  await once(delayed,'open');await sleep(1250);
+  assert.equal(delayed.readyState,WebSocket.OPEN,'delayed heartbeats recover across several ping intervals');
+  const delayedClosed=once(delayed,'close');delayed.close();await delayedClosed;
   const silent=new WebSocket(`wss://127.0.0.1:${server.httpsPort}/controller`,{...tls,headers:{authorization:`Bearer ${next.body.token}`},autoPong:false});
   t.after(()=>silent.terminate());silent.on('error',()=>{});
-  const start=Date.now();await once(silent,'close');assert.ok(Date.now()-start<1500,'relay expires a silent phone without waiting for TCP timeout');
+  const start=Date.now();const [closeCode]=await once(silent,'close');
+  assert.equal(closeCode,4002,'phone receives the heartbeat timeout reason');
+  assert.ok(Date.now()-start>=550,'silent peer receives its full grace period');
+  assert.ok(Date.now()-start<1500,'relay expires a silent phone without waiting for TCP timeout');
 });

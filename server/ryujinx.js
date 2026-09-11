@@ -2,12 +2,15 @@ import { readFileSync, writeFileSync, copyFileSync, existsSync, mkdirSync, renam
 import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 import { homedir } from "node:os";
+import { windowsRunning } from "./windows.js";
 import { MAPPINGS } from "./mappings.js";
 import { toRyujinxKey } from "../tools/hid-key-table.mjs";
 
 const DSU_PORT = 26760;
 function setupError(code, message) { return Object.assign(new Error(message), { code }); }
-export const DEFAULT_CONFIG_DIR = join(homedir(), "Library", "Application Support", "Ryujinx");
+export const DEFAULT_CONFIG_DIR = process.platform === 'win32'
+  ? join(process.env.APPDATA || join(homedir(), 'AppData', 'Roaming'), 'Ryujinx')
+  : join(homedir(), "Library", "Application Support", "Ryujinx");
 export function buildProfile(playerNum, controllerType, withMotion, { dsuPort = DSU_PORT, deadzone = 1 } = {}) {
   const m = MAPPINGS[playerNum];
   const btn = (name) => toRyujinxKey(m.buttons[name] ?? null);
@@ -81,11 +84,12 @@ function matches(actual, expected) {
 }
 export function ryujinxRunning() {
   try {
+    if (process.platform === 'win32') return windowsRunning();
     const output = execFileSync("ps", ["-axo", "comm="], { encoding: "utf8", timeout: 2000 });
     return output.split("\n").some(line => /(?:^|\/)Ryujinx(?:\.Avalonia)?$/i.test(line.trim()));
   } catch {
     // Never overwrite a running emulator's configuration when process inspection fails.
-    throw setupError("process_check_failed", "Cannot check whether Ryujinx is running. Run setup from Terminal on your Mac.");
+    throw setupError("process_check_failed", "Cannot check whether Ryujinx is running. Close Ryujinx and restart Motion Air.");
   }
 }
 export function inspectRyujinx(configDir = DEFAULT_CONFIG_DIR, { preset, dsuPort = DSU_PORT } = {}) {

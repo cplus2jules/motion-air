@@ -36,6 +36,17 @@ struct ContentView: View {
                     }
                     #endif
                     connectionHeader
+                    if session.connectionRecovering {
+                        Label("Wi-Fi is catching up. Keep your phone near the Mac or router.", systemImage: "wifi.exclamationmark")
+                            .font(.footnote).foregroundStyle(.secondary)
+                            .accessibilityIdentifier("connectionRecoveryNotice")
+                    }
+                    if session.connected && session.motionReceivers == 0 {
+                        Label("No motion receiver yet. Open Ryujinx through Motion Air.command and start your game.", systemImage: "desktopcomputer.trianglebadge.exclamationmark")
+                            .font(.footnote).foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .accessibilityIdentifier("motionReceiverNotice")
+                    }
                     NavigationControls(session: session)
                     if !session.connected {
                         Label(session.notice, systemImage: "info.circle")
@@ -238,7 +249,8 @@ private struct MacConnectionsView: View {
                                     Label {
                                         VStack(alignment: .leading, spacing: 3) {
                                             Text(mac.name).foregroundStyle(.primary)
-                                            Text("Tap to connect").font(.caption).foregroundStyle(.secondary)
+                                            Text(pairing.discovery.contains(mac.id) ? "Nearby · Tap to connect" : "Find and connect")
+                                                .font(.caption).foregroundStyle(.secondary)
                                         }
                                     } icon: { Image(systemName: "desktopcomputer") }
                                     .frame(minHeight: 44)
@@ -252,6 +264,22 @@ private struct MacConnectionsView: View {
                         if pairing.busy { ProgressView(pairing.message) }
                         else if !pairing.message.isEmpty { Text(pairing.message).font(.callout).foregroundStyle(.secondary) }
                     } header: { if !pairing.macs.isEmpty { Text("Saved Macs") } }
+                    Section("Nearby Macs") {
+                        ForEach(pairing.discovery.macs.filter { nearby in !pairing.macs.contains { $0.id.lowercased() == nearby.id } }) { mac in
+                            Button { showingPairing = true } label: {
+                                Label {
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text(mac.name).foregroundStyle(.primary)
+                                        Text("Scan its QR code to pair").font(.caption).foregroundStyle(.secondary)
+                                    }
+                                } icon: { Image(systemName: "desktopcomputer") }
+                                .frame(minHeight: 44)
+                            }.disabled(pairing.busy)
+                        }
+                        Label(pairing.discovery.message, systemImage: pairing.discovery.unavailable ? "wifi.exclamationmark" : "dot.radiowaves.left.and.right")
+                            .font(.callout).foregroundStyle(.secondary)
+                            .accessibilityIdentifier("macDiscoveryStatus")
+                    }
                     Section {
                         Button { showingPairing = true } label: { Label("Pair a Mac", systemImage: "qrcode.viewfinder").frame(minHeight: 44) }
                             .disabled(pairing.busy).accessibilityIdentifier("scanPairMac")
@@ -261,6 +289,8 @@ private struct MacConnectionsView: View {
             .navigationTitle("Your Mac").navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
             .sheet(isPresented: $showingPairing) { PairingSheet(store: pairing, session: session) }
+            .task { pairing.discovery.start() }
+            .onDisappear { if !pairing.busy { pairing.discovery.stop() } }
             .confirmationDialog("Forget this Mac?", isPresented: Binding(get: { removingMac != nil }, set: { if !$0 { removingMac = nil } }), titleVisibility: .visible) {
                 if let mac = removingMac { Button("Forget Mac", role: .destructive) { pairing.forget(mac, session: session); removingMac = nil } }
             } message: { Text("Scan its QR code to pair again.") }
@@ -293,11 +323,18 @@ private struct ControllerSettingsView: View {
                 Section("Connection & diagnostics") {
                     LabeledContent("Connection", value: session.status)
                     Text(session.notice).font(.callout).foregroundStyle(.secondary).accessibilityIdentifier("sessionNotice")
+                    if let reason = session.lastDisconnectReason {
+                        LabeledContent("Last session", value: String(format: "%.1f seconds", session.lastConnectionDuration))
+                        Text(reason).font(.callout).foregroundStyle(.secondary)
+                            .accessibilityIdentifier("lastDisconnectReason")
+                    }
                     LabeledContent("Keyboard", value: session.keyboardReady)
                     LabeledContent("Sensor delivery", value: String(format: "%.1f Hz", session.sampleRate))
                     LabeledContent("Largest sample gap", value: String(format: "%.1f ms", session.maximumGapMilliseconds))
                     LabeledContent("Round trip", value: session.roundTripMilliseconds.map { String(format: "%.1f ms", $0) } ?? "—")
                     LabeledContent("Motion frames sent", value: "\(session.samplesSent)")
+                    LabeledContent("Motion receivers", value: session.motionReceivers.map(String.init) ?? "Update the Mac bridge")
+                    LabeledContent("Last motion at Mac", value: session.bridgeMotionAgeMilliseconds.map { String(format: "%.0f ms ago", $0) } ?? "No recent sample")
                     LabeledContent("Unsent frames discarded", value: "\(session.droppedMotion)")
                     LabeledContent("Samples above bridge range", value: "\(session.rangeExceededCount)")
                     if let sample = session.sample {

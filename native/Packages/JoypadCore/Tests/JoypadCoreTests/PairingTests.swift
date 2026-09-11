@@ -46,3 +46,26 @@ private let testNow = Date(timeIntervalSince1970: 1000)
     let badToken = PairingReply(token: reply.token + "\r\nX-Injected: yes", id: reply.id, name: reply.name, clientID: reply.clientID)
     #expect(throws: PairingError.self) { try SavedMac(invitation: invitation, reply: badToken, connectedHost: "test-mac.local") }
 }
+
+@Test func discoveryRelocationPreservesPairingTrustAndBoundsAddressHistory() throws {
+    let invitation = try PairingInvitation.parse(String(decoding: invitationJSON(), as: UTF8.self), now: testNow)
+    let reply = PairingReply(token: String(repeating: "a", count: 43), id: invitation.id, name: invitation.name,
+                            clientID: "00000000-0000-0000-0000-000000000002")
+    let original = try SavedMac(invitation: invitation, reply: reply, connectedHost: "192.168.1.2")
+    var relocated = try #require(original.relocating(to: "172.20.10.2", port: 4567))
+    #expect(relocated.hosts == ["172.20.10.2", "192.168.1.2", "test-mac.local"])
+    #expect(relocated.port == 4567)
+    #expect(relocated.fingerprint == original.fingerprint && relocated.token == original.token)
+    #expect(relocated.id == original.id && relocated.clientID == original.clientID && relocated.pairedAt == original.pairedAt)
+    #expect(original.port == 3443 && original.hosts.first == "192.168.1.2")
+    for index in 1...12 { relocated = try #require(relocated.relocating(to: "10.0.0.\(index)", port: 4567)) }
+    #expect(relocated.hosts.count == 8)
+    relocated = try #require(relocated.relocating(to: "10.0.0.12", port: 4567))
+    #expect(Set(relocated.hosts).count == relocated.hosts.count)
+    #expect(try JSONDecoder().decode(SavedMac.self, from: JSONEncoder().encode(relocated)) == relocated)
+    for host in ["8.8.8.8", "example.com", "user@mac.local", "mac.local/path"] {
+        #expect(original.relocating(to: host, port: 3443) == nil)
+    }
+    #expect(original.relocating(to: "192.168.1.3", port: 0) == nil)
+    #expect(original.relocating(to: "192.168.1.3", port: 65536) == nil)
+}

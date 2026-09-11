@@ -1,6 +1,6 @@
 # Motion Air
 
-Your iPhone, a wireless controller for **Just Dance and other motion games on Mac**.
+Your phone, a wireless controller for **Just Dance and other motion games on Mac and Windows**.
 Motion Air combines buttons over Wi-Fi with gyroscope and accelerometer input
 through DSU/cemuhook. The native Swift app focuses on dancing and game navigation;
 the browser and Expo controllers remain available for broader emulator use.
@@ -11,6 +11,12 @@ This independent continuation builds on its phone-to-Mac controller foundation.
 The original MIT copyright and license are retained. See [acknowledgements](ACKNOWLEDGEMENTS.md).
 
 Guía en español: [README.es.md](README.es.md) · [Branding and compatibility](docs/branding.md)
+
+## Windows and Android
+
+For Windows, double-click **Motion Air.cmd** in the extracted project folder. It installs the bridge dependencies on first use, lets you choose your existing Ryujinx.exe, backs up and sets up the controller profile, and opens pairing. See the [Windows guide](docs/windows-setup.md), including the optional motion build.
+
+The native **Kotlin Android app** is in `android/`. It supports the same secure pairing bridge, controller buttons, motion and Dance Lock as the iPhone workflow. See [Android installation and builds](android/README.md).
 
 ## Local Swift app for Just Dance
 
@@ -64,7 +70,7 @@ repository is private, use an authenticated clone and run `npm start` instead.
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/cplus2jules/motion-air/main/install.sh)"
 ```
 
-The script checks for Node ≥18 (opens the official installer if missing) and
+The script checks for Node ≥20 (opens the official installer if missing) and
 drops a **"Motion Air"** launcher on your Desktop. Then:
 
 1. Double-click the launcher; grant **Accessibility** to Terminal the first

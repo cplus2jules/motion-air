@@ -22,9 +22,10 @@ struct MotionAirApp: App {
         WindowGroup {
             MotionRootView(session: session, pairing: pairing)
                 .onChange(of: scenePhase) { _, phase in
-                    if phase != .active { pairing.cancel() }
-                    if phase != .active, session.connected || session.connecting {
-                        session.disconnect(reason: "Session stopped while the app was inactive. Connect again to continue.")
+                    if phase == .inactive { session.releaseControls() }
+                    if phase == .background { pairing.cancel(); pairing.discovery.stop() }
+                    if phase == .background, session.connected || session.connecting {
+                        session.disconnect(reason: "Motion Air went into the background. Keep it open while playing, then reconnect to continue.")
                     }
                 }
         }

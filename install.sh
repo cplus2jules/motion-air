@@ -4,7 +4,7 @@
 #   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/cplus2jules/motion-air/main/install.sh)"
 #
 # Qué hace (idempotente, sin sudo):
-#   1. Comprueba Node ≥18; si falta, descarga el instalador OFICIAL de
+#   1. Comprueba Node ≥20; si falta, descarga el instalador OFICIAL de
 #      nodejs.org (.pkg) y lo abre — tú le das "Continuar".
 #   2. Crea "Motion Air.command" en tu Escritorio: doble-click y juega.
 #      El launcher ejecuta `npx -y motion-air@latest`, así que SIEMPRE usa
@@ -28,7 +28,7 @@ have_node() {
   command -v node >/dev/null 2>&1 || return 1
   local major
   major="$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0)"
-  [ "$major" -ge 18 ]
+  [ "$major" -ge 20 ]
 }
 
 install_node() {

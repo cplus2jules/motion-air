@@ -12,6 +12,12 @@ Consulta los [agradecimientos](ACKNOWLEDGEMENTS.md).
 
 > English README: [README.md](README.md)
 
+## Windows y Android
+
+En Windows, haz doble clic en **Motion Air.cmd** desde la carpeta extraída del proyecto. Instala las dependencias la primera vez, permite elegir tu Ryujinx.exe, guarda una copia de la configuración, prepara el perfil del mando y abre el emparejamiento. Consulta la [guía de Windows](docs/windows-setup.md), incluida la compilación opcional con movimiento.
+
+La app nativa de **Android en Kotlin** está en `android/`. Usa el mismo puente seguro, con botones, movimiento y bloqueo para bailar. Consulta [instalación y compilación de Android](android/README.md).
+
 ## App local en Swift para Just Dance
 
 Descarga una IPA desde **Releases**, o una compilación de desarrollo desde

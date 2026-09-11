@@ -12,8 +12,8 @@ if ! command -v node >/dev/null 2>&1; then
   fi
 fi
 
-if ! command -v node >/dev/null 2>&1 || ! node -e 'process.exit(Number(process.versions.node.split(".")[0]) >= 18 ? 0 : 1)'; then
-  echo 'Node.js 18 or newer is required. Install Node, then open this launcher again.'
+if ! command -v node >/dev/null 2>&1 || ! node -e 'process.exit(Number(process.versions.node.split(".")[0]) >= 20 ? 0 : 1)'; then
+  echo 'Node.js 20 or newer is required. Install Node, then open this launcher again.'
   result=1
 else
   node tools/start-pairing.mjs --launch "$@"

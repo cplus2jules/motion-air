@@ -10,6 +10,7 @@ final class PairingStore {
     private(set) var busy = false
     private(set) var message = ""
     private(set) var selectedID: String?
+    let discovery = MacDiscovery()
     @ObservationIgnored private var operation: Task<Void, Never>?
     @ObservationIgnored private var operationID = UUID()
     @ObservationIgnored private let service = "com.juliansalas.joypadair.pairing"
@@ -53,12 +54,17 @@ final class PairingStore {
             guard let self else { return }
             defer { if self.operationID == id { self.busy = false; self.operation = nil } }
             do {
-                let host = try await PairingTransport.reachableHost(for: mac)
+                let endpoint = try await self.discovery.resolve(mac.id)
+                let candidate = endpoint.flatMap { mac.relocating(to: $0.host, port: $0.port) }
+                let verified = try await PairingTransport.reachableMac(for: mac, discovered: candidate)
                 try Task.checkCancellation()
                 guard self.operationID == id else { return }
+                let updated = self.macs.map { $0.id == verified.id ? verified : $0 }
+                try self.save(updated)
+                self.macs = updated
                 self.selectedID = mac.id
                 self.message = ""
-                session.connect(to: mac, host: host)
+                session.connect(to: verified, host: verified.hosts[0])
             } catch is CancellationError { }
             catch { if self.operationID == id { self.message = error.localizedDescription } }
         }

@@ -156,6 +156,15 @@ func rejectsMalformedAndPublicEndpoints(host: String) {
     #expect(try bridgeJSON(StickPacket(position: .center)) == "{\"s\":\"R\",\"t\":\"stick\",\"x\":0,\"y\":0}")
 }
 
+@Test func receiverDiagnosticsDistinguishMissingAndActiveMotionConsumers() throws {
+    let absent = try JSONDecoder().decode(BridgeMessage.self, from: Data(#"{"t":"motion-status","receivers":0,"motionAgeMs":null}"#.utf8))
+    #expect(absent.receivers == 0 && absent.motionAgeMs == nil)
+    let active = try JSONDecoder().decode(BridgeMessage.self, from: Data(#"{"t":"motion-status","receivers":1,"motionAgeMs":12}"#.utf8))
+    #expect(active.receivers == 1 && active.motionAgeMs == 12)
+    let legacy = try JSONDecoder().decode(BridgeMessage.self, from: Data(#"{"t":"pong","ts":100}"#.utf8))
+    #expect(legacy.receivers == nil && legacy.motionAgeMs == nil)
+}
+
 @Test(arguments: ControllerButtonID.allCases)
 func navigationButtonsHaveStableWireIdentifiers(button: ControllerButtonID) throws {
     let data = Data(try bridgeJSON(ButtonPacket(button: button, isDown: true)).utf8)

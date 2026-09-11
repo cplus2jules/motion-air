@@ -1,0 +1,55 @@
+name: Desktop bridge and Android APK
+
+on:
+  push:
+    branches: [main]
+    paths: ['android/**', 'server/**', 'tools/**', '*.cmd', '*.command', 'package*.json', '.github/workflows/desktop-android.yml']
+  pull_request:
+    paths: ['android/**', 'server/**', 'tools/**', '*.cmd', '*.command', 'package*.json', '.github/workflows/desktop-android.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  desktop:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: node --test tools/windows-test.mjs tools/launcher-test.mjs tools/pairing-test.mjs tools/ryujinx-test.mjs tools/focus-test.mjs tools/i18n-test.mjs tools/motion-test.mjs
+      - name: Parse Windows launch scripts
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Get-ChildItem server, tools -Filter *.ps1 -Recurse | ForEach-Object {
+            $parseErrors = $null
+            $null = [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$null, [ref]$parseErrors)
+            if ($parseErrors) { throw ($parseErrors | Out-String) }
+          }
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Build and verify Android APK
+        working-directory: android
+        run: bash gradlew --no-daemon assembleDebug testDebugUnitTest lintDebug
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: Motion-Air-Android-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 30

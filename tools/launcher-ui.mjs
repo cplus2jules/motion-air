@@ -14,15 +14,15 @@ export function createLauncherUI({ spanish = false, output = process.stdout, col
     step(label, translation) { line(`  ${tint('36', '›')} ${words(label, translation)}`); },
     ready(url, reused = false) {
       line('');
-      line(`  ${tint('32;1', words('READY FOR YOUR IPHONE', 'LISTO PARA TU IPHONE'))}`);
-      line(`  ${words('Pair your iPhone', 'Empareja tu iPhone')}  ${clean(url)}`);
+      line(`  ${tint('32;1', words('READY FOR YOUR PHONE', 'LISTO PARA TU TELÉFONO'))}`);
+      line(`  ${words('Pair your phone', 'Empareja tu teléfono')}  ${clean(url)}`);
       line('');
-      line(`  ${words('1. Open Motion Air on your iPhone.', '1. Abre Motion Air en el iPhone.')}`);
-      line(`  ${words('2. Scan the Mac QR and confirm its name.', '2. Escanea el QR y confirma el nombre del Mac.')}`);
+      line(`  ${words('1. Open Motion Air on your phone.', '1. Abre Motion Air en el teléfono.')}`);
+      line(`  ${words('2. Scan the computer QR and confirm its name.', '2. Escanea el QR y confirma el nombre del equipo.')}`);
       line(`  ${words('3. Open your game. Enable Motion to dance.', '3. Abre el juego. Activa Enable Motion para bailar.')}`);
       line('');
-      line(`  ${words(reused ? 'Keep the original Terminal window open.' : 'Keep this Terminal window open while playing.', reused ? 'Mantén abierta la ventana original de Terminal.' : 'Mantén esta ventana de Terminal abierta al jugar.')}`);
-      line(`  ${words(reused ? 'Use Ctrl+C in the original Terminal to stop the bridge.' : 'Ctrl+C stops the controller bridge.', reused ? 'Usa Ctrl+C en la Terminal original para detener el puente.' : 'Ctrl+C detiene el puente del mando.')}`);
+      line(`  ${words(reused ? 'Keep the original launcher window open.' : 'Keep this launcher window open while playing.', reused ? 'Mantén abierta la ventana original del lanzador.' : 'Mantén esta ventana del lanzador abierta al jugar.')}`);
+      line(`  ${words(reused ? 'Use Ctrl+C in the original launcher to stop the bridge.' : 'Ctrl+C stops the controller bridge.', reused ? 'Usa Ctrl+C en la lanzador original para detener el puente.' : 'Ctrl+C detiene el puente del mando.')}`);
       line(`  ${words('Quit Ryujinx from its own window.', 'Cierra Ryujinx desde su propia ventana.')}`);
       line(`  ${'─'.repeat(42)}`);
     },
