@@ -31,8 +31,8 @@ If the pictures are missing in Android Studio, [view this guide on GitHub](https
 ## What you need
 
 - An Android phone running Android 8 or later, or an iPhone running iOS 17 or later.
-- A Mac or Windows PC, connected to the same Wi-Fi as your phone.
-- [Node.js](https://nodejs.org/en/download), installed on the computer. Choose the **LTS** installer; version 22 or later works.
+- A Mac with macOS 14 or later, or a 64-bit Windows 10/11 PC, connected to the same Wi-Fi as your phone. Windows PCs with an ARM processor need Windows 11.
+- Internet access for the first computer setup. **The launcher installs Node.js and Motion Air's dependencies for you.**
 - Your emulator and game, already installed. **Just Dance needs the motion-capable Ryujinx build.** The regular keyboard controller setup alone will not enable motion. Follow the [Mac setup guide](docs/local-device-setup.md) or [Windows setup guide](docs/windows-setup.md) for that one-time setup.
 
 Games, emulator downloads, firmware and game keys are not included.
@@ -75,16 +75,18 @@ Both apps open with three short lessons. Tap **Let's try it** to practice the st
 
 ## 3. Start Motion Air on your computer
 
-1. Extract the computer ZIP into a folder you can find again.
+1. Extract the **whole computer ZIP** into a folder you can write to, such as Documents. On Windows, choose **Extract All** before opening the launcher.
 2. Open that folder and double-click:
    - **Mac:** `Motion Air.command`
    - **Windows:** `Motion Air.cmd`
-3. Wait for the first-time installation to finish. A browser page with a pairing QR code opens.
+3. Wait for setup to finish. The launcher downloads the runtime for your computer and installs the required packages automatically. After your emulator setup is ready, a browser page with a pairing QR code opens.
 4. Keep the launcher's Terminal or command window open while playing.
 
 On Mac, allow Terminal under **System Settings → Privacy & Security → Accessibility** so the phone's buttons can control the game. The [Mac guide](docs/local-device-setup.md) explains the emulator setup; the [Windows guide](docs/windows-setup.md) explains selecting your `Ryujinx.exe`.
 
-Keep the launcher inside its extracted folder. You can make a shortcut or Finder alias if you want it on your Desktop.
+You do not need to install Node.js, npm or a package manager yourself. Setup uses the Motion Air folder and does not need an administrator account. Later launches reuse the downloaded files; an update installs any changed dependencies. If a download fails, check your internet connection and open the same launcher again.
+
+Keep the launcher inside its extracted folder. You can make a shortcut or Finder alias if you want it on your Desktop. The automatic setup covers Motion Air's computer bridge; your emulator and game still need the separate setup linked above. [More about automatic setup](docs/computer-setup.md).
 
 ## 4. Connect your phone
 
@@ -138,7 +140,7 @@ Dance Lock hides the game controls. **Sending motion** means the computer's moti
 | Movement stopped after I left the app | Reopen Motion Air, reconnect, and enable motion again. |
 | Android says the update cannot install | Use the APK from the newest release. An older development app may use a different signing key. See [Android updates](android/README.md#updating). |
 | The iPhone app will not open | Check whether your sideloading tool needs to refresh or re-sign it. |
-| The launcher says Node.js is missing | Install the Node.js LTS version, then open the launcher again. |
+| First-time setup failed | Extract the whole ZIP to Documents, check your internet connection, and open the launcher again. If it still asks you to install Node.js yourself, download the latest computer ZIP. |
 
 More help: [connection troubleshooting](docs/connection-reliability.md) · [motion testing status](docs/motion-implementation-status.md)
 

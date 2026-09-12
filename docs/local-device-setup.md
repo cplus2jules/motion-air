@@ -25,6 +25,8 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
 
 ## Pair with the Mac
 
+The downloaded computer ZIP includes **Motion Air.command**, which installs its own Node.js runtime and bridge packages on first use. Extract the whole folder before opening it. You do not need a development Node installation for this launcher. See [automatic computer setup](computer-setup.md). The `npm` commands below are alternatives for developers with Node already installed.
+
 For daily use, double-click **Motion Air.command** in the project folder (or run `npm run play`). It opens Terminal, starts or reuses the paired bridge, opens the pairing page, and launches the selected local Ryujinx Motion build. Keep the bridge's Terminal open while playing. Connect the remembered Mac on the iPhone and enable motion each time. To place the launcher on the Desktop, make a Finder alias rather than moving it out of the project. The separate manual commands below remain available.
 
 Coordinate the bridge transition with any active controller session. The paired entry point owns its internal bridge; do not leave a second unauthenticated bridge exposed on the network.

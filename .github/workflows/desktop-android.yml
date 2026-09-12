@@ -23,7 +23,7 @@ jobs:
   desktop:
     strategy:
       matrix:
-        os: [windows-latest, macos-latest]
+        os: [windows-latest, macos-latest, macos-15-intel]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     steps:
@@ -33,7 +33,9 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - run: node --test tools/windows-test.mjs tools/launcher-test.mjs tools/pairing-test.mjs tools/ryujinx-test.mjs tools/focus-test.mjs tools/i18n-test.mjs tools/motion-test.mjs
+      - run: node --test tools/bootstrap/install-test.mjs tools/windows-test.mjs tools/launcher-test.mjs tools/pairing-test.mjs tools/ryujinx-test.mjs tools/focus-test.mjs tools/i18n-test.mjs tools/motion-test.mjs
+      - name: Verify automatic setup without a system Node installation
+        run: node tools/bootstrap/check-clean-install.mjs
       - name: Parse Windows launch scripts
         if: runner.os == 'Windows'
         shell: pwsh

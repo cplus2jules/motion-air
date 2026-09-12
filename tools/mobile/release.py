@@ -121,6 +121,11 @@ Use your Android phone or iPhone as a wireless controller on a Mac or Windows PC
 
 Download the computer ZIP and the app for your phone. Extract the ZIP and follow the [easy setup guide](https://github.com/cplus2jules/motion-air/blob/mobile/v{release_version}/README.md).
 
+On Mac, open **Motion Air.command**. On Windows, choose **Extract All**, then open
+**Motion Air.cmd**. The launcher downloads a verified Node.js runtime and installs
+Motion Air's dependencies automatically. No separate Node.js or npm installation
+is needed. Keep the whole folder together and allow the first setup to finish.
+
 Android: open the APK on your phone to install it. Updates use the same release
 signing key. Development builds have a separate app ID and do not replace it.
 
@@ -131,12 +136,9 @@ Both phones need the computer launcher and a compatible emulator. Emulator
 binaries, games, firmware and keys are not included. Just Dance motion requires
 the local motion-capable Ryujinx build described in the setup guides.
 
-Android now shares the iPhone welcome: three short lessons, practice controls,
-a Dance Lock preview, and quick access to pairing. Its controller uses the same
-red and blue grips, with Motion and Dance Lock always within reach.
-
-Both apps reject old sensor frames. Android also preserves rapid taps
-and keeps tracking through a visible pause, then stops on background.
+The English and Spanish guides include iPhone and Android screenshots, feedback
+forms, bug reports and contribution instructions. This release updates computer
+setup; the phone controls and tracking behavior are unchanged from 0.2.2.
 
 Automated checks cover both app builds, Swift/Kotlin regressions, Android emulator
 pairing and motion delivery, and the desktop bridge on macOS and Windows. Physical

@@ -31,8 +31,8 @@ Si las imágenes no aparecen en Android Studio, [abre esta guía en GitHub](http
 ## Qué necesitas
 
 - Un teléfono con Android 8 o posterior, o un iPhone con iOS 17 o posterior.
-- Un Mac o PC con Windows, conectado a la misma Wi-Fi que el teléfono.
-- [Node.js](https://nodejs.org/en/download) instalado en el equipo. Elige el instalador **LTS**, versión 22 o posterior.
+- Un Mac con macOS 14 o posterior, o un PC con Windows 10/11 de 64 bits, conectado a la misma Wi-Fi que el teléfono. Los PC con procesador ARM necesitan Windows 11.
+- Internet para la primera instalación en el equipo. **El lanzador instala Node.js y las dependencias de Motion Air por ti.**
 - Tu emulador y juego instalados. **Just Dance necesita la versión de Ryujinx con soporte de movimiento.** Configurar solo los botones no activa el movimiento. Sigue la [guía de Mac](docs/local-device-setup.md) o la [guía de Windows](docs/windows-setup.md) para preparar el emulador.
 
 No se incluyen juegos, emuladores, firmware ni claves de juegos.
@@ -75,16 +75,18 @@ Ambas apps comienzan con tres lecciones breves. Pulsa **Vamos a probar** en Andr
 
 ## 3. Abre Motion Air en el equipo
 
-1. Extrae el ZIP del equipo en una carpeta que puedas encontrar después.
+1. Extrae **todo el ZIP del equipo** en una carpeta donde puedas guardar archivos, como Documentos. En Windows, elige **Extraer todo** antes de abrir el lanzador.
 2. Dentro de esa carpeta, haz doble clic en:
    - **Mac:** `Motion Air.command`
    - **Windows:** `Motion Air.cmd`
-3. Espera a que termine la primera instalación. Se abrirá una página con el QR de conexión.
+3. Espera a que termine la instalación. El lanzador descarga la versión de Node.js adecuada e instala los paquetes necesarios automáticamente. Cuando el emulador esté preparado, se abrirá una página con el QR de conexión.
 4. Mantén abierta la ventana de Terminal o de comandos mientras juegas.
 
 En Mac, permite Terminal en **Ajustes del Sistema → Privacidad y seguridad → Accesibilidad** para que los botones controlen el juego. La [guía de Mac](docs/local-device-setup.md) explica la preparación del emulador; la [guía de Windows](docs/windows-setup.md) explica cómo seleccionar tu `Ryujinx.exe`.
 
-Deja el lanzador dentro de su carpeta. Puedes crear un acceso directo o alias para el Escritorio.
+No necesitas instalar Node.js, npm ni un gestor de paquetes por separado. La instalación usa la carpeta de Motion Air y no necesita una cuenta de administrador. Las siguientes veces reutiliza los archivos descargados; una actualización instala las dependencias que hayan cambiado. Si una descarga falla, revisa tu conexión y vuelve a abrir el mismo lanzador.
+
+Deja el lanzador dentro de su carpeta. Puedes crear un acceso directo o alias para el Escritorio. La instalación automática prepara el puente de Motion Air; el emulador y el juego necesitan la configuración indicada arriba. [Más sobre la instalación automática](docs/computer-setup.md#español).
 
 ## 4. Conecta el teléfono
 
@@ -139,7 +141,7 @@ El bloqueo para bailar oculta los controles. **Enviando movimiento** indica que 
 | El movimiento se detuvo al salir de la app | Abre Motion Air, reconecta y activa el movimiento de nuevo. |
 | Android no instala la actualización | Usa el APK de la versión más reciente. Una app antigua de desarrollo puede tener otra firma. Consulta [actualizaciones de Android](android/README.md#updating). |
 | La app de iPhone no abre | Comprueba si tu herramienta necesita renovar o volver a firmar la app. |
-| El lanzador no encuentra Node.js | Instala Node.js LTS y vuelve a abrir el lanzador. |
+| La primera instalación falla | Extrae todo el ZIP en Documentos, revisa tu conexión y vuelve a abrir el lanzador. Si aún te pide instalar Node.js por separado, descarga el ZIP más reciente. |
 
 Más ayuda: [conexión](docs/connection-reliability.md) · [estado de las pruebas de movimiento](docs/motion-implementation-status.md).
 

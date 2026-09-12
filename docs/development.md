@@ -30,10 +30,12 @@ Run the bridge checks with:
 
 ```bash
 npm test
-node --test tools/windows-test.mjs tools/launcher-test.mjs tools/pairing-test.mjs tools/ryujinx-test.mjs tools/focus-test.mjs tools/i18n-test.mjs tools/motion-test.mjs
+node --test tools/bootstrap/install-test.mjs tools/windows-test.mjs tools/launcher-test.mjs tools/pairing-test.mjs tools/ryujinx-test.mjs tools/focus-test.mjs tools/i18n-test.mjs tools/motion-test.mjs
 ```
 
 The tests use isolated ports and log-only keyboard output. `npm run ryujinx:check` separately checks your installed emulator configuration.
+
+The downloaded [Mac and Windows launchers](computer-setup.md) install a private Node runtime and locked npm dependencies. Run `node tools/bootstrap/check-clean-install.mjs` on either system to test first-time setup in an empty folder, simultaneous launches, cached startup and dependency repair. It does not launch an emulator or change your saved pairing.
 
 ## Android
 
