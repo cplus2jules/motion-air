@@ -2,9 +2,19 @@
 
 Usa tu **Android o iPhone como mando inalámbrico** para juegos con movimiento en **Mac o Windows**.
 
-[Descargar Motion Air](https://github.com/cplus2jules/motion-air/releases) · [Read in English](README.md)
+[Descargar Motion Air](https://github.com/cplus2jules/motion-air/releases) · [Capturas de pantalla](#capturas-de-pantalla) · [Instrucciones](#1-descarga-los-archivos) · [Read in English](README.md)
 
 Motion Air sigue en pruebas. Hay comprobaciones automáticas de los botones y del envío de movimiento; la precisión de las puntuaciones de Just Dance necesita pruebas con un teléfono y un juego reales.
+
+## Capturas de pantalla
+
+Así se ve la app de Android. La app de iPhone sigue la misma guía de bienvenida. Haz clic en una captura para verla a tamaño completo.
+
+| Guía de bienvenida | Conecta tu equipo | Mando antes de conectar |
+| --- | --- | --- |
+| [![Guía de bienvenida de Android](docs/images/android-welcome-es.png)](docs/images/android-welcome-es.png) | [![Pantalla de conexión de Android](docs/images/android-pairing-es.png)](docs/images/android-pairing-es.png) | [![Mando Android antes de conectar](docs/images/android-controller-offline-es.png)](docs/images/android-controller-offline-es.png) |
+
+Si las imágenes no aparecen en Android Studio, [abre esta guía en GitHub](https://github.com/cplus2jules/motion-air/blob/main/README.es.md#capturas-de-pantalla). Hay más capturas en los pasos de abajo.
 
 ## Qué necesitas
 

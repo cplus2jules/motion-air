@@ -2,9 +2,19 @@
 
 Use your **Android phone or iPhone as a wireless controller** for motion games on a **Mac or Windows PC**.
 
-[Download Motion Air](https://github.com/cplus2jules/motion-air/releases) · [Leer en español](README.es.md)
+[Download Motion Air](https://github.com/cplus2jules/motion-air/releases) · [Screenshots](#screenshots) · [Setup instructions](#1-download-the-right-files) · [Leer en español](README.es.md)
 
 Motion Air is still being tested. Buttons and motion delivery have automated checks; reliable Just Dance scoring needs testing with a real phone and game.
+
+## Screenshots
+
+Here is the Android app. The iPhone app follows the same welcome guide. Click a screenshot to open it at full size.
+
+| Welcome guide | Connect your computer | Controller before pairing |
+| --- | --- | --- |
+| [![Android welcome guide](docs/images/android-welcome.png)](docs/images/android-welcome.png) | [![Android pairing screen](docs/images/android-pairing.png)](docs/images/android-pairing.png) | [![Android controller before pairing](docs/images/android-controller-offline.png)](docs/images/android-controller-offline.png) |
+
+If the pictures are missing in Android Studio, [view this guide on GitHub](https://github.com/cplus2jules/motion-air/blob/main/README.md#screenshots). More screenshots appear in the setup steps below.
 
 ## What you need
 
