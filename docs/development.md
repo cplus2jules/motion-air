@@ -2,6 +2,8 @@
 
 For installation without building the apps, start with the [main README](../README.md).
 
+To report an issue or propose a change, read the [contribution guide](../CONTRIBUTING.md) ([español](../CONTRIBUTING.es.md)).
+
 ## Repository layout
 
 | Folder | Purpose |

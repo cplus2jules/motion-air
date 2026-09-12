@@ -4,6 +4,8 @@ Usa tu **Android o iPhone como mando inalámbrico** para juegos con movimiento e
 
 [Descargar Motion Air](https://github.com/cplus2jules/motion-air/releases) · [Capturas de pantalla](#capturas-de-pantalla) · [Instrucciones](#1-descarga-los-archivos) · [Read in English](README.md)
 
+[Reportar un problema](https://github.com/cplus2jules/motion-air/issues/new?template=01-bug-report.yml) · [Dar mi opinión](https://github.com/cplus2jules/motion-air/issues/new?template=03-feedback.yml) · [Contribuir](CONTRIBUTING.es.md)
+
 Motion Air sigue en pruebas. Hay comprobaciones automáticas de los botones y del envío de movimiento; la precisión de las puntuaciones de Just Dance necesita pruebas con un teléfono y un juego reales.
 
 ## Capturas de pantalla
@@ -140,6 +142,17 @@ El bloqueo para bailar oculta los controles. **Enviando movimiento** indica que 
 | El lanzador no encuentra Node.js | Instala Node.js LTS y vuelve a abrir el lanzador. |
 
 Más ayuda: [conexión](docs/connection-reliability.md) · [estado de las pruebas de movimiento](docs/motion-implementation-status.md).
+
+## Opiniones y contribuciones
+
+Puedes ayudar sin programar. Cuéntanos qué funcionó, señala una pantalla confusa, mejora una traducción o propone una función. Los formularios aceptan español e inglés.
+
+- [Reportar un error](https://github.com/cplus2jules/motion-air/issues/new?template=01-bug-report.yml)
+- [Proponer una función](https://github.com/cplus2jules/motion-air/issues/new?template=02-feature-request.yml)
+- [Compartir tu opinión o pedir ayuda](https://github.com/cplus2jules/motion-air/issues/new?template=03-feedback.yml)
+- [Aprender a contribuir y abrir un pull request](CONTRIBUTING.es.md)
+
+Inicia sesión en GitHub con acceso a este repositorio privado. Tu respuesta aparece como un issue con tu cuenta. No adjuntes códigos de conexión, códigos QR ni contraseñas.
 
 ## Desarrollo
 

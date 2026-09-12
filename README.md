@@ -4,6 +4,8 @@ Use your **Android phone or iPhone as a wireless controller** for motion games o
 
 [Download Motion Air](https://github.com/cplus2jules/motion-air/releases) · [Screenshots](#screenshots) · [Setup instructions](#1-download-the-right-files) · [Leer en español](README.es.md)
 
+[Report a problem](https://github.com/cplus2jules/motion-air/issues/new?template=01-bug-report.yml) · [Send feedback](https://github.com/cplus2jules/motion-air/issues/new?template=03-feedback.yml) · [Contribute](CONTRIBUTING.md)
+
 Motion Air is still being tested. Buttons and motion delivery have automated checks; reliable Just Dance scoring needs testing with a real phone and game.
 
 ## Screenshots
@@ -139,6 +141,17 @@ Dance Lock hides the game controls. **Sending motion** means the computer's moti
 | The launcher says Node.js is missing | Install the Node.js LTS version, then open the launcher again. |
 
 More help: [connection troubleshooting](docs/connection-reliability.md) · [motion testing status](docs/motion-implementation-status.md)
+
+## Feedback and contributions
+
+You can help without writing code. Tell us what worked, report a confusing screen, improve a translation, or suggest a feature. The forms accept English or Spanish.
+
+- [Report a bug](https://github.com/cplus2jules/motion-air/issues/new?template=01-bug-report.yml)
+- [Suggest a feature](https://github.com/cplus2jules/motion-air/issues/new?template=02-feature-request.yml)
+- [Share feedback or ask for help](https://github.com/cplus2jules/motion-air/issues/new?template=03-feedback.yml)
+- [Learn how to contribute and open a pull request](CONTRIBUTING.md)
+
+Sign in to GitHub with access to this private repository. Feedback appears as a GitHub issue under your account. Keep pairing codes, QR codes and passwords out of attachments.
 
 ## For developers
 

@@ -1,0 +1,79 @@
+name: Bug report / Reportar un error
+description: Something is not working on your phone or computer. / Algo no funciona en tu teléfono o equipo.
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the problem in English or Spanish. You do not need technical experience.
+        Puedes responder en español o inglés. No necesitas conocimientos técnicos.
+
+        Check [existing reports](https://github.com/cplus2jules/motion-air/issues) first. If yours is already there, add your experience to it.
+        Revisa los [reportes existentes](https://github.com/cplus2jules/motion-air/issues); si encuentras el mismo problema, añade tu experiencia allí.
+
+        Keep pairing QR codes, pairing codes, passwords and signing keys out of screenshots and logs.
+        No incluyas códigos QR de conexión, códigos de conexión, contraseñas ni claves de firma en capturas o registros.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where is the problem? / ¿Dónde ocurre?
+      multiple: true
+      options:
+        - iPhone app / App de iPhone
+        - Android app / App de Android
+        - Mac computer / Equipo Mac
+        - Windows computer / Equipo Windows
+        - Browser controller / Mando del navegador
+        - Downloads or installation / Descargas o instalación
+        - Instructions / Instrucciones
+        - Not sure / No lo sé
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened? / ¿Qué pasó?
+      description: Explain what went wrong and what you expected. / Explica qué falló y qué esperabas.
+      placeholder: "Example: The phone connects, but moving it does nothing in the game. / Ejemplo: El teléfono conecta, pero al moverlo no pasa nada en el juego."
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How can we repeat it? / ¿Cómo podemos repetirlo?
+      description: List what you tapped or did. Say if it happens every time or only sometimes. / Indica qué pulsaste o hiciste y si pasa siempre o a veces.
+      placeholder: |
+        1. Open Motion Air / Abrir Motion Air
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: setup
+    attributes:
+      label: Your phone and computer / Tu teléfono y equipo
+      description: Add what you know. "Not sure" is fine. The app version may be the release you downloaded. / Añade lo que sepas; puedes escribir "No lo sé". La versión puede ser la de la descarga.
+      placeholder: |
+        Phone model and iOS/Android version / Modelo y versión del teléfono:
+        Motion Air version or download link / Versión o enlace de descarga:
+        Mac or Windows version / Versión de Mac o Windows:
+        Real phone or simulator / Teléfono real o simulador:
+    validations:
+      required: true
+  - type: textarea
+    id: tracking
+    attributes:
+      label: For connection or tracking problems (optional) / Para problemas de conexión o movimiento (opcional)
+      description: Answer only what you know. This helps separate connection failures from in-game motion problems. / Responde lo que sepas para distinguir fallos de conexión y del movimiento en el juego.
+      placeholder: |
+        Same Wi-Fi or hotspot? / ¿Misma Wi-Fi o punto de acceso?
+        Do A/B or the stick work? / ¿Funcionan A/B o el stick?
+        Is Enable Motion on? What status does the app show? / ¿Está activo el movimiento? ¿Qué estado muestra la app?
+        Did you lock the phone, switch apps or reconnect? / ¿Bloqueaste el teléfono, cambiaste de app o reconectaste?
+        Game and emulator name/version, if relevant / Juego y emulador con versión, si corresponde:
+        Does hotspot work when Wi-Fi does not? / ¿Funciona con un punto de acceso, pero no con Wi-Fi?
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Screenshots or error messages (optional) / Capturas o mensajes de error (opcional)
+      description: Drag images here or paste the error text. Remove pairing codes and private details first. / Arrastra imágenes o pega el error. Oculta antes los códigos de conexión y los datos privados.

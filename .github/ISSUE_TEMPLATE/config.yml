@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Setup guide / Guía de instalación
+    url: https://github.com/cplus2jules/motion-air/blob/main/README.md
+    about: Install and connect your phone. Spanish is linked at the top. / Instala y conecta tu teléfono; hay un enlace a español al inicio.
+  - name: How to contribute / Cómo contribuir
+    url: https://github.com/cplus2jules/motion-air/blob/main/CONTRIBUTING.md
+    about: Help with testing, screenshots, translations or code. / Ayuda con pruebas, capturas, traducciones o código.

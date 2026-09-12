@@ -1,0 +1,45 @@
+name: Feedback or help / Opiniones o ayuda
+description: Share your experience, ask for help, or suggest clearer instructions. / Comparte tu experiencia o pide ayuda.
+title: "[Feedback] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Write in English or Spanish. A few sentences are enough.
+        Escribe en español o inglés. Bastan unas pocas frases.
+
+        Your message becomes a GitHub issue visible to people with access to this repository. It is not an anonymous survey.
+        Tu mensaje se convierte en un issue de GitHub visible para quienes tienen acceso al repositorio. No es una encuesta anónima.
+
+        Do not include pairing QR codes, pairing codes, passwords or signing keys.
+        No incluyas códigos QR de conexión, códigos de conexión, contraseñas ni claves de firma.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What is this about? / ¿De qué se trata?
+      options:
+        - My experience using the app / Mi experiencia con la app
+        - I need help / Necesito ayuda
+        - Confusing instructions / Instrucciones confusas
+        - Accessibility or ease of use / Accesibilidad o facilidad de uso
+        - Translation / Traducción
+        - Something else / Otra cosa
+    validations:
+      required: true
+  - type: textarea
+    id: message
+    attributes:
+      label: Your feedback or question / Tu opinión o pregunta
+      description: What worked, what was confusing, or where did you get stuck? / ¿Qué funcionó, qué fue confuso o en qué paso te atascaste?
+    validations:
+      required: true
+  - type: input
+    id: setup
+    attributes:
+      label: Phone and computer (optional) / Teléfono y equipo (opcional)
+      placeholder: "Example: iPhone 16 Pro + Mac, Motion Air 0.2.2 / Ejemplo: Android + Windows"
+  - type: textarea
+    id: attachment
+    attributes:
+      label: Screenshot or link (optional) / Captura o enlace (opcional)
+      description: You can attach an image or link to the confusing instruction. Remove private details first. / Puedes adjuntar una imagen o enlazar la instrucción confusa. Oculta antes los datos privados.
