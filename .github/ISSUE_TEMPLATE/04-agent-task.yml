@@ -1,0 +1,79 @@
+name: Implementation task / Tarea de implementación
+description: Define a focused change for a contributor or coding agent. / Define un cambio concreto para una persona o agente.
+title: "[Task] "
+labels: [agent-task, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this when the desired change is understood. For a broken app, use the bug form; for an open question, use Discussions.
+        Usa este formulario cuando el cambio esté definido. Para un fallo, usa el formulario de errores; para una pregunta, usa Discussions.
+
+        This form records the work. It does not start an agent automatically. A maintainer reviews scope and missing information before assigning it.
+        El formulario describe el trabajo; no inicia un agente automáticamente. Un responsable revisa el alcance y la información que falta antes de asignarlo.
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal / Objetivo
+      description: Explain the current problem and the result users need. / Explica el problema actual y el resultado que necesitan los usuarios.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected areas / Áreas afectadas
+      multiple: true
+      options:
+        - iPhone / Swift
+        - Android / Kotlin
+        - Computer bridge / Puente del equipo
+        - Mac launcher / Lanzador de Mac
+        - Windows launcher / Lanzador de Windows
+        - Browser controller / Mando del navegador
+        - Documentation or translations / Documentación o traducciones
+        - CI or releases / CI o publicaciones
+        - Expo fallback / App alternativa Expo
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope / Alcance
+      description: Say what to change and what is outside this task. Files or components are useful if known. / Indica qué cambiar y qué queda fuera. Añade archivos o componentes si los conoces.
+      placeholder: |
+        Include / Incluir:
+        Leave for later / Dejar para después:
+        Relevant files, if known / Archivos relevantes, si se conocen:
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria / Criterios de aceptación
+      description: Use observable outcomes. Include relevant error, offline or reconnect behavior. / Usa resultados observables e incluye errores, desconexión o reconexión cuando corresponda.
+      placeholder: |
+        - [ ] Given..., when..., then... / Dado..., cuando..., entonces...
+        - [ ] ...
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation plan / Plan de comprobación
+      description: List checks, devices and evidence needed. Mark tests that need a real phone or game. "Needs maintainer input" is fine. / Enumera pruebas, dispositivos y evidencias. Señala las pruebas que necesitan teléfono real o juego. Puedes indicar que necesitas ayuda del responsable.
+      placeholder: |
+        Automated checks or commands / Pruebas automáticas o comandos:
+        Manual steps and expected results / Pasos manuales y resultados esperados:
+        Required platforms or devices / Plataformas o dispositivos necesarios:
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context and dependencies / Contexto y dependencias
+      description: Link the source discussion, related issues, screenshots or documentation. Name any work that must finish first. / Enlaza la conversación, los issues, las capturas o la documentación e indica qué trabajo debe terminar antes.
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints and open questions / Restricciones y dudas
+      description: Include compatibility, migration, translation or design requirements, and decisions still needed. Do not include credentials or pairing codes. / Incluye requisitos de compatibilidad, migración, traducción o diseño y decisiones pendientes. No incluyas credenciales ni códigos de conexión.

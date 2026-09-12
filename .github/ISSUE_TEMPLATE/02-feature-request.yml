@@ -1,6 +1,7 @@
 name: Suggest a feature / Proponer una función
 description: Describe something you would like Motion Air to do. / Describe algo que te gustaría poder hacer.
 title: "[Idea] "
+labels: [enhancement, needs-triage]
 body:
   - type: markdown
     attributes:
@@ -42,3 +43,18 @@ body:
     attributes:
       label: Examples or alternatives (optional) / Ejemplos o alternativas (opcional)
       description: Add a sketch, screenshot, or what you do now. Remove private details. / Añade un boceto, captura o lo que haces ahora. Oculta los datos privados.
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Success criteria / Cómo sabremos que funciona
+      description: List the results a person should be able to see or try. / Enumera los resultados que una persona debería poder ver o probar.
+      placeholder: |
+        - [ ] A user can... / Una persona puede...
+        - [ ] When..., the app... / Cuando..., la app...
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and limits (optional) / Alcance y límites (opcional)
+      description: What should this change include? What can wait? Link any related discussion. / ¿Qué debe incluir? ¿Qué puede esperar? Enlaza la conversación relacionada.

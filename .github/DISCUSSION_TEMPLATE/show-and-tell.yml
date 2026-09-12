@@ -1,0 +1,30 @@
+title: "[Showcase] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Show your setup, contribution or experiment. English or Spanish is welcome. Hide pairing codes and private information in photos and logs.
+        Comparte tu configuración, contribución o experimento en español o inglés. Oculta códigos de conexión y datos privados en fotos y registros.
+  - type: textarea
+    id: work
+    attributes:
+      label: What are you sharing? / ¿Qué compartes?
+    validations:
+      required: true
+  - type: textarea
+    id: setup
+    attributes:
+      label: Setup and versions / Equipo y versiones
+      description: List the phone, computer, app version and emulator when relevant. / Indica teléfono, equipo, versión de la app y emulador cuando corresponda.
+  - type: textarea
+    id: results
+    attributes:
+      label: Results and evidence / Resultados y evidencias
+      description: Say what you tried and observed. Separate simulator results, real-phone motion and in-game scoring. / Indica qué probaste y observaste. Distingue simulador, movimiento del teléfono real y puntuación en el juego.
+    validations:
+      required: true
+  - type: textarea
+    id: followup
+    attributes:
+      label: Links and next steps / Enlaces y próximos pasos
+      description: Optional. Attach screenshots or link a related issue or pull request. / Opcional. Adjunta capturas o enlaza un issue o pull request.

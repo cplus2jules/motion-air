@@ -10,11 +10,21 @@ You can help by testing the app on your phone, reporting a confusing screen, imp
 | --- | --- |
 | Report something that does not work | [Bug report](https://github.com/cplus2jules/motion-air/issues/new?template=01-bug-report.yml) |
 | Suggest a feature | [Feature request](https://github.com/cplus2jules/motion-air/issues/new?template=02-feature-request.yml) |
-| Share feedback or ask for help | [Feedback form](https://github.com/cplus2jules/motion-air/issues/new?template=03-feedback.yml) |
+| Ask for help | [Discussions Q&A](https://github.com/cplus2jules/motion-air/discussions/categories/q-a) |
+| Explore an idea or share feedback | [Discussions](https://github.com/cplus2jules/motion-air/discussions/new/choose) |
+| Define work for a contributor or coding agent | [Implementation task](https://github.com/cplus2jules/motion-air/issues/new?template=04-agent-task.yml) |
 | Check whether someone already reported it | [Existing issues](https://github.com/cplus2jules/motion-air/issues) |
 | Improve code or documentation | [Send a pull request](#send-a-pull-request) |
 
-You can write in English or Spanish. Sign in to GitHub first. This repository is currently private, so you need access to view it and use its forms. Submitted feedback appears as an issue under your GitHub account and is visible to people with repository access.
+You can write in English or Spanish. Sign in to GitHub first. This repository is currently private, so you need access to view it and use its forms. Issues and discussions appear under your GitHub account and are visible to people with repository access. The [feedback issue form](https://github.com/cplus2jules/motion-air/issues/new?template=03-feedback.yml) is also available when feedback should be tracked as work.
+
+## Discussions and work for agents
+
+Use **Q&A** for help and mark the answer that solves your question. Use **Ideas** to explore a proposal, **General** for project feedback, and **Show and tell** for something you tried or built. Maintainers can use **Announcements** for updates. Each category has a form; **Polls** uses GitHub's poll editor.
+
+When a discussion leads to a change, open an implementation task with a goal, scope, acceptance criteria and a validation plan. Link the discussion so decisions stay traceable. Maintainers review new tasks under `needs-triage` and apply `ready-for-agent` when the task can be assigned. These labels do not start an agent automatically.
+
+Read [From a discussion to a tested change](docs/agent-workflow.md) for the workflow. Coding agents should read [AGENTS.md](AGENTS.md); GitHub Copilot also has [repository instructions](.github/copilot-instructions.md).
 
 ## Report a problem
 

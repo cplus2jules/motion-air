@@ -9,6 +9,7 @@ destination.parent.mkdir(exist_ok=True)
 files = [root / name for name in (
     "Motion Air.cmd", "Build Ryujinx Motion.cmd", "Motion Air.command",
     "package.json", "package-lock.json", "README.md", "README.es.md", "CONTRIBUTING.md", "CONTRIBUTING.es.md",
+    "AGENTS.md", ".github/copilot-instructions.md",
     "LICENSE", "ACKNOWLEDGEMENTS.md", "RELEASING.md", "install.sh", "android/README.md",
 )]
 for folder in ("server", "public", "tools", "docs"):

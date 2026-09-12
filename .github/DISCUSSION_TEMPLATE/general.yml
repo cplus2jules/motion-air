@@ -1,0 +1,26 @@
+title: "[Discussion] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Share feedback or discuss the project in English or Spanish. Use Q&A for setup help, Ideas for proposals, or an issue for a repeatable bug.
+        Comparte opiniones o conversa sobre el proyecto en español o inglés. Usa Q&A para ayuda, Ideas para propuestas o un issue para un fallo reproducible.
+  - type: textarea
+    id: topic
+    attributes:
+      label: Topic / Tema
+      description: What would you like to discuss? / ¿Sobre qué quieres conversar?
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context / Contexto
+      description: What happened or prompted this? Include links if useful. / ¿Qué ocurrió o motivó la conversación? Incluye enlaces si ayudan.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome / Resultado deseado
+      description: Optional. Is there a question, decision or next step you want help with? / Opcional. ¿Hay una pregunta, decisión o próximo paso para el que necesitas ayuda?

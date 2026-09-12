@@ -10,11 +10,21 @@ Puedes ayudar probando la app en tu teléfono, señalando una pantalla confusa, 
 | --- | --- |
 | Reportar algo que no funciona | [Reporte de error](https://github.com/cplus2jules/motion-air/issues/new?template=01-bug-report.yml) |
 | Proponer una función | [Propuesta de función](https://github.com/cplus2jules/motion-air/issues/new?template=02-feature-request.yml) |
-| Dar mi opinión o pedir ayuda | [Formulario de opiniones](https://github.com/cplus2jules/motion-air/issues/new?template=03-feedback.yml) |
+| Pedir ayuda | [Discussions Q&A](https://github.com/cplus2jules/motion-air/discussions/categories/q-a) |
+| Explorar una idea o compartir una opinión | [Discussions](https://github.com/cplus2jules/motion-air/discussions/new/choose) |
+| Definir trabajo para una persona o agente | [Tarea de implementación](https://github.com/cplus2jules/motion-air/issues/new?template=04-agent-task.yml) |
 | Ver si alguien ya lo reportó | [Issues existentes](https://github.com/cplus2jules/motion-air/issues) |
 | Mejorar código o documentación | [Enviar un pull request](#enviar-un-pull-request) |
 
-Puedes escribir en español o inglés. Inicia sesión en GitHub. Este repositorio es privado, así que necesitas acceso para verlo y usar sus formularios. Tu respuesta se publica como un issue con tu cuenta de GitHub y es visible para quienes tienen acceso al repositorio.
+Puedes escribir en español o inglés. Inicia sesión en GitHub. Este repositorio es privado, así que necesitas acceso para verlo y usar sus formularios. Los issues y las conversaciones aparecen con tu cuenta de GitHub y son visibles para quienes tienen acceso al repositorio. El [formulario de opiniones como issue](https://github.com/cplus2jules/motion-air/issues/new?template=03-feedback.yml) sigue disponible para comentarios que deban convertirse en trabajo.
+
+## Conversaciones y trabajo para agentes
+
+Usa **Q&A** para pedir ayuda y marca la respuesta que resuelva tu pregunta. Usa **Ideas** para explorar propuestas, **General** para opiniones y **Show and tell** para compartir algo que probaste o creaste. Los responsables pueden usar **Announcements** para novedades. Cada categoría tiene un formulario; **Polls** usa el editor de encuestas de GitHub.
+
+Cuando una conversación dé lugar a un cambio, abre una tarea de implementación con objetivo, alcance, criterios de aceptación y plan de comprobación. Enlaza la conversación para conservar las decisiones. Los responsables revisan las tareas con `needs-triage` y añaden `ready-for-agent` cuando pueden asignarse. Estas etiquetas no inician agentes automáticamente.
+
+Consulta el [flujo desde una conversación hasta un cambio probado](docs/agent-workflow.md#español). Los agentes deben leer [AGENTS.md](AGENTS.md); GitHub Copilot también tiene [instrucciones del repositorio](.github/copilot-instructions.md).
 
 ## Reportar un problema
 

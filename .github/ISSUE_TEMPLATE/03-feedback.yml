@@ -1,12 +1,16 @@
 name: Feedback or help / Opiniones o ayuda
 description: Share your experience, ask for help, or suggest clearer instructions. / Comparte tu experiencia o pide ayuda.
 title: "[Feedback] "
+labels: [needs-triage]
 body:
   - type: markdown
     attributes:
       value: |
         Write in English or Spanish. A few sentences are enough.
         Escribe en español o inglés. Bastan unas pocas frases.
+
+        For a conversation or setup question, you can also use [Discussions Q&A](https://github.com/cplus2jules/motion-air/discussions/categories/q-a).
+        Para conversar o pedir ayuda con la instalación, también puedes usar [Discussions Q&A](https://github.com/cplus2jules/motion-air/discussions/categories/q-a).
 
         Your message becomes a GitHub issue visible to people with access to this repository. It is not an anonymous survey.
         Tu mensaje se convierte en un issue de GitHub visible para quienes tienen acceso al repositorio. No es una encuesta anónima.
@@ -37,7 +41,7 @@ body:
     id: setup
     attributes:
       label: Phone and computer (optional) / Teléfono y equipo (opcional)
-      placeholder: "Example: iPhone 16 Pro + Mac, Motion Air 0.2.2 / Ejemplo: Android + Windows"
+      placeholder: "Phone model + computer system + app version / Modelo del teléfono + sistema del equipo + versión de la app"
   - type: textarea
     id: attachment
     attributes:

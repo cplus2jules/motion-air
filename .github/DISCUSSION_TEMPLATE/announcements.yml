@@ -1,0 +1,32 @@
+title: "[Announcement] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For maintainer announcements. Link the published release or decision and explain what users need to do. English or Spanish is welcome.
+        Para anuncios del responsable. Enlaza la publicación o decisión y explica qué deben hacer los usuarios. Puedes escribir en español o inglés.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Announcement / Anuncio
+    validations:
+      required: true
+  - type: textarea
+    id: audience
+    attributes:
+      label: Who is affected? / ¿A quién afecta?
+      description: Name versions, platforms and any compatibility limits. / Indica versiones, plataformas y límites de compatibilidad.
+    validations:
+      required: true
+  - type: textarea
+    id: action
+    attributes:
+      label: What users should do / Qué deben hacer los usuarios
+      description: Give steps and links, or say that no action is needed. / Incluye pasos y enlaces, o indica que no se requiere ninguna acción.
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Evidence and known limitations / Evidencias y limitaciones conocidas
+      description: Link the release, checks or decision. Separate shipped work from planned work. / Enlaza la publicación, las pruebas o la decisión. Distingue lo publicado de lo planeado.

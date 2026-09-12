@@ -1,6 +1,7 @@
 name: Bug report / Reportar un error
 description: Something is not working on your phone or computer. / Algo no funciona en tu teléfono o equipo.
 title: "[Bug] "
+labels: [bug, needs-triage]
 body:
   - type: markdown
     attributes:
@@ -32,9 +33,16 @@ body:
   - type: textarea
     id: problem
     attributes:
-      label: What happened? / ¿Qué pasó?
-      description: Explain what went wrong and what you expected. / Explica qué falló y qué esperabas.
+      label: Actual behavior / Qué ocurrió
+      description: Describe what the app did. Include the exact message if one appeared. / Describe qué hizo la app e incluye el mensaje exacto, si apareció alguno.
       placeholder: "Example: The phone connects, but moving it does nothing in the game. / Ejemplo: El teléfono conecta, pero al moverlo no pasa nada en el juego."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior / Qué esperabas
+      description: What should happen after the same steps? / ¿Qué debería pasar después de los mismos pasos?
     validations:
       required: true
   - type: textarea
@@ -60,6 +68,15 @@ body:
         Real phone or simulator / Teléfono real o simulador:
     validations:
       required: true
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: Frequency / Frecuencia
+      options:
+        - Every time / Siempre
+        - Sometimes / A veces
+        - Happened once / Ocurrió una vez
+        - Not sure / No lo sé
   - type: textarea
     id: tracking
     attributes:
@@ -77,3 +94,9 @@ body:
     attributes:
       label: Screenshots or error messages (optional) / Capturas o mensajes de error (opcional)
       description: Drag images here or paste the error text. Remove pairing codes and private details first. / Arrastra imágenes o pega el error. Oculta antes los códigos de conexión y los datos privados.
+  - type: textarea
+    id: fix_check
+    attributes:
+      label: How to confirm the fix (optional) / Cómo comprobar la solución (opcional)
+      description: Describe a result you could check after an update. No coding needed. / Describe un resultado que puedas comprobar tras actualizar; no necesitas programar.
+      placeholder: "Example: After reconnecting, I can enable motion and the game receives new movements. / Ejemplo: Tras reconectar, puedo activar el movimiento y el juego recibe movimientos nuevos."

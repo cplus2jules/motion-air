@@ -1,0 +1,37 @@
+title: "[Idea] "
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Explore an idea here before defining implementation work. English or Spanish is welcome.
+        Explora una idea aquí antes de definir una tarea de implementación. Puedes escribir en español o inglés.
+  - type: textarea
+    id: need
+    attributes:
+      label: User need / Necesidad del usuario
+      description: Who needs this, and what is difficult today? / ¿Quién lo necesita y qué resulta difícil ahora?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed experience / Experiencia propuesta
+      description: Give an example of how someone would use it. / Da un ejemplo de cómo se usaría.
+    validations:
+      required: true
+  - type: textarea
+    id: success
+    attributes:
+      label: What would make this useful? / ¿Qué haría que fuera útil?
+      description: Describe results we could later turn into acceptance criteria. / Describe resultados que después puedan convertirse en criterios de aceptación.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and tradeoffs / Alternativas y ventajas o límites
+      description: Optional. Include affected platforms, related issues, sketches or constraints. / Opcional. Incluye plataformas, issues, bocetos o restricciones.
+  - type: textarea
+    id: questions
+    attributes:
+      label: Open questions / Preguntas pendientes
+      description: What needs a decision before someone builds this? / ¿Qué debe decidirse antes de implementarlo?

@@ -1,0 +1,40 @@
+title: "[Help] "
+labels: [question]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ask in English or Spanish. Start with the [setup guide](https://github.com/cplus2jules/motion-air/blob/main/README.md) if you have not installed the apps yet.
+        Pregunta en español o inglés. Si aún no has instalado las apps, empieza por la [guía de instalación](https://github.com/cplus2jules/motion-air/blob/main/README.es.md).
+
+        Keep pairing codes, QR codes, passwords and signing files out of attachments. Mark the answer that solves your question.
+        No adjuntes códigos de conexión, QR, contraseñas ni archivos de firma. Marca la respuesta que resuelva tu pregunta.
+  - type: textarea
+    id: goal
+    attributes:
+      label: What are you trying to do? / ¿Qué intentas hacer?
+    validations:
+      required: true
+  - type: textarea
+    id: setup
+    attributes:
+      label: Your setup / Tu equipo
+      description: Add what you know; "not sure" is fine. / Añade lo que sepas; puedes escribir "no lo sé".
+      placeholder: |
+        Phone model, system and app version / Modelo, sistema y versión de la app:
+        Computer system / Sistema del equipo:
+        Emulator and game, if relevant / Emulador y juego, si corresponde:
+    validations:
+      required: true
+  - type: textarea
+    id: attempts
+    attributes:
+      label: What have you tried? / ¿Qué has probado?
+      description: Include the step where you got stuck and what happened. / Incluye el paso donde te atascaste y qué ocurrió.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshots or error text / Capturas o texto del error
+      description: Optional. Hide private details before attaching. / Opcional. Oculta los datos privados antes de adjuntar.

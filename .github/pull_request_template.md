@@ -9,6 +9,22 @@ Remove sections that do not apply. / Elimina las secciones que no correspondan.
 Explica el problema y cómo ayuda el cambio. Enlaza el issue relacionado, si existe.
 -->
 
+## Related work / Trabajo relacionado
+
+<!-- Link the issue and source discussion. Use "Closes #123" only if this PR completes that issue.
+Enlaza el issue y la conversación de origen. Usa "Closes #123" solo si este PR resuelve ese issue.
+-->
+
+## Acceptance criteria / Criterios de aceptación
+
+<!-- Map each criterion from the issue to evidence here. Mark incomplete criteria explicitly.
+Relaciona cada criterio del issue con una evidencia. Señala los que estén pendientes.
+-->
+
+| Criterion / Criterio | Evidence or gap / Evidencia o pendiente |
+| --- | --- |
+| | |
+
 ## Checks / Comprobaciones
 
 <!-- Say what you tested, on which phone/computer, and the result. Include commands when useful.
@@ -23,6 +39,12 @@ Para documentación, revisa enlaces e imágenes. Indica qué no pudiste probar y
 
 <!-- For UI or setup changes, attach before/after screenshots. Identify iPhone or Android.
 Para cambios de interfaz o instalación, adjunta capturas del antes y después e indica la plataforma.
+-->
+
+## Remaining work and compatibility / Trabajo pendiente y compatibilidad
+
+<!-- Note unresolved decisions, affected platforms, migration needs or follow-up issues. "None" is fine.
+Indica decisiones pendientes, plataformas afectadas, migraciones o issues de seguimiento. Puedes escribir "Ninguno".
 -->
 
 ## Before review / Antes de la revisión

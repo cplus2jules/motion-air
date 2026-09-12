@@ -1,5 +1,11 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Questions and help / Preguntas y ayuda
+    url: https://github.com/cplus2jules/motion-air/discussions/categories/q-a
+    about: Ask about setup or using the app. / Pregunta sobre la instalación o el uso de la app.
+  - name: Discuss an idea / Conversar sobre una idea
+    url: https://github.com/cplus2jules/motion-air/discussions/categories/ideas
+    about: Explore an idea before turning it into a task. / Explora una idea antes de convertirla en una tarea.
   - name: Setup guide / Guía de instalación
     url: https://github.com/cplus2jules/motion-air/blob/main/README.md
     about: Install and connect your phone. Spanish is linked at the top. / Instala y conecta tu teléfono; hay un enlace a español al inicio.

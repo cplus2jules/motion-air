@@ -6,6 +6,8 @@ Usa tu **Android o iPhone como mando inalámbrico** para juegos con movimiento e
 
 [Reportar un problema](https://github.com/cplus2jules/motion-air/issues/new?template=01-bug-report.yml) · [Dar mi opinión](https://github.com/cplus2jules/motion-air/issues/new?template=03-feedback.yml) · [Contribuir](CONTRIBUTING.es.md)
 
+[Preguntar a la comunidad](https://github.com/cplus2jules/motion-air/discussions/new/choose) · [Crear una tarea de implementación](https://github.com/cplus2jules/motion-air/issues/new?template=04-agent-task.yml)
+
 Motion Air sigue en pruebas. Hay comprobaciones automáticas de los botones y del envío de movimiento; la precisión de las puntuaciones de Just Dance necesita pruebas con un teléfono y un juego reales.
 
 ## Capturas de pantalla
@@ -154,7 +156,9 @@ Puedes ayudar sin programar. Cuéntanos qué funcionó, señala una pantalla con
 - [Compartir tu opinión o pedir ayuda](https://github.com/cplus2jules/motion-air/issues/new?template=03-feedback.yml)
 - [Aprender a contribuir y abrir un pull request](CONTRIBUTING.es.md)
 
-Inicia sesión en GitHub con acceso a este repositorio privado. Tu respuesta aparece como un issue con tu cuenta. No adjuntes códigos de conexión, códigos QR ni contraseñas.
+Para preguntas o ideas abiertas, usa [Discussions](https://github.com/cplus2jules/motion-air/discussions/new/choose). Para definir trabajo concreto, usa la [tarea de implementación](https://github.com/cplus2jules/motion-air/issues/new?template=04-agent-task.yml). Consulta el [flujo para colaboradores y agentes](docs/agent-workflow.md#español).
+
+Inicia sesión en GitHub con acceso a este repositorio privado. Los issues y las conversaciones aparecen con tu cuenta. No adjuntes códigos de conexión, códigos QR ni contraseñas.
 
 ## Desarrollo
 

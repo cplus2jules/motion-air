@@ -16,6 +16,8 @@
     "README.es.md",
     "CONTRIBUTING.md",
     "CONTRIBUTING.es.md",
+    "AGENTS.md",
+    ".github/copilot-instructions.md",
     "LICENSE",
     "RELEASING.md",
     "ACKNOWLEDGEMENTS.md",

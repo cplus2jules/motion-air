@@ -6,6 +6,8 @@ Use your **Android phone or iPhone as a wireless controller** for motion games o
 
 [Report a problem](https://github.com/cplus2jules/motion-air/issues/new?template=01-bug-report.yml) · [Send feedback](https://github.com/cplus2jules/motion-air/issues/new?template=03-feedback.yml) · [Contribute](CONTRIBUTING.md)
 
+[Ask the community](https://github.com/cplus2jules/motion-air/discussions/new/choose) · [Create an implementation task](https://github.com/cplus2jules/motion-air/issues/new?template=04-agent-task.yml)
+
 Motion Air is still being tested. Buttons and motion delivery have automated checks; reliable Just Dance scoring needs testing with a real phone and game.
 
 ## Screenshots
@@ -153,7 +155,9 @@ You can help without writing code. Tell us what worked, report a confusing scree
 - [Share feedback or ask for help](https://github.com/cplus2jules/motion-air/issues/new?template=03-feedback.yml)
 - [Learn how to contribute and open a pull request](CONTRIBUTING.md)
 
-Sign in to GitHub with access to this private repository. Feedback appears as a GitHub issue under your account. Keep pairing codes, QR codes and passwords out of attachments.
+For questions or open ideas, use [Discussions](https://github.com/cplus2jules/motion-air/discussions/new/choose). For a defined change, use the [implementation task form](https://github.com/cplus2jules/motion-air/issues/new?template=04-agent-task.yml). See the [contributor and agent workflow](docs/agent-workflow.md).
+
+Sign in to GitHub with access to this private repository. Issues and discussions appear under your account. Keep pairing codes, QR codes and passwords out of attachments.
 
 ## For developers
 
