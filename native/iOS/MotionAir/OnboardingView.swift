@@ -211,7 +211,7 @@ private struct WelcomeArtwork: View {
                         VStack(spacing: 12) {
                             Image(systemName: "play.fill").font(.system(size: 30, weight: .bold))
                             Text("PRESS PLAY").font(.system(size: 11, weight: .bold, design: .monospaced)).tracking(3)
-                        }.foregroundStyle(.white.opacity(0.9))
+                        }.foregroundStyle(.white.opacity(0.9)).offset(y: -16)
                     }
                     .frame(width: 232, height: 152)
                 UnevenRoundedRectangle(bottomLeadingRadius: 10, bottomTrailingRadius: 10)

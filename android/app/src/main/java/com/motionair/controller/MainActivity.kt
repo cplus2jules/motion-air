@@ -247,7 +247,6 @@ class MainActivity : Activity() {
         }
         gripHeader(left, t("MOVE", "MOVER"), "minus", "−", t("Minus", "Menos"), true)
         val stick = MenuStick(this) { x, y -> session.stick(x, y) }; left.addView(stick, LinearLayout.LayoutParams(-1, dp(160))); controls.add(stick)
-        left.addView(text(t("Find your next move", "Busca tu próxima jugada"), 12f, ink, true).apply { gravity = Gravity.CENTER })
         gripHeader(right, t("PLAY", "JUGAR"), "plus", "+", t("Plus / pause", "Más / pausa"), false)
         pad(right, "x", "X")
         val middle = LinearLayout(this).apply { gravity = Gravity.CENTER; orientation = LinearLayout.HORIZONTAL; isBaselineAligned = false }
@@ -256,7 +255,6 @@ class MainActivity : Activity() {
         (yButton.layoutParams as LinearLayout.LayoutParams).marginEnd = dp(28)
         pad(middle, "a", "A", t("A / select", "A / seleccionar"))
         pad(right, "b", "B", t("B / back", "B / volver"))
-        right.addView(text(t("A selects · B goes back", "A selecciona · B vuelve"), 12f, ink, true).apply { gravity = Gravity.CENTER })
         fun row(vararg buttons: Pair<String, String>, parent: LinearLayout = column) {
             val row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER }
             buttons.forEach { (id, title) ->

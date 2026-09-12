@@ -160,9 +160,9 @@ private class WelcomeArtwork(context: Context, description: String, private val 
         paint.color = Color.LTGRAY; canvas.drawRoundRect(RectF(110f, 164f, 186f, 186f), 8f, 8f, paint)
         paint.color = Color.rgb(32, 38, 48); canvas.drawRoundRect(RectF(28f, 22f, 270f, 180f), 20f, 20f, paint)
         paint.color = Color.WHITE
-        canvas.drawPath(Path().apply { moveTo(137f, 68f); lineTo(137f, 100f); lineTo(166f, 84f); close() }, paint)
+        canvas.drawPath(Path().apply { moveTo(137f, 54f); lineTo(137f, 86f); lineTo(166f, 70f); close() }, paint)
         paint.typeface = Typeface.MONOSPACE; paint.textSize = 11f; paint.textAlign = Paint.Align.CENTER
-        canvas.drawText(playLabel, 149f, 130f, paint); canvas.restore()
+        canvas.drawText(playLabel, 149f, 110f, paint); canvas.restore()
         canvas.save(); canvas.rotate(9f, 196f, 212f); mark.setBounds(88, 100, 310, 322); mark.draw(canvas); canvas.restore(); canvas.restore()
     }
 }

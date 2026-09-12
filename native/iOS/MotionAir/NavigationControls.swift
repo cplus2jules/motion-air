@@ -42,9 +42,6 @@ struct NavigationControls: View {
             HStack { button(.minus, "−", "Minus").frame(width: 48); Spacer(); gripLabel("MOVE") }
             MenuJoystick(enabled: session.controlsEnabled, move: session.moveStick, nudge: session.nudgeStick)
                 .padding(.vertical, 8)
-            Text("Find your next move")
-                .font(.caption.weight(.semibold)).multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
         }
         .frame(minWidth: 138, maxWidth: .infinity, minHeight: 246)
         .padding(10)
@@ -63,9 +60,6 @@ struct NavigationControls: View {
                 }
                 button(.b, "B", "B / back").frame(width: 48)
             }.frame(width: 132)
-            Text("A selects · B goes back")
-                .font(.caption.weight(.semibold)).multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
         }
         .frame(minWidth: 138, maxWidth: .infinity, minHeight: 246)
         .padding(10)

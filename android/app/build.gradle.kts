@@ -1,6 +1,6 @@
 plugins { id("com.android.application"); id("org.jetbrains.kotlin.android") }
 
-val releaseVersion = providers.environmentVariable("MOTION_AIR_VERSION").orElse("0.2.0").get()
+val releaseVersion = providers.environmentVariable("MOTION_AIR_VERSION").orElse("0.2.1").get()
 require(Regex("(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)").matches(releaseVersion)) {
     "MOTION_AIR_VERSION must be MAJOR.MINOR.PATCH"
 }
