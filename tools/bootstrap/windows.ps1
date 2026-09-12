@@ -47,12 +47,20 @@ try {
         New-Item -ItemType Directory -Path $stage | Out-Null
         $archive = Join-Path $stage $release.filename
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-        $ProgressPreference = 'SilentlyContinue'
-        Invoke-WebRequest -UseBasicParsing -Uri ("https://nodejs.org/dist/v{0}/{1}" -f $release.version, $release.filename) -OutFile $archive -TimeoutSec 600
+        # Windows PowerShell's web/archive cmdlets can interpret brackets in an
+        # output path as wildcards. .NET file APIs always treat these as literal.
+        Add-Type -AssemblyName System.Net.Http
+        $client = New-Object System.Net.Http.HttpClient
+        $client.Timeout = [TimeSpan]::FromMinutes(10)
+        try {
+            $bytes = $client.GetByteArrayAsync(("https://nodejs.org/dist/v{0}/{1}" -f $release.version, $release.filename)).GetAwaiter().GetResult()
+            [IO.File]::WriteAllBytes($archive, $bytes)
+        } finally { $client.Dispose() }
         if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $release.sha256) {
             throw 'Node.js download verification failed. Open Motion Air again to retry.'
         }
-        Expand-Archive -LiteralPath $archive -DestinationPath $stage
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        [IO.Compression.ZipFile]::ExtractToDirectory($archive, $stage)
         $extracted = Join-Path $stage ($release.filename -replace '\.zip$', '')
         if (!(Test-Path -LiteralPath (Join-Path $extracted 'node.exe')) -or !(Test-Path -LiteralPath (Join-Path $extracted 'node_modules\npm\bin\npm-cli.js'))) {
             throw 'The Node.js download is incomplete. Open Motion Air again to retry.'
