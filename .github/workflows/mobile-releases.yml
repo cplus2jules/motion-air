@@ -94,6 +94,7 @@ jobs:
           name: MotionAir-Android-release
           path: ${{ runner.temp }}/android-release/*
           if-no-files-found: error
+          overwrite: true
           retention-days: 30
 
   bundle:
@@ -123,6 +124,7 @@ jobs:
           path: dist/*
           if-no-files-found: error
           compression-level: 0
+          overwrite: true
           retention-days: 30
 
   publish:

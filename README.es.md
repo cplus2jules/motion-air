@@ -45,6 +45,10 @@ El iPhone requiere una instalación externa, llamada **sideloading**. Una herram
 
 Tu método de firma determina cuándo debes renovar la app. Consulta los [detalles de instalación en iPhone](docs/ios-releases.md#download-a-build).
 
+La app comienza con una guía breve. Estas capturas muestran Android; la app de iPhone sigue las mismas tres lecciones.
+
+<img src="docs/images/android-welcome-es.png" alt="Bienvenida de Motion Air en Android, con los botones Omitir y Vamos a probar" width="260">
+
 ## 3. Abre Motion Air en el equipo
 
 1. Extrae el ZIP del equipo en una carpeta que puedas encontrar después.
@@ -67,6 +71,12 @@ Al abrir la app, una guía breve te permite practicar el stick, A y B, y probar 
 3. Comprueba el nombre del equipo y confirma la conexión.
 4. Haz clic en la ventana del juego y prueba los botones del teléfono.
 
+Elige **Escanear QR del equipo**, o **Pegar código de conexión** si no puedes usar la cámara.
+
+<img src="docs/images/android-pairing-es.png" alt="Pantalla de conexión de Android con Escanear QR del equipo y Pegar código de conexión" width="260"> <img src="docs/images/android-controller-offline-es.png" alt="Mando Android antes de conectar: stick y botones atenuados, con Conectar un equipo en la parte inferior" width="260">
+
+El stick y los botones del mando permanecen atenuados hasta conectar. Para probar el stick sin un equipo, abre **Ajustes → Ver guía de bienvenida → Vamos a probar** en Android.
+
 Solo necesitas escanear el QR la primera vez. Después, selecciona tu equipo guardado. Si cambia su dirección y no puedes reconectar, escanea un QR nuevo.
 
 ## 5. Activa el movimiento
@@ -77,6 +87,10 @@ Solo necesitas escanear el QR la primera vez. Después, selecciona tu equipo gua
 4. Pulsa **Bloqueo para bailar** o **Dance Lock** para evitar pulsaciones accidentales. Mantén pulsado el botón de desbloqueo para volver al mando.
 
 Mantén Motion Air abierto. Cambiar de app o bloquear la pantalla detiene la conexión. Tras reconectar, activa el movimiento de nuevo.
+
+El bloqueo para bailar oculta los controles. **Enviando movimiento** indica que el receptor del equipo recibe tus movimientos; no garantiza una puntuación en el juego. La captura siguiente muestra esta pantalla en inglés: **Hold to unlock** es el botón que debes mantener pulsado para desbloquear.
+
+<img src="docs/images/android-dance-lock.png" alt="Bloqueo para bailar en Android, en inglés, con Sending motion y Hold to unlock" width="260">
 
 ## Si algo falla
 

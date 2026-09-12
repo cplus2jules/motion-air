@@ -80,6 +80,7 @@ jobs:
           name: Motion-Air-Android-debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+          overwrite: true
           retention-days: 30
       - name: Save Android test and lint reports
         if: always()
@@ -90,4 +91,5 @@ jobs:
             android/app/build/reports/
             android/app/build/outputs/androidTest-results/
           if-no-files-found: ignore
+          overwrite: true
           retention-days: 7

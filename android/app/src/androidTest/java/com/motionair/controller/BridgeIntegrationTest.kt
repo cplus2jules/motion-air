@@ -12,6 +12,8 @@ import org.junit.Assume.assumeNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
+import android.graphics.Rect
+import android.os.SystemClock
 
 /** Supply a fresh invitation for a disposable bridge with emulator-reachable hosts. */
 @RunWith(AndroidJUnit4::class)
@@ -28,7 +30,11 @@ class BridgeIntegrationTest {
             val input = device.wait(Until.findObject(By.clazz("android.widget.EditText")), 5000)!!
             input.text = invitation
             assertEquals(invitation, input.text)
-            device.findObject(By.text("CONTINUE")).click()
+            // Opening the IME resizes the dialog. A cold hosted emulator can
+            // briefly expose the button's old bounds, turning a click into an
+            // outside tap that dismisses the code. Re-query until layout settles.
+            device.waitForIdle(5000)
+            clickSettledButton(device, "CONTINUE")
             assertTrue(device.wait(Until.hasObject(By.text("Pair with this computer?")), 5000))
             device.findObject(By.text("PAIR")).click()
             assertTrue("Controller acknowledged by bridge", device.wait(Until.hasObject(By.text("Enable Motion").enabled(true)), 15000))
@@ -55,5 +61,22 @@ class BridgeIntegrationTest {
             assertTrue("Motion can restart in a new session", device.wait(Until.hasObject(By.text("Motion on")), 5000))
             scenario.moveToState(Lifecycle.State.CREATED)
         }
+    }
+
+    private fun clickSettledButton(device: UiDevice, text: String) {
+        val deadline = SystemClock.uptimeMillis() + 10_000
+        var previous: Rect? = null
+        var settledAt = SystemClock.uptimeMillis()
+        while (SystemClock.uptimeMillis() < deadline) {
+            val button = device.findObject(By.text(text))
+            val bounds = button?.visibleBounds
+            if (bounds != previous || bounds == null || bounds.isEmpty) {
+                previous = bounds; settledAt = SystemClock.uptimeMillis()
+            } else if (SystemClock.uptimeMillis() - settledAt >= 1000) {
+                button.click(); return
+            }
+            SystemClock.sleep(100)
+        }
+        fail("The $text button did not reach a stable position")
     }
 }

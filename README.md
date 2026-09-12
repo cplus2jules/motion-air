@@ -45,6 +45,10 @@ The iPhone download needs **sideloading**: a computer tool signs the app with yo
 
 Your signing method determines when the app needs refreshing. See [iPhone installation details](docs/ios-releases.md#download-a-build).
 
+The app opens with a short welcome guide. These screenshots show the Android app; the iPhone app follows the same three lessons.
+
+<img src="docs/images/android-welcome.png" alt="Motion Air's Android welcome screen, with Skip and Let's try it buttons" width="260">
+
 ## 3. Start Motion Air on your computer
 
 1. Extract the computer ZIP into a folder you can find again.
@@ -66,7 +70,11 @@ Keep the launcher inside its extracted folder. You can make a shortcut or Finder
 4. Check the computer name, then confirm the connection.
 5. Click the game window on your computer. Try the phone's buttons.
 
-Both apps let you practice the stick, A and B before connecting. You can replay the welcome guide from Settings.
+Choose **Scan computer QR**, or **Paste pairing code** if you cannot use the camera.
+
+<img src="docs/images/android-pairing.png" alt="Android pairing screen with Scan computer QR and Paste pairing code" width="260"> <img src="docs/images/android-controller-offline.png" alt="Android controller before connecting: the stick and buttons are dimmed and Pair a computer is shown at the bottom" width="260">
+
+The main controller's stick and buttons stay dimmed until you connect. To try the stick without a computer, open **Settings → Show welcome guide → Let's try it** on Android. Both apps let you practice the stick, A and B in the welcome guide.
 
 You only need to scan the QR the first time. Later, select your saved computer. If its address changes and reconnecting fails, scan a fresh QR.
 
@@ -79,12 +87,16 @@ You only need to scan the QR the first time. Later, select your saved computer. 
 
 Keep Motion Air open on your phone. Switching to another app or locking the screen stops the connection. After reconnecting, tap **Enable Motion** again.
 
+Dance Lock hides the game controls. **Sending motion** means the computer's motion receiver is getting your movements; it does not guarantee a score in the game.
+
+<img src="docs/images/android-dance-lock.png" alt="Android Dance Lock screen showing Sending motion and a Hold to unlock button" width="260">
+
 ## Something isn't working
 
 | Problem | Try this |
 | --- | --- |
 | My phone cannot connect | Use the same Wi-Fi, keep the computer launcher open, and scan a fresh QR. On iPhone, check Motion Air's Local Network permission. Guest Wi-Fi may block connections between devices. |
-| The buttons do nothing | Click the game window. On Mac, check Terminal's Accessibility permission. |
+| The stick or buttons do nothing | Pair the phone first, then click the game window. On Mac, check Terminal's Accessibility permission. |
 | Connected, but movement does nothing | Tap **Enable Motion**. Check that the motion-capable emulator is running. A connected phone still needs a game listening for motion. |
 | Movement stopped after I left the app | Reopen Motion Air, reconnect, and enable motion again. |
 | Android says the update cannot install | Use the APK from the newest release. An older development app may use a different signing key. See [Android updates](android/README.md#updating). |
