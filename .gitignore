@@ -5,5 +5,7 @@ tools/ryujinx-build/tests/obj/
 .DS_Store
 *.log
 .env
+.idea/
+**/.idea/
 .expo/
 dist/

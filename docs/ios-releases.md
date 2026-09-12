@@ -1,5 +1,7 @@
 # iPhone builds and releases
 
+For a release containing **both Android and iPhone downloads**, use the [shared mobile release guide](mobile-releases.md). The iPhone workflow below remains available for independent iPhone builds and `ios/v` tags.
+
 The [iPhone CI and Releases workflow](../.github/workflows/ios.yml) builds the
 native Swift **MotionAir** app as an **unsigned IPA for sideloading**. It uses
 GitHub-hosted macOS 26 with Xcode 26.6. No Apple signing certificate, provisioning

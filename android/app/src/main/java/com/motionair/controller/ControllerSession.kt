@@ -24,8 +24,8 @@ class ControllerSession(context: Context, private val changed: () -> Unit) {
     private var sequence = 0L
     private var lastPong = 0L
     private var lastUI = 0L
-    private val held = mutableSetOf<String>()
-    private val pressedAt = mutableMapOf<String, Long>()
+    private val buttonTiming = mutableMapOf<String, ButtonPressTiming>()
+    private val buttonTasks = mutableMapOf<String, Runnable>()
     var computer: SavedComputer? = null; private set
     var ready = false; private set
     var connecting = false; private set
@@ -112,7 +112,10 @@ class ControllerSession(context: Context, private val changed: () -> Unit) {
                 focused = message.opt("ok") == true
                 if (!focused) releaseControls()
             }
-            "accessibility" -> native = message.opt("ok") == true
+            "accessibility" -> {
+                native = message.opt("ok") == true
+                if (!native) releaseControls()
+            }
             "motion-status" -> { receivers = message.optInt("receivers"); receivedMotionAge = if (message.isNull("motionAgeMs")) null else message.optDouble("motionAgeMs") }
         }
         changed()
@@ -126,23 +129,34 @@ class ControllerSession(context: Context, private val changed: () -> Unit) {
     }
     fun setMotion(enabled: Boolean) { if (canToggleMotion) { configure(enabled); changed() } }
     fun button(id: String, down: Boolean) {
-        if (down) {
-            if (!controlsEnabled || !held.add(id)) return
-            pressedAt[id] = SystemClock.elapsedRealtime()
-            send(JSONObject().put("t", "btn").put("k", id).put("d", true))
-        } else if (held.contains(id)) {
-            val stamp = pressedAt[id] ?: 0L; val token = generation
-            main.postDelayed({ if (token == generation && pressedAt[id] == stamp) release(id) },
-                (100 - (SystemClock.elapsedRealtime() - stamp)).coerceAtLeast(0))
-        }
+        if (down && !controlsEnabled) return
+        if (!down && id !in buttonTiming) return
+        val timing = buttonTiming.getOrPut(id) { ButtonPressTiming() }
+        try { timing.append(down) } catch (_: IllegalStateException) { fail("connection_lost"); return }
+        drainButton(id)
     }
-    private fun release(id: String) {
-        if (held.remove(id)) { pressedAt.remove(id); send(JSONObject().put("t", "btn").put("k", id).put("d", false)) }
+    private fun drainButton(id: String) {
+        buttonTasks.remove(id)?.let(main::removeCallbacks)
+        val timing = buttonTiming[id] ?: return
+        val down = timing.pop(SystemClock.elapsedRealtime())
+        if (down != null && !send(JSONObject().put("t", "btn").put("k", id).put("d", down))) return
+        if (!timing.hasPending) return
+        val token = generation
+        val task = Runnable { if (token == generation) drainButton(id) }
+        buttonTasks[id] = task
+        main.postDelayed(task, timing.delay(SystemClock.elapsedRealtime()))
     }
     fun stick(x: Double, y: Double) {
         if (controlsEnabled || (x == 0.0 && y == 0.0 && ready)) send(JSONObject().put("t", "stick").put("s", "R").put("x", x).put("y", y))
     }
-    fun releaseControls() { held.toList().forEach(::release); if (ready) stick(0.0, 0.0) }
+    fun releaseControls() {
+        val buttons = buttonTiming.keys.toList()
+        buttonTasks.values.forEach(main::removeCallbacks); buttonTasks.clear(); buttonTiming.clear()
+        for (id in buttons) {
+            if (!send(JSONObject().put("t", "btn").put("k", id).put("d", false))) break
+        }
+        if (ready) stick(0.0, 0.0)
+    }
     private fun send(message: JSONObject): Boolean {
         val connection = socket ?: return false
         if (connection.queueSize() > 16 * 1024 || !connection.send(message.toString())) { fail("connection_lost"); return false }
@@ -151,7 +165,7 @@ class ControllerSession(context: Context, private val changed: () -> Unit) {
     private fun fail(code: String) { disconnect(); error = code; changed() }
     fun disconnect() {
         generation++; sensors.stop()
-        held.clear(); pressedAt.clear()
+        buttonTasks.values.forEach(main::removeCallbacks); buttonTasks.clear(); buttonTiming.clear()
         socket?.close(1000, "Controller stopped"); socket?.cancel(); socket = null
         client?.dispatcher?.cancelAll(); client?.connectionPool?.evictAll(); client?.dispatcher?.executorService?.shutdown(); client = null
         ready = false; connecting = false; motion = false; pendingMotion = null; focused = false; native = false

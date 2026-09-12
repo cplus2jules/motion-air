@@ -3,15 +3,23 @@ name: Desktop bridge and Android APK
 on:
   push:
     branches: [main]
-    paths: ['android/**', 'server/**', 'tools/**', '*.cmd', '*.command', 'package*.json', '.github/workflows/desktop-android.yml']
+    paths: ['android/**', 'server/**', 'tools/**', '*.cmd', '*.command', 'package*.json', '.github/workflows/**']
   pull_request:
-    paths: ['android/**', 'server/**', 'tools/**', '*.cmd', '*.command', 'package*.json', '.github/workflows/desktop-android.yml']
+    paths: ['android/**', 'server/**', 'tools/**', '*.cmd', '*.command', 'package*.json', '.github/workflows/**']
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read
 
 jobs:
+  release-tooling:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - run: python3 -m unittest discover -s tools/mobile -p 'test_*.py' -v
+      - run: python3 -m unittest discover -s tools/ios -p 'test_*.py' -v
   desktop:
     strategy:
       matrix:
@@ -37,19 +45,49 @@ jobs:
           }
   android:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
       - name: Build and verify Android APK
         working-directory: android
         run: bash gradlew --no-daemon assembleDebug testDebugUnitTest lintDebug
+      - name: Enable Android emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Test Android pairing, motion and app lifecycle
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_7
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
+          script: node tools/android/emulator-check.mjs
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: Motion-Air-Android-debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
+      - name: Save Android test and lint reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: Android-test-reports
+          path: |
+            android/app/build/reports/
+            android/app/build/outputs/androidTest-results/
+          if-no-files-found: ignore
+          retention-days: 7

@@ -58,6 +58,15 @@ public struct MotionSample: Sendable, Equatable {
     public var exceedsBridgeRange: Bool {
         accelerationG.maximumAbsoluteAxis > 8 || rotationDegreesPerSecond.maximumAbsoluteAxis > 2000
     }
+
+    public var timestampSeconds: TimeInterval { Double(timestampMicroseconds) / 1_000_000 }
+
+    /// Core Motion and systemUptime share a boot-relative clock. Delivery time
+    /// must not make a sample delayed by a busy callback queue fresh again.
+    public func isFresh(at uptime: TimeInterval, maximumAge: TimeInterval = 0.1) -> Bool {
+        let age = uptime - timestampSeconds
+        return age.isFinite && maximumAge.isFinite && age >= 0 && age <= maximumAge
+    }
 }
 
 public struct MotionPacket: Encodable, Sendable {

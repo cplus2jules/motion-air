@@ -32,6 +32,23 @@ func allSixStationaryFacesPreserveGravity(gravity: Vector3) throws {
     #expect(try sample(time: 0).timestampMicroseconds == 0)
 }
 
+@Test func delayedSensorDeliveryCannotBecomeFreshAtConsumption() throws {
+    let motion = try sample(time: 10)
+    #expect(motion.isFresh(at: 10.05))
+    #expect(!motion.isFresh(at: 10.101))
+    #expect(!motion.isFresh(at: 9.99))
+    #expect(!motion.isFresh(at: .nan))
+    #expect(!motion.isFresh(at: .infinity))
+
+    var buffer = OutboundBuffer()
+    // 80 ms in the sensor queue plus 40 ms in the writer exceeds the
+    // 100 ms budget even though neither queue individually exceeds it.
+    #expect(motion.isFresh(at: 10.08))
+    buffer.replaceMotion("delayed frame", now: motion.timestampSeconds)
+    #expect(buffer.pop(now: 10.12) == nil)
+    #expect(buffer.discardedMotion == 1)
+}
+
 @Test(arguments: [-1.0, Double.nan, Double.infinity, 1e100, MotionSample.maximumJSONInteger])
 func invalidSensorTimeCannotReachJSON(time: Double) {
     #expect(throws: SampleError.invalidTimestamp) { try sample(time: time) }

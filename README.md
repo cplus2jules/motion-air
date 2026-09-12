@@ -1,190 +1,99 @@
 # Motion Air
 
-Your phone, a wireless controller for **Just Dance and other motion games on Mac and Windows**.
-Motion Air combines buttons over Wi-Fi with gyroscope and accelerometer input
-through DSU/cemuhook. The native Swift app focuses on dancing and game navigation;
-the browser and Expo controllers remain available for broader emulator use.
+Use your **Android phone or iPhone as a wireless controller** for motion games on a **Mac or Windows PC**.
 
-Built with **Joypad Air in mind**, and directly based on
-[Joypad Air by David García (mindavidev)](https://github.com/mindavidev/joypad-air).
-This independent continuation builds on its phone-to-Mac controller foundation.
-The original MIT copyright and license are retained. See [acknowledgements](ACKNOWLEDGEMENTS.md).
+[Download Motion Air](https://github.com/cplus2jules/motion-air/releases) · [Leer en español](README.es.md)
 
-Guía en español: [README.es.md](README.es.md) · [Branding and compatibility](docs/branding.md)
+Motion Air is still being tested. Buttons and motion delivery have automated checks; reliable Just Dance scoring needs testing with a real phone and game.
 
-## Windows and Android
+## What you need
 
-For Windows, double-click **Motion Air.cmd** in the extracted project folder. It installs the bridge dependencies on first use, lets you choose your existing Ryujinx.exe, backs up and sets up the controller profile, and opens pairing. See the [Windows guide](docs/windows-setup.md), including the optional motion build.
+- An Android phone running Android 8 or later, or an iPhone running iOS 17 or later.
+- A Mac or Windows PC, connected to the same Wi-Fi as your phone.
+- [Node.js](https://nodejs.org/en/download), installed on the computer. Choose the **LTS** installer; version 22 or later works.
+- Your emulator and game, already installed. **Just Dance needs the motion-capable Ryujinx build.** The regular keyboard controller setup alone will not enable motion. Follow the [Mac setup guide](docs/local-device-setup.md) or [Windows setup guide](docs/windows-setup.md) for that one-time setup.
 
-The native **Kotlin Android app** is in `android/`. It supports the same secure pairing bridge, controller buttons, motion and Dance Lock as the iPhone workflow. See [Android installation and builds](android/README.md).
+Games, emulator downloads, firmware and game keys are not included.
 
-## Local Swift app for Just Dance
+## 1. Download the right files
 
-Download a versioned iPhone IPA from **Releases**, or a development build from
-**Actions → iPhone CI and Releases**. These are unsigned IPAs that your sideloading
-tool signs before installation. See [iPhone builds and releases](docs/ios-releases.md).
+Open [Releases](https://github.com/cplus2jules/motion-air/releases) and choose the newest **Android and iPhone** release. Under **Assets**, download:
 
-Clone [this repository](https://github.com/cplus2jules/motion-air) with your
-authenticated GitHub account, then install the bridge dependencies:
+| For | Download |
+| --- | --- |
+| Your Mac or Windows PC | The file ending in **`-computer.zip`** |
+| Your Android phone | The file ending in **`-android.apk`** |
+| Your iPhone | The file ending in **`-unsigned.ipa`** |
 
-```bash
-git clone https://github.com/cplus2jules/motion-air.git
-cd motion-air
-npm install
-```
+You need the computer ZIP **and** one phone app. You can ignore the other files. Sign in to GitHub if the repository asks you to; downloads from this private repository require access.
 
-Open `native/MotionAir.xcworkspace` in Xcode and select the **MotionAir** scheme.
-Follow the device guide below for signing and local emulator setup.
+## 2. Install the phone app
 
-The native iPhone controller, local pairing bridge and separate patched Ryujinx build are available for testing. Start with the [implementation status](docs/motion-implementation-status.md), [iPhone installation guide](docs/local-device-setup.md), and [sensor contract](docs/motion-coordinate-contract.md). Double-click **Motion Air.command** in Finder to start the pairing bridge, open its pairing page, and launch the selected Ryujinx Motion build. Connect your saved Mac on the iPhone and turn on **Enable Motion**. Keep the launcher's Terminal window open while playing. The real-phone Just Dance scoring test is still required; the full Swift app plan is not complete.
+### Android
 
-The refreshed native controller, Mac pairing page, and layered app icon are documented in the [UI verification report](docs/design/ui-verification.md) and [Icon Composer package](assets/icon-composer/README.md).
+1. Download the APK on your phone, then open it from **Downloads**.
+2. If Android asks, allow your browser or file manager to **install unknown apps** for this installation.
+3. Tap **Install**, then open **Motion Air**.
 
-The launcher reuses a running paired bridge and brings the selected emulator forward if it is already open. If it reuses a bridge, keep that bridge's original Terminal open. Closing Terminal stops its bridge; quit the emulator normally when finished. Keep the launcher in this project folder, or make a Finder alias for your Desktop. The equivalent command is `npm run play`; `npm run start:paired` still starts only the bridge.
+### iPhone
 
-Use `npm run start:dance` for the isolated Just Dance preset and `npm run ryujinx:launch` for the selected local emulator build. Keep the original browser setup as the fallback. Development builds and private local emulator data stay under the ignored `.local/` directory.
+The iPhone download needs **sideloading**: a computer tool signs the app with your Apple account and installs it on your phone. Tapping the IPA on the iPhone will not install it.
 
-## Why this exists
+1. Set up your preferred sideloading tool, such as [AltStore Classic](https://faq.altstore.io/) or [Sideloadly](https://sideloadly.io/), using its own installation guide.
+2. Import the downloaded IPA into that tool and follow its signing and installation steps.
+3. Open **Motion Air** on your iPhone. Allow **Local Network** access when asked.
 
-Motion Air carries Joypad Air's combined button and motion approach into a
-native iPhone experience for motion games, with secure local pairing and a
-single Mac launcher:
+Your signing method determines when the app needs refreshing. See [iPhone installation details](docs/ios-releases.md#download-a-build).
 
-- **Buttons** → injected as keyboard events (nut-js / CGEventPost), the only
-  input path Ryujinx supports on macOS without a physical controller. Server-side
-  analog→8-way conversion with radial + angular hysteresis, SOCD cleaning,
-  rolling d-pad, hair triggers.
-- **Motion** → served as a DSU/cemuhook server on UDP 26760. Dolphin, Cemu
-  and Citra consume it natively; for Ryujinx there's a local source patch you
-  build locally (below).
+## 3. Start Motion Air on your computer
 
-## Browser / Expo fallback install (macOS)
+1. Extract the computer ZIP into a folder you can find again.
+2. Open that folder and double-click:
+   - **Mac:** `Motion Air.command`
+   - **Windows:** `Motion Air.cmd`
+3. Wait for the first-time installation to finish. A browser page with a pairing QR code opens.
+4. Keep the launcher's Terminal or command window open while playing.
 
-For the Swift Just Dance workflow, use the [iPhone installation guide](docs/local-device-setup.md)
-and the **Motion Air.command** launcher in your local checkout. The installer below
-starts the browser bridge; it does not install the Swift app or build Ryujinx.
-The one-line download commands require a public repository release. While this
-repository is private, use an authenticated clone and run `npm start` instead.
+On Mac, allow Terminal under **System Settings → Privacy & Security → Accessibility** so the phone's buttons can control the game. The [Mac guide](docs/local-device-setup.md) explains the emulator setup; the [Windows guide](docs/windows-setup.md) explains selecting your `Ryujinx.exe`.
 
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/cplus2jules/motion-air/main/install.sh)"
-```
+Keep the launcher inside its extracted folder. You can make a shortcut or Finder alias if you want it on your Desktop.
 
-The script checks for Node ≥20 (opens the official installer if missing) and
-drops a **"Motion Air"** launcher on your Desktop. Then:
+## 4. Connect your phone
 
-1. Double-click the launcher; grant **Accessibility** to Terminal the first
-   time (the app waits for you).
-2. Scan the QR with your phone → Safari → Share → **Add to Home Screen** →
-   open from the icon (true fullscreen; iOS never hides Safari's bar in-tab).
-3. Configure Ryujinx once (with Ryujinx closed):
-   `npx -y github:cplus2jules/motion-air ryujinx-setup`
-4. Open Ryujinx and play. Live dashboard at <http://localhost:3001/setup>.
+1. Keep your phone and computer on the same Wi-Fi. Avoid a guest network.
+2. In Motion Air on your phone, scan the QR shown on the computer. Allow camera access if asked.
+3. Check the computer name, then confirm the connection.
+4. Click the game window on your computer. Try the phone's buttons.
 
-Updates are automatic — every launch resolves the latest version.
+You only need to scan the QR the first time. Later, select your saved computer. If its address changes and reconnecting fails, scan a fresh QR.
 
-## 🎯 Motion controls (gyro)
+## 5. Turn on movement
 
-Two halves: the phone must *send* motion, and the emulator must *listen*.
+1. Open your game using the motion-capable emulator setup.
+2. On your phone, tap **Enable Motion**.
+3. Hold the phone securely in your right hand, upright with the top toward your fingertips.
+4. Tap **Dance Lock** to avoid accidental button presses. Hold the unlock button to return to the controls.
 
-**Phone side**
-- ⚠️ The web controller **cannot** read motion sensors: iOS blocks them on
-  `http://` pages (HTTPS-only API). Buttons work great; the GIRO toggle
-  tells you honestly.
-- ✅ The native app (Expo) has full gyro. Run from source:
-  ```bash
-  git clone https://github.com/cplus2jules/motion-air && cd motion-air
-  npm install && npm start              # terminal 1 — server
-  cd app && npm install && npx expo start   # terminal 2 — app
-  ```
-  Install **Expo Go** on the phone, scan terminal 2's QR, tap **∿ GIRO**.
+Keep Motion Air open on your phone. Switching to another app or locking the screen stops the connection. After reconnecting, tap **Enable Motion** again.
 
-**Emulator side**
-- **Dolphin / Cemu / Citra**: native support — point their DSU/cemuhook
-  client at `127.0.0.1:26760` (server on another machine? run with
-  `DSU_HOST=0.0.0.0`).
-- **Ryujinx**: stock builds ignore DSU when buttons come from a keyboard
-  backend (verified in source). Build the patched **"Ryujinx Motion.app"**
-  locally — we never distribute emulator binaries:
-  ```bash
-  brew install dotnet@9
-  bash tools/ryujinx-build/build-local.sh
-  npm run ryujinx:setup -- --motion --patched
-  ```
-  Play using "Ryujinx Motion" (your stock Ryujinx stays untouched).
+## Something isn't working
 
-**In-game**: MK8 needs motion steering enabled *inside the game* (the
-controller-with-waves icon pre-race). Aiming in Zelda-likes just works.
-Weird axes? Controller Settings → calibration row with GIRO on (flat
-face-up ⇒ `az ≈ -1.00`); the axis matrix lives in `server/dsu/transform.js`.
+| Problem | Try this |
+| --- | --- |
+| My phone cannot connect | Use the same Wi-Fi, keep the computer launcher open, and scan a fresh QR. On iPhone, check Motion Air's Local Network permission. Guest Wi-Fi may block connections between devices. |
+| The buttons do nothing | Click the game window. On Mac, check Terminal's Accessibility permission. |
+| Connected, but movement does nothing | Tap **Enable Motion**. Check that the motion-capable emulator is running. A connected phone still needs a game listening for motion. |
+| Movement stopped after I left the app | Reopen Motion Air, reconnect, and enable motion again. |
+| Android says the update cannot install | Use the APK from the newest release. An older development app may use a different signing key. See [Android updates](android/README.md#updating). |
+| The iPhone app will not open | Check whether your sideloading tool needs to refresh or re-sign it. |
+| The launcher says Node.js is missing | Install the Node.js LTS version, then open the launcher again. |
 
-## Languages
+More help: [connection troubleshooting](docs/connection-reliability.md) · [motion testing status](docs/motion-implementation-status.md)
 
-The web controller, setup dashboard, and native app support **English** and
-**Español**. Choose a language on the connection screen or in Settings. Your choice
-is saved on that device and updates the interface without disconnecting the controller.
-The first visit follows the device language, with English as the fallback.
+## For developers
 
-Terminal output defaults to English, including `npm start` and the Ryujinx setup
-commands. To run the server in Spanish:
+[Build and test the apps](docs/development.md) · [Publish both apps](docs/mobile-releases.md) · [Other controller options](docs/controller-options.md)
 
-```bash
-JOYPAD_LANG=es npm start
-```
+## Credits
 
-Use `JOYPAD_LANG=es npm run ryujinx:setup` for Spanish setup instructions, or
-`JOYPAD_LANG=en` to explicitly select English. Restart the server after changing
-this setting. Terminal language is separate from the language selected on your phone.
-
-## Features
-
-- Player names, 8 Joy-Con-style color themes, stick sensitivity sliders,
-  haptic intensity, A/B·X/Y swap — synced live, persisted per player.
-- Latency dot, "Ryujinx lost focus" banner, Accessibility banner, player
-  LEDs, reconnect overlay, `/setup` dashboard.
-- FIFO key queue (no stuck keys), heartbeat releases keys ≤10s after a phone
-  dies, slot takeover with client notice, LAN-only, full input validation.
-- `npm run ryujinx:setup` generates both keyboard profiles and patches
-  `Config.json` (with backup) straight from `server/mappings.js` — zero key
-  collisions between players. `--check` works as a regression test.
-
-## Two players
-
-Each phone claims a slot as an independent pad. Known limitation: a few
-games (MK8, Mario Wonder) require physically distinct HID devices for 2P and
-reject two keyboard-backed pads — Smash, Overcooked, Stardew, Cuphead and
-most co-op games work great.
-
-## Troubleshooting
-
-| Symptom | Fix |
-|---|---|
-| Controller "types letters" into random apps | Ryujinx lost focus — click its window (the controller shows a banner). |
-| Connected but game doesn't react | Grant Accessibility to Terminal, or run `ryujinx-setup`. |
-| Gyro does nothing | ① Web controller? Gyro needs the native app. ② Opened "Ryujinx Motion" (not stock)? ③ MK8? Enable motion in-game. ④ iOS motion permission denied? |
-| Safari bar in the way | Share → Add to Home Screen, open from the icon — the only true fullscreen on iOS. |
-| Phone can't find the server | Same Wi-Fi? Guest networks isolate clients. iOS: Settings → Privacy → Local Network. |
-
-## Development
-
-```bash
-npm install
-npm start             # server on :3001 — PWA + WebSocket + DSU
-npm test              # 47-assert smoke suite (no real keyboard needed)
-npm run ryujinx:check # is Ryujinx config in sync with mappings.js?
-```
-
-`public/` is the web controller (the supported third-party client). `app/`
-is the Expo native app (gyro; run via expo start). `server/` is the Node
-engine. `tools/` holds the Ryujinx setup tool, the motion patch and tests.
-MIT licensed. Releasing: see [RELEASING.md](RELEASING.md).
-
-## Connection setup dashboard
-
-Open `http://localhost:3001/setup` on the Mac to scan the phone QR, inspect both players, and check the keyboard bridge, Accessibility permission, input profiles, and Ryujinx focus. Quit Ryujinx before using **Set up Ryujinx**. The full controller uses Pro Controller profiles; the optional sideways layout uses a left/right Joy-Con. Setup saves a timestamped Config.json backup and preserves other players and unrelated settings.
-
-The web controller requires an explicit player choice on each launch, remembers the last choice, releases held inputs when hidden or when settings opens, and shows reconnect and recovery states. Native input pauses when the emulator loses focus. To use the existing keyboard bridge with another supported emulator, set `TARGET_APP=dolphin` (or `cemu`) when starting the server.
-
-Startup does not open system permission dialogs automatically. Allow Accessibility for the app running the server in System Settings; the dashboard rechecks it. `ACCESSIBILITY_PROMPT=1 npm start` opts into the original guided permission prompt.
-
-Regression checks: `npm test`, `npm run test:ryujinx`, and `npm run test:i18n`. Smoke-test DSU uses UDP 26797, separate from the normal server on 26760.
+Motion Air is based on [Joypad Air by David García (mindavidev)](https://github.com/mindavidev/joypad-air). This independent continuation retains the original MIT copyright and license. See [acknowledgements](ACKNOWLEDGEMENTS.md) and [license](LICENSE).

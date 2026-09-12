@@ -63,6 +63,7 @@ final class ProbeSession {
     @ObservationIgnored private var measuredMaximumGap = 0.0
     @ObservationIgnored private var rangeExceeded = 0
     @ObservationIgnored private var sentCount: UInt64 = 0
+    @ObservationIgnored private var staleSampleCount = 0
 
     #if DEBUG
     private(set) var isUIPreview = false
@@ -426,8 +427,14 @@ final class ProbeSession {
     }
 
     private func consume(_ sample: MotionSample) {
+        guard connected, motionEnabled else { return }
+        guard sample.isFresh(at: now) else {
+            staleSampleCount += 1
+            droppedMotion = buffer.discardedMotion + staleSampleCount
+            return
+        }
         guard let packet = sequencer.packet(for: sample) else { return }
-        lastSensorArrival = now
+        lastSensorArrival = sample.timestampSeconds
         if sample.exceedsBridgeRange { rangeExceeded += 1 }
         if let previous = previousSampleTimestamp {
             measuredMaximumGap = max(measuredMaximumGap, Double(sample.timestampMicroseconds - previous) / 1000)
@@ -436,14 +443,14 @@ final class ProbeSession {
         if rateStart == nil { rateStart = sample.timestampMicroseconds }
         rateSamples += 1
         do {
-            buffer.replaceMotion(try bridgeJSON(packet), now: now)
+            buffer.replaceMotion(try bridgeJSON(packet), now: sample.timestampSeconds)
             startWriter()
         } catch { disconnect(reason: "Could not encode motion: \(error.localizedDescription)"); return }
         if now - lastDisplay >= 0.2 {
             self.sample = sample
             maximumGapMilliseconds = measuredMaximumGap
             rangeExceededCount = rangeExceeded
-            droppedMotion = buffer.discardedMotion
+            droppedMotion = buffer.discardedMotion + staleSampleCount
             samplesSent = sentCount
             if let start = rateStart, sample.timestampMicroseconds > start {
                 sampleRate = Double(rateSamples - 1) * 1_000_000 / Double(sample.timestampMicroseconds - start)
@@ -492,5 +499,6 @@ final class ProbeSession {
         measuredMaximumGap = 0
         rangeExceeded = 0
         sentCount = 0
+        staleSampleCount = 0
     }
 }

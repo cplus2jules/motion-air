@@ -44,6 +44,9 @@ class ReleaseTests(unittest.TestCase):
     def test_manual_build_can_set_version(self):
         self.assertEqual(metadata(self.project, requested="1.2.3")["version"], "1.2.3")
 
+    def test_shared_mobile_tag_sets_the_iphone_version(self):
+        self.assertEqual(metadata(self.project, "refs/tags/mobile/v0.2.0")["version"], "0.2.0")
+
     def test_versions_reject_paths_shell_text_and_unsupported_suffixes(self):
         for value in ["", "v1.2.3", "1.2", "01.2.3", "1.2.3-beta.1", "1.2.3\npublish=true", "$(id)", "../1.2.3"]:
             with self.subTest(value=value), self.assertRaises(ValueError):

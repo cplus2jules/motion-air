@@ -265,6 +265,12 @@ class MainActivity : Activity() {
     }
     override fun onPause() {
         super.onPause(); generation++; pairing?.cancel(); pairing = null; pending = false
+        // A permission sheet or a partially covering activity can pause us
+        // while we remain visible. Release touches without stopping tracking.
+        if (::session.isInitialized) session.releaseControls()
+    }
+    override fun onStop() {
+        super.onStop()
         if (::session.isInitialized) session.disconnect()
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         if (locked) showController()
@@ -274,5 +280,5 @@ class MainActivity : Activity() {
         if (locked) return
         if (screen == "controller") { session.disconnect(); window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); showHome() } else super.onBackPressed()
     }
-    override fun onDestroy() { pairing?.cancel(); worker.shutdownNow(); main.removeCallbacksAndMessages(null); super.onDestroy() }
+    override fun onDestroy() { pairing?.cancel(); if (::session.isInitialized) session.disconnect(); worker.shutdownNow(); main.removeCallbacksAndMessages(null); super.onDestroy() }
 }

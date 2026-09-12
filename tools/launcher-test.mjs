@@ -35,7 +35,7 @@ test('opens pairing before the exact emulator launcher, without requesting a dup
   await openDesktop('http://127.0.0.1:3444/', { platform: 'darwin', run: async (...args) => calls.push(args) });
   assert.deepEqual(calls[0].slice(0, 2), ['/usr/bin/open', ['http://127.0.0.1:3444/']]);
   assert.equal(calls[1][0], '/bin/bash');
-  assert.ok(calls[1][1][0].endsWith('/tools/ryujinx-build/launch-local.sh'));
+  assert.ok(calls[1][1][0].replaceAll('\\', '/').endsWith('/tools/ryujinx-build/launch-local.sh'));
   assert.equal(calls[1][1][1], '--open');
 });
 

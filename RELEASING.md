@@ -1,5 +1,9 @@
 # Releasing / mantenimiento
 
+## Android and iPhone together
+
+Use the [shared mobile release guide](docs/mobile-releases.md). Push a `mobile/vMAJOR.MINOR.PATCH` tag from `main` to run the desktop checks, Android emulator tests, signed Android build and unsigned iPhone archive, then publish both apps with a computer ZIP and checksums on one GitHub Release.
+
 ## iPhone app releases
 
 The native iPhone app has its own [CI and release workflow](docs/ios-releases.md).

@@ -34,9 +34,10 @@ def metadata(project, ref="", requested="", run_number="1", attempt="1"):
     configured_version = version(configured.pop().strip().strip('"'))
     if ref.startswith("refs/tags/"):
         tag = ref.removeprefix("refs/tags/")
-        if not tag.startswith("ios/v"):
-            raise ValueError("iPhone release tags must use ios/vMAJOR.MINOR.PATCH.")
-        resolved = version(tag.removeprefix("ios/v"))
+        prefix = next((prefix for prefix in ("ios/v", "mobile/v") if tag.startswith(prefix)), None)
+        if prefix is None:
+            raise ValueError("iPhone release tags must use ios/vMAJOR.MINOR.PATCH or mobile/vMAJOR.MINOR.PATCH.")
+        resolved = version(tag.removeprefix(prefix))
         if requested and requested != resolved:
             raise ValueError("Requested version does not match the release tag.")
     else:
