@@ -56,7 +56,13 @@ try {
             $bytes = $client.GetByteArrayAsync(("https://nodejs.org/dist/v{0}/{1}" -f $release.version, $release.filename)).GetAwaiter().GetResult()
             [IO.File]::WriteAllBytes($archive, $bytes)
         } finally { $client.Dispose() }
-        if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $release.sha256) {
+        # Avoid depending on PowerShell module discovery inherited from a parent
+        # shell (for example, PowerShell 7 launching Windows PowerShell 5.1).
+        $sha256 = [Security.Cryptography.SHA256]::Create()
+        $stream = [IO.File]::OpenRead($archive)
+        try { $actual = [BitConverter]::ToString($sha256.ComputeHash($stream)).Replace('-', '').ToLowerInvariant() }
+        finally { $stream.Dispose(); $sha256.Dispose() }
+        if ($actual -ne $release.sha256) {
             throw 'Node.js download verification failed. Open Motion Air again to retry.'
         }
         Add-Type -AssemblyName System.IO.Compression.FileSystem
