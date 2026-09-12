@@ -1,10 +1,13 @@
 import hashlib
 import json
+import os
 from pathlib import Path
+import subprocess
 import tempfile
 import unittest
+import zipfile
 from unittest.mock import patch
-from release import metadata, restore_key, verify_apk, verify_inputs, version
+from release import bundle, metadata, restore_key, verify_apk, verify_checksums, verify_inputs, version
 
 
 class MobileReleaseTests(unittest.TestCase):
@@ -56,6 +59,35 @@ class MobileReleaseTests(unittest.TestCase):
     def test_corrupt_ipa_is_rejected(self):
         (self.iphone / 'phone.ipa').write_bytes(b'tampered')
         with self.assertRaises(ValueError): verify_inputs(self.iphone, self.android, '0.2.0', 'a' * 40)
+
+    def test_download_links_match_real_bundle_files_and_checksums(self):
+        repo = self.root / 'repo'; repo.mkdir()
+        subprocess.run(['git', 'init', '-q', str(repo)], check=True)
+        (repo / 'Motion Air.command').write_text('#!/bin/sh\nexit 0\n')
+        subprocess.run(['git', '-C', str(repo), 'add', '.'], check=True)
+        subprocess.run(['git', '-C', str(repo), '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid',
+                        'commit', '-qm', 'Fixture'], check=True)
+        commit = subprocess.check_output(['git', '-C', str(repo), 'rev-parse', 'HEAD'], text=True).strip()
+        info_path = self.iphone / 'build-info.json'
+        info = json.loads(info_path.read_text()); info['commit'] = commit; info_path.write_text(json.dumps(info))
+        (self.iphone / 'SHA256SUMS.txt').write_text(''.join(
+            f'{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.name}\n'
+            for path in sorted(self.iphone.iterdir()) if path.name != 'SHA256SUMS.txt'))
+        output = self.root / 'dist'
+        previous = Path.cwd()
+        try:
+            os.chdir(repo)
+            bundle(self.iphone, self.android, output, '0.2.0')
+        finally:
+            os.chdir(previous)
+        downloads = ['MotionAir-Android.apk', 'MotionAir-iPhone-unsigned.ipa', 'MotionAir-Computer.zip']
+        verified = verify_checksums(output)
+        notes = (output / 'RELEASE_NOTES.md').read_text()
+        for name in downloads:
+            self.assertIn(name, verified)
+            self.assertIn(f'releases/download/mobile/v0.2.0/{name}', notes)
+        with zipfile.ZipFile(output / 'MotionAir-Computer.zip') as archive:
+            self.assertIn('MotionAir-0.2.0/Motion Air.command', archive.namelist())
 
     def test_apk_signed_with_another_key_is_rejected(self):
         cert = self.root / 'public.pem'

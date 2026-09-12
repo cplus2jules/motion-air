@@ -1,7 +1,7 @@
 // Runs the installed Android test APK against a disposable pinned-TLS bridge
 // and a real UDP receiver. FORCE_LOG prevents native keyboard injection.
-import { spawn } from 'node:child_process';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { spawn, execFileSync } from 'node:child_process';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -62,6 +62,7 @@ try {
   await once(receiver, 'connect');
   subscription = setInterval(() => receiver.send(encodeDataRequest(0, 0)), 30);
   await run(gradle, ['--no-daemon', 'connectedDebugAndroidTest',
+    '-Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true',
     `-Pandroid.testInstrumentationRunnerArguments.pairingInvitation=${invitation}`], {
     cwd: join(root, 'android'),
   });
@@ -74,6 +75,16 @@ try {
   assert.equal(status.dsu.slots[0], null, 'Backgrounded app left live motion behind');
   console.log(`Android pairing, motion, pause, background and reconnect passed: ${packets.length} ordered DSU frames.`);
 } finally {
+  const screenshots = join(root, 'android/app/build/reports/emulator-screenshots');
+  await mkdir(screenshots, { recursive: true });
+  const adb = process.env.ANDROID_HOME ? join(process.env.ANDROID_HOME, 'platform-tools/adb') : 'adb';
+  for (const name of ['welcome', 'practice', 'motion-preview', 'controller-offline', 'welcome-es', 'controller', 'dance-lock']) {
+    try {
+      const png = execFileSync(adb, ['exec-out', 'run-as', 'com.motionair.controller.debug', 'cat', `files/qa-${name}.png`],
+        { timeout: 5000, maxBuffer: 8 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'] });
+      if (png.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) await writeFile(join(screenshots, `${name}.png`), png);
+    } catch { /* A test that failed before this screen has no screenshot. */ }
+  }
   clearInterval(subscription);
   receiver?.close();
   if (pairing) await pairing.close();

@@ -17,13 +17,13 @@ No se incluyen juegos, emuladores, firmware ni claves de juegos.
 
 ## 1. Descarga los archivos
 
-Abre [Releases](https://github.com/cplus2jules/motion-air/releases) y elige la versión más reciente que diga **Android and iPhone**. En **Assets**, descarga:
+Usa estos enlaces para descargar las apps más recientes. También están en **Assets** de la [página de la versión](https://github.com/cplus2jules/motion-air/releases/latest).
 
 | Para | Archivo |
 | --- | --- |
-| Tu Mac o PC con Windows | El que termina en **`-computer.zip`** |
-| Tu Android | El que termina en **`-android.apk`** |
-| Tu iPhone | El que termina en **`-unsigned.ipa`** |
+| Tu Mac o PC con Windows | [Descargar para el equipo](https://github.com/cplus2jules/motion-air/releases/latest/download/MotionAir-Computer.zip) |
+| Tu Android | [Descargar APK de Android](https://github.com/cplus2jules/motion-air/releases/latest/download/MotionAir-Android.apk) |
+| Tu iPhone | [Descargar IPA de iPhone](https://github.com/cplus2jules/motion-air/releases/latest/download/MotionAir-iPhone-unsigned.ipa) |
 
 Necesitas el ZIP del equipo **y** una app para el teléfono. Puedes ignorar los demás archivos. Inicia sesión en GitHub si te lo pide; este repositorio privado requiere acceso.
 
@@ -59,6 +59,8 @@ En Mac, permite Terminal en **Ajustes del Sistema → Privacidad y seguridad →
 Deja el lanzador dentro de su carpeta. Puedes crear un acceso directo o alias para el Escritorio.
 
 ## 4. Conecta el teléfono
+
+Al abrir la app, una guía breve te permite practicar el stick, A y B, y probar el bloqueo para bailar. Al terminar, elige **Conectar mi equipo** en Android o **Pair my Mac** en iPhone. Si omites la guía, usa el botón azul de conexión. Puedes volver a verla desde los ajustes.
 
 1. Usa la misma Wi-Fi en ambos dispositivos. Evita una red de invitados.
 2. En Motion Air, escanea el QR de tu ordenador. Permite la cámara si lo pide.

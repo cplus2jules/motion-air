@@ -99,22 +99,27 @@ def bundle(iphone, android, output, release_version):
     output.mkdir(parents=True, exist_ok=False)
     for source in iphone.iterdir():
         if source.name not in {'SHA256SUMS.txt', 'RELEASE_NOTES.md'} and source.is_file():
-            name = 'iphone-build-info.json' if source.name == 'build-info.json' else source.name
+            name = ('MotionAir-iPhone-unsigned.ipa' if source.suffix == '.ipa' else
+                    'iphone-build-info.json' if source.name == 'build-info.json' else source.name)
             shutil.copyfile(source, output / name)
     for source in android.iterdir():
         if source.is_file():
-            shutil.copyfile(source, output / source.name)
-    computer_zip = output / f'MotionAir-{release_version}-computer.zip'
+            name = 'MotionAir-Android.apk' if source.suffix == '.apk' else source.name
+            shutil.copyfile(source, output / name)
+    computer_zip = output / 'MotionAir-Computer.zip'
     subprocess.run(['git', 'archive', '--format=zip', f'--prefix=MotionAir-{release_version}/',
                     '-o', str(computer_zip), commit], check=True)
     (output / 'RELEASE_NOTES.md').write_text(f"""## Download Motion Air {release_version}
 
 Use your Android phone or iPhone as a wireless controller on a Mac or Windows PC.
 
-1. Download **MotionAir-{release_version}-computer.zip** on your computer and extract it.
-2. Download **MotionAir-{release_version}-android.apk** for Android 8 or later, or the
-   **unsigned.ipa** file for iPhone with iOS 17 or later.
-3. Follow the [easy setup guide](https://github.com/cplus2jules/motion-air/blob/mobile/v{release_version}/README.md).
+| Your device | Download |
+| --- | --- |
+| Mac or Windows PC | [MotionAir-Computer.zip](https://github.com/cplus2jules/motion-air/releases/download/mobile/v{release_version}/MotionAir-Computer.zip) |
+| Android 8 or later | [MotionAir-Android.apk](https://github.com/cplus2jules/motion-air/releases/download/mobile/v{release_version}/MotionAir-Android.apk) |
+| iPhone with iOS 17 or later | [MotionAir-iPhone-unsigned.ipa](https://github.com/cplus2jules/motion-air/releases/download/mobile/v{release_version}/MotionAir-iPhone-unsigned.ipa) |
+
+Download the computer ZIP and the app for your phone. Extract the ZIP and follow the [easy setup guide](https://github.com/cplus2jules/motion-air/blob/mobile/v{release_version}/README.md).
 
 Android: open the APK on your phone to install it. Updates use the same release
 signing key. Development builds have a separate app ID and do not replace it.
@@ -125,6 +130,10 @@ account. Opening the unsigned file on an iPhone does not install it.
 Both phones need the computer launcher and a compatible emulator. Emulator
 binaries, games, firmware and keys are not included. Just Dance motion requires
 the local motion-capable Ryujinx build described in the setup guides.
+
+Android now shares the iPhone welcome: three short lessons, practice controls,
+a Dance Lock preview, and quick access to pairing. Its controller uses the same
+red and blue grips, with Motion and Dance Lock always within reach.
 
 Both apps reject old sensor frames. Android also preserves rapid taps
 and keeps tracking through a visible pause, then stops on background.

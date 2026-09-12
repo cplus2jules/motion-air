@@ -4,7 +4,7 @@ Use Android 8 or later. Motion needs both an accelerometer and a gyroscope; phon
 
 ## Install and play
 
-1. Download the **`-android.apk`** file from the newest [Android and iPhone release](https://github.com/cplus2jules/motion-air/releases).
+1. Download [**MotionAir-Android.apk**](https://github.com/cplus2jules/motion-air/releases/latest/download/MotionAir-Android.apk) from the latest release.
 2. Open it on your phone. Allow installation from your browser or file manager if Android asks, then tap **Install**.
 3. Follow the [easy setup guide](../README.md) to start the computer launcher and connect the phone.
 

@@ -17,13 +17,13 @@ Games, emulator downloads, firmware and game keys are not included.
 
 ## 1. Download the right files
 
-Open [Releases](https://github.com/cplus2jules/motion-air/releases) and choose the newest **Android and iPhone** release. Under **Assets**, download:
+Use these links to download the latest apps. You can also find them under **Assets** on the [release page](https://github.com/cplus2jules/motion-air/releases/latest).
 
 | For | Download |
 | --- | --- |
-| Your Mac or Windows PC | The file ending in **`-computer.zip`** |
-| Your Android phone | The file ending in **`-android.apk`** |
-| Your iPhone | The file ending in **`-unsigned.ipa`** |
+| Your Mac or Windows PC | [Download for your computer](https://github.com/cplus2jules/motion-air/releases/latest/download/MotionAir-Computer.zip) |
+| Your Android phone | [Download Android APK](https://github.com/cplus2jules/motion-air/releases/latest/download/MotionAir-Android.apk) |
+| Your iPhone | [Download iPhone IPA](https://github.com/cplus2jules/motion-air/releases/latest/download/MotionAir-iPhone-unsigned.ipa) |
 
 You need the computer ZIP **and** one phone app. You can ignore the other files. Sign in to GitHub if the repository asks you to; downloads from this private repository require access.
 
@@ -61,9 +61,12 @@ Keep the launcher inside its extracted folder. You can make a shortcut or Finder
 ## 4. Connect your phone
 
 1. Keep your phone and computer on the same Wi-Fi. Avoid a guest network.
-2. In Motion Air on your phone, scan the QR shown on the computer. Allow camera access if asked.
-3. Check the computer name, then confirm the connection.
-4. Click the game window on your computer. Try the phone's buttons.
+2. Open Motion Air on your phone. Follow the short welcome guide, then choose **Pair my computer** on Android or **Pair my Mac** on iPhone. If you skipped the guide, use the blue pairing button at the bottom.
+3. Scan the QR shown on the computer. Allow camera access if asked.
+4. Check the computer name, then confirm the connection.
+5. Click the game window on your computer. Try the phone's buttons.
+
+Both apps let you practice the stick, A and B before connecting. You can replay the welcome guide from Settings.
 
 You only need to scan the QR the first time. Later, select your saved computer. If its address changes and reconnecting fails, scan a fresh QR.
 

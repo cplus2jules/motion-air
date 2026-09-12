@@ -2,9 +2,9 @@
 
 The [Android and iPhone releases workflow](../.github/workflows/mobile-releases.yml) publishes one GitHub Release containing:
 
-- A signed Android APK that users can install and update.
-- An unsigned iPhone IPA for users to sign with their sideloading tool.
-- A computer ZIP with the Mac and Windows launchers and bridge source.
+- **MotionAir-Android.apk**, a signed Android APK that users can install and update.
+- **MotionAir-iPhone-unsigned.ipa**, an unsigned iPhone IPA for users to sign with their sideloading tool.
+- **MotionAir-Computer.zip**, a computer ZIP with the Mac and Windows launchers and bridge source.
 - Build metadata, iPhone crash symbols, release notes and SHA-256 checksums.
 
 The GitHub repository is private. Only people with repository access can download these builds. Publishing a release does not change that visibility.
