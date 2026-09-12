@@ -8,7 +8,17 @@ Motion Air sigue en pruebas. Hay comprobaciones automáticas de los botones y de
 
 ## Capturas de pantalla
 
-Así se ve la app de Android. La app de iPhone sigue la misma guía de bienvenida. Haz clic en una captura para verla a tamaño completo.
+Aquí puedes ver las apps de [iPhone](#capturas-de-iphone) y [Android](#capturas-de-android). Haz clic en una captura para verla a tamaño completo.
+
+### Capturas de iPhone
+
+Capturadas en un iPhone 16 Pro en modo oscuro. La interfaz de estas capturas está en inglés; las instrucciones de abajo indican los nombres de los botones que debes pulsar.
+
+| Guía de bienvenida | Elige o conecta un equipo | Mando antes de conectar |
+| --- | --- | --- |
+| [![Guía de bienvenida de iPhone](docs/images/iphone-welcome.png)](docs/images/iphone-welcome.png) | [![Pantalla Your Mac de iPhone con equipos guardados y Pair a Mac](docs/images/iphone-computers.png)](docs/images/iphone-computers.png) | [![Mando de iPhone con controles atenuados antes de conectar](docs/images/iphone-controller-offline.png)](docs/images/iphone-controller-offline.png) |
+
+### Capturas de Android
 
 | Guía de bienvenida | Conecta tu equipo | Mando antes de conectar |
 | --- | --- | --- |
@@ -55,9 +65,11 @@ El iPhone requiere una instalación externa, llamada **sideloading**. Una herram
 
 Tu método de firma determina cuándo debes renovar la app. Consulta los [detalles de instalación en iPhone](docs/ios-releases.md#download-a-build).
 
-La app comienza con una guía breve. Estas capturas muestran Android; la app de iPhone sigue las mismas tres lecciones.
+Ambas apps comienzan con tres lecciones breves. Pulsa **Vamos a probar** en Android o **Let's try it** en iPhone para practicar el stick, A y B sin conectar a un equipo. Estas capturas de iPhone muestran las lecciones en orden:
 
-<img src="docs/images/android-welcome-es.png" alt="Bienvenida de Motion Air en Android, con los botones Omitir y Vamos a probar" width="260">
+| 1. Bienvenida | 2. Prueba los controles | 3. Conoce el movimiento |
+| --- | --- | --- |
+| ![Bienvenida de iPhone con Let's try it](docs/images/iphone-welcome.png) | ![Práctica en iPhone con stick y botones A y B](docs/images/iphone-controls-practice.png) | ![Lección de movimiento en iPhone con Try Dance Lock y Choose my Mac](docs/images/iphone-motion-guide.png) |
 
 ## 3. Abre Motion Air en el equipo
 
@@ -74,18 +86,31 @@ Deja el lanzador dentro de su carpeta. Puedes crear un acceso directo o alias pa
 
 ## 4. Conecta el teléfono
 
-Al abrir la app, una guía breve te permite practicar el stick, A y B, y probar el bloqueo para bailar. Al terminar, elige **Conectar mi equipo** en Android o **Pair my Mac** en iPhone. Si omites la guía, usa el botón azul de conexión. Puedes volver a verla desde los ajustes.
+Al terminar la guía, elige **Conectar mi equipo** en Android o **Pair my Mac** en iPhone. Si ya tienes un Mac guardado, el botón del iPhone dice **Choose my Mac**. Si omites la guía, usa el botón azul de conexión.
 
 1. Usa la misma Wi-Fi en ambos dispositivos. Evita una red de invitados.
 2. En Motion Air, escanea el QR de tu ordenador. Permite la cámara si lo pide.
 3. Comprueba el nombre del equipo y confirma la conexión.
 4. Haz clic en la ventana del juego y prueba los botones del teléfono.
 
-Elige **Escanear QR del equipo**, o **Pegar código de conexión** si no puedes usar la cámara.
+En Android, elige **Escanear QR del equipo**. En iPhone, elige **Pair a Mac → Scan Mac QR code**, o selecciona un Mac guardado para reconectar. Si no puedes usar la cámara, pega el código del ordenador: **Pegar código de conexión** en Android o **Paste pairing code** en iPhone. En iPhone, pulsa después **Review code** y **Pair and connect**.
 
-<img src="docs/images/android-pairing-es.png" alt="Pantalla de conexión de Android con Escanear QR del equipo y Pegar código de conexión" width="260"> <img src="docs/images/android-controller-offline-es.png" alt="Mando Android antes de conectar: stick y botones atenuados, con Conectar un equipo en la parte inferior" width="260">
+| iPhone: elige o conecta un Mac | Android: escanea o pega el código |
+| --- | --- |
+| <img src="docs/images/iphone-computers.png" alt="Pantalla Your Mac de iPhone con Saved Macs y Pair a Mac" width="260"> | <img src="docs/images/android-pairing-es.png" alt="Pantalla de conexión de Android con Escanear QR del equipo y Pegar código de conexión" width="260"> |
 
-El stick y los botones del mando permanecen atenuados hasta conectar. Para probar el stick sin un equipo, abre **Ajustes → Ver guía de bienvenida → Vamos a probar** en Android.
+El stick y los botones del mando permanecen atenuados hasta conectar. Para practicar sin un equipo, abre **Ajustes → Ver guía de bienvenida → Vamos a probar** en Android, o **Controller settings → Take the welcome tour → Let's try it** en iPhone. En iPhone, desplázate hacia abajo en los ajustes para encontrar la guía.
+
+<details>
+<summary>Dónde encontrar la guía de bienvenida en iPhone</summary>
+
+Pulsa el botón de ajustes en la esquina superior derecha del mando. Desplázate hacia abajo, pasa los datos de conexión y pulsa **Take the welcome tour**.
+
+| Abre Controller settings | Baja hasta la guía de bienvenida |
+| --- | --- |
+| <img src="docs/images/iphone-settings.png" alt="Controller settings de iPhone con vibración y datos de conexión" width="260"> | <img src="docs/images/iphone-settings-welcome-tour.png" alt="Parte inferior de los ajustes de iPhone con Take the welcome tour" width="260"> |
+
+</details>
 
 Solo necesitas escanear el QR la primera vez. Después, selecciona tu equipo guardado. Si cambia su dirección y no puedes reconectar, escanea un QR nuevo.
 
@@ -94,11 +119,11 @@ Solo necesitas escanear el QR la primera vez. Después, selecciona tu equipo gua
 1. Abre el juego con el emulador preparado para movimiento.
 2. Pulsa **Activar movimiento** o **Enable Motion** en el teléfono.
 3. Sujeta bien el teléfono en la mano derecha, en vertical y con la parte superior hacia los dedos.
-4. Pulsa **Bloqueo para bailar** o **Dance Lock** para evitar pulsaciones accidentales. Mantén pulsado el botón de desbloqueo para volver al mando.
+4. Pulsa **Bloqueo para bailar** o **Dance Lock** para evitar pulsaciones accidentales. Mantén pulsado el botón de desbloqueo para volver al mando; en iPhone, dice **Hold to unlock controls**.
 
 Mantén Motion Air abierto. Cambiar de app o bloquear la pantalla detiene la conexión. Tras reconectar, activa el movimiento de nuevo.
 
-El bloqueo para bailar oculta los controles. **Enviando movimiento** indica que el receptor del equipo recibe tus movimientos; no garantiza una puntuación en el juego. La captura siguiente muestra esta pantalla en inglés: **Hold to unlock** es el botón que debes mantener pulsado para desbloquear.
+El bloqueo para bailar oculta los controles. **Enviando movimiento** indica que el receptor del equipo recibe tus movimientos; no garantiza una puntuación en el juego. La captura siguiente muestra esta pantalla en Android y en inglés: **Hold to unlock** es el botón que debes mantener pulsado para desbloquear.
 
 <img src="docs/images/android-dance-lock.png" alt="Bloqueo para bailar en Android, en inglés, con Sending motion y Hold to unlock" width="260">
 
