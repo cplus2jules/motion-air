@@ -30,6 +30,8 @@ class ControllerSession(context: Context, private val changed: () -> Unit) {
     var ready = false; private set
     var connecting = false; private set
     var motion = false; private set
+    var player = 0; private set
+    private var dsuControls = false
     var native = false; private set
     var focused = false; private set
     var receivers = 0; private set
@@ -65,7 +67,7 @@ class ControllerSession(context: Context, private val changed: () -> Unit) {
                     if (opened) fail("connection_lost") else if (response?.code == 401) fail("pair_again") else attempt()
                 }
                 override fun onClosing(webSocket: WebSocket, code: Int, reason: String) = dispatch(token) {
-                    webSocket.close(code, null); fail(if (code == 4001) "pair_again" else "connection_lost")
+                    webSocket.close(code, null); fail(when (code) { 4001 -> "pair_again"; 4003 -> "server_full"; 4004 -> "already_connected"; else -> "connection_lost" })
                 }
             })
         }
@@ -86,7 +88,10 @@ class ControllerSession(context: Context, private val changed: () -> Unit) {
             "hello" -> {
                 val profiles = message.optJSONArray("motionProfiles")
                 if (profiles == null || (0 until profiles.length()).none { profiles.optString(it) == "just-dance" }) { fail("update_bridge"); return }
-                native = message.optBoolean("native") && message.opt("accessibility") != false
+                player = message.optInt("player")
+                if (player !in 1..6) { fail("protocol_error"); return }
+                dsuControls = message.optString("inputBackend") == "dsu"
+                native = dsuControls || message.optBoolean("native") && message.opt("accessibility") != false
                 focused = message.optJSONObject("focus")?.optBoolean("ok") == true
                 configure(false)
             }
@@ -113,7 +118,7 @@ class ControllerSession(context: Context, private val changed: () -> Unit) {
                 if (!focused) releaseControls()
             }
             "accessibility" -> {
-                native = message.opt("ok") == true
+                native = dsuControls || message.opt("ok") == true
                 if (!native) releaseControls()
             }
             "motion-status" -> { receivers = message.optInt("receivers"); receivedMotionAge = if (message.isNull("motionAgeMs")) null else message.optDouble("motionAgeMs") }
@@ -169,6 +174,7 @@ class ControllerSession(context: Context, private val changed: () -> Unit) {
         socket?.close(1000, "Controller stopped"); socket?.cancel(); socket = null
         client?.dispatcher?.cancelAll(); client?.connectionPool?.evictAll(); client?.dispatcher?.executorService?.shutdown(); client = null
         ready = false; connecting = false; motion = false; pendingMotion = null; focused = false; native = false
+        player = 0; dsuControls = false
         receivers = 0; receivedMotionAge = null; sent = 0; sequence = 0; lastPong = 0
         sessionId = UUID.randomUUID().toString()
         changed()

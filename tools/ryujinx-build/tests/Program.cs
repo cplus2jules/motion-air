@@ -44,9 +44,71 @@ Check(controller.GetHLEMotionState().Gyroscope==Vector3.Zero,"motion disable cle
 roundTrip.Motion=null;
 controller.UpdateUserConfiguration(roundTrip);
 Check(controller.GetHLEMotionState().Gyroscope==Vector3.Zero,"motion removal remains safe");
+// Exercise the actual NpadController update, with a desktop keyboard that
+// deliberately holds Plus. DSU player snapshots must replace those keys.
+var fixtureDir = Path.GetDirectoryName(args[0])!;
+var profiles = JsonSerializer.Deserialize<List<InputConfig>>(File.ReadAllText(Path.Combine(fixtureDir, "players.json")), options)!;
+Check(profiles.Select(p => p.PlayerIndex).Distinct().Count() == 6 && profiles.All(p => p.ControllerType == ControllerType.JoyconRight), "six distinct player indices each use one right Joy-Con");
+var sink = new System.Net.Sockets.UdpClient(new System.Net.IPEndPoint(System.Net.IPAddress.Loopback, 0));
+using (sink)
+{
+    var keyboardDriver = new HeldKeyboardDriver();
+    var multiplayerManager = new NpadManager(keyboardDriver, keyboardDriver, keyboardDriver);
+    typeof(NpadManager).GetField("_inputConfig", BindingFlags.Instance|BindingFlags.NonPublic)!.SetValue(multiplayerManager, profiles);
+    using var multiplayerClient = new Client(multiplayerManager);
+    var controllers = new List<NpadController>();
+    var expected = new[] { GamepadButtonInputId.A, GamepadButtonInputId.B, GamepadButtonInputId.X, GamepadButtonInputId.Y, GamepadButtonInputId.SingleLeftTrigger1, GamepadButtonInputId.SingleRightTrigger1 };
+    for (int i = 0; i < 6; i++)
+    {
+        var config = (StandardKeyboardInputConfig)profiles[i];
+        var cemu = (CemuHookMotionConfigController)config.Motion;
+        Check(cemu.UseControllerInput && cemu.Slot == i % 4 && cemu.DsuServerPort == 26760 + i / 4, $"player {i + 1} has an independent endpoint/slot");
+        var uiSaved = new KeyboardModel(config).GetConfig();
+        Check(((CemuHookMotionConfigController)((StandardKeyboardInputConfig)uiSaved).Motion).UseControllerInput, "settings retain DSU controller input");
+        cemu.DsuServerPort = ((System.Net.IPEndPoint)sink.Client.LocalEndPoint!).Port;
+        var pad = new NpadController(multiplayerClient);
+        pad.UpdateDriverConfiguration(keyboardDriver, config);
+        pad.UpdateUserConfiguration(config);
+        controllers.Add(pad);
+        multiplayerClient.HandleResponse(File.ReadAllBytes(Path.Combine(fixtureDir, $"warmup-{i}.bin")), i);
+        multiplayerClient.HandleResponse(File.ReadAllBytes(Path.Combine(fixtureDir, $"player-{i}.bin")), i);
+        pad.Update();
+        Check(pad.State.IsPressed(expected[i]) && !pad.State.IsPressed(GamepadButtonInputId.Plus), $"player {i + 1} receives its own button without desktop cross-talk");
+        Check(pad.GetHLEInputState().Buttons != 0 && pad.GetHLEInputState().RStick.Dx > 0, $"player {i + 1} reaches game-facing buttons and stick");
+        Check(Math.Abs(pad.GetHLEMotionState().Accelerometer.X - (i + 1) / 10f) < 0.002f, $"player {i + 1} reaches game-facing six-axis input");
+    }
+    for (int i = 0; i < 6; i++)
+    {
+        var released = File.ReadAllBytes(Path.Combine(fixtureDir, $"release-{i}.bin"));
+        multiplayerClient.HandleResponse(released, i);
+        // Older pressed packet must not undo a release, even with the same sensor timestamp.
+        multiplayerClient.HandleResponse(File.ReadAllBytes(Path.Combine(fixtureDir, $"player-{i}.bin")), i);
+        controllers[i].Update();
+        Check(controllers[i].GetHLEInputState().Buttons == 0, $"player {i + 1} releases independently without fresh motion");
+    }
+    Thread.Sleep(300);
+    Check(!multiplayerClient.TryGetControllerState(0, 0, out var stale) && !stale.IsPressed(GamepadButtonInputId.A), "stalled UDP input expires to neutral after 250 ms");
+    foreach (var pad in controllers) pad.Dispose();
+}
 Console.WriteLine("Emulator motion contract passed. Physical game scoring remains untested.");
 class EmptyDriver : IGamepadDriver {
  public string DriverName=>"Test"; public ReadOnlySpan<string> GamepadsIds=>Array.Empty<string>();
  public event Action<string> OnGamepadConnected {add{} remove{}} public event Action<string> OnGamepadDisconnected {add{} remove{}}
  public IGamepad GetGamepad(string id)=>null; public IEnumerable<IGamepad> GetGamepads()=>Array.Empty<IGamepad>(); public void Dispose(){}
+}
+
+class HeldKeyboardDriver : IGamepadDriver {
+ public string DriverName => "Test keyboard"; public ReadOnlySpan<string> GamepadsIds => new[] { "0" };
+ public event Action<string> OnGamepadConnected { add {} remove {} } public event Action<string> OnGamepadDisconnected { add {} remove {} }
+ public IGamepad GetGamepad(string id) => new HeldKeyboard(); public IEnumerable<IGamepad> GetGamepads() => new[] { new HeldKeyboard() }; public void Dispose() {}
+}
+class HeldKeyboard : IKeyboard {
+ public GamepadFeaturesFlag Features => default; public string Id => "0"; public string Name => "Held keyboard"; public bool IsConnected => true;
+ public bool IsPressed(GamepadButtonInputId id) => id == GamepadButtonInputId.Plus;
+ public bool IsPressed(Ryujinx.Input.Key key) => false; public KeyboardStateSnapshot GetKeyboardStateSnapshot() => default;
+ public (float, float) GetStick(StickInputId id) => (0, 0); public Vector3 GetMotionData(MotionInputId id) => default;
+ public void SetTriggerThreshold(float threshold) {} public void SetConfiguration(InputConfig config) {} public void SetLed(uint rgb) {}
+ public void Rumble(float low, float high, uint duration) {} public void Dispose() {}
+ public GamepadStateSnapshot GetMappedStateSnapshot() { var state = new GamepadStateSnapshot(); state.SetPressed(GamepadButtonInputId.Plus, true); return state; }
+ public GamepadStateSnapshot GetStateSnapshot() => GetMappedStateSnapshot();
 }

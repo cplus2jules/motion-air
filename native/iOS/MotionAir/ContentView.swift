@@ -102,7 +102,7 @@ struct ContentView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top, spacing: 12) {
                 VStack(alignment: .leading, spacing: 5) {
-                    Text(session.connected ? "Let's play." : "Ready, player one?")
+                    Text(session.connected ? "Let's play." : "Ready to play?")
                         .font(.system(.largeTitle, design: .rounded, weight: .bold))
                         .fixedSize(horizontal: false, vertical: true)
                         .accessibilityAddTraits(.isHeader)
@@ -121,7 +121,7 @@ struct ContentView: View {
                         Text(session.connectedMacName ?? (session.connecting ? "Connecting to your Mac…" : "Connect your Mac"))
                             .font(.subheadline.weight(.semibold)).foregroundStyle(.primary)
                             .lineLimit(typeSize.isAccessibilitySize ? nil : 1)
-                        Text(session.connected ? "Connected · Player 1" : "Pair once, then tap to reconnect")
+                        Text(session.connected ? "Connected · Player \(session.player ?? 1)" : "Pair once, then tap to reconnect")
                             .font(.caption).foregroundStyle(.secondary)
                     }
                     Spacer(minLength: 4)
@@ -225,7 +225,7 @@ private struct MacConnectionsView: View {
                         Label {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(session.connectedMacName ?? "Direct connection").font(.headline)
-                                Text(session.connecting ? "Connecting…" : "Connected · Player 1")
+                                Text(session.connecting ? "Connecting…" : "Connected · Player \(session.player ?? 1)")
                                     .font(.subheadline).foregroundStyle(.secondary)
                             }
                         } icon: { Image(systemName: "desktopcomputer").foregroundStyle(.tint) }
@@ -283,7 +283,7 @@ private struct MacConnectionsView: View {
                     Section {
                         Button { showingPairing = true } label: { Label("Pair a Mac", systemImage: "qrcode.viewfinder").frame(minHeight: 44) }
                             .disabled(pairing.busy).accessibilityIdentifier("scanPairMac")
-                    } footer: { Text("Use the same Wi-Fi or Personal Hotspot. Connecting takes the Player 1 slot.") }
+                    } footer: { Text("Use the same Wi-Fi or Personal Hotspot. Each phone joins a separate player slot, up to six players.") }
                 }
             }
             .navigationTitle("Your Mac").navigationBarTitleDisplayMode(.inline)

@@ -18,7 +18,7 @@ const SETTINGS_KEY = "cspm-pwa-settings-v1";
 const LEGACY_PLAYER_KEY = "switchpad.player";
 
 const DEFAULT_SETTINGS = {
-  player: null, // último slot usado (1|2)
+  player: null, // último slot usado (1–6)
   names: { 1: "", 2: "" },
   theme: DEFAULT_THEME,
   engage: 0.55,
@@ -40,13 +40,13 @@ function loadSettings() {
   s.release = clamp(Number(s.release) || 0.4, 0.1, s.engage - 0.05);
   s.swapAB = !!s.swapAB;
   if (!["off", "suave", "normal", "fuerte"].includes(s.haptics)) s.haptics = "normal";
-  if (s.player !== 1 && s.player !== 2) {
+  if (![1, 2, 3, 4, 5, 6].includes(s.player)) {
     // migración desde la PWA v1
     let legacy;
     try { legacy = Number(localStorage.getItem(LEGACY_PLAYER_KEY)); } catch { /* Storage disabled. */ }
     s.player = legacy === 1 || legacy === 2 ? legacy : null;
   }
-  for (const n of [1, 2]) {
+  for (const n of [1, 2, 3, 4, 5, 6]) {
     if (typeof s.names[n] !== "string" || !s.names[n].trim()) s.names[n] = "";
     s.names[n] = s.names[n].slice(0, 14);
   }
@@ -68,6 +68,7 @@ const state = {
   focusOk: null,
   focusApp: null,
   accessibilityOk: true,   // true | false | "unknown"
+  inputBackend: "keyboard",
   nativeOk: true,          // false ⇒ nut-js no cargó en el Mac (modo log)
   orientation: "landscape-right",
   ryujinx: null,
@@ -156,13 +157,13 @@ function wsConnect() {
     if (socket !== ws) return;
     ws = null;
     stopPing();
-    if (e.code === 4000) {
+    if ([4000, 4003, 4004].includes(e.code)) {
       // Otro dispositivo tomó el slot: NO reconectar (si no, dos teléfonos
       // con el mismo slot guardado se expulsan mutuamente en ping-pong
       // infinito). De vuelta al picker, con aviso visible.
       shouldReconnect = false;
       showPicker();
-      showPickerToast("takeover");
+      showPickerToast(e.code === 4003 ? "serverFull" : "slotBusy");
       return;
     }
     if (shouldReconnect) {
@@ -207,11 +208,12 @@ function stopPing() {
 function handleServerMessage(msg) {
   switch (msg.t) {
     case "hello":
-      state.accessibilityOk = msg.accessibility;
+      state.inputBackend = msg.inputBackend ?? "keyboard";
+      state.accessibilityOk = state.inputBackend === "dsu" || msg.accessibility;
       state.ryujinx = msg.ryujinx ?? null;
       // native:false ⇒ las teclas se imprimen en consola y no llegan a
       // Ryujinx (también con FORCE_LOG=1, donde el aviso es igual de cierto)
-      state.nativeOk = msg.native !== false;
+      state.nativeOk = state.inputBackend === "dsu" || msg.native !== false;
       state.focusOk = typeof msg.focus?.ok === "boolean" ? msg.focus.ok : null;
       state.focusApp = (msg.focus && msg.focus.app) || null;
       updateBanner();
@@ -230,7 +232,7 @@ function handleServerMessage(msg) {
       updateBanner();
       break;
     case "accessibility":
-      state.accessibilityOk = !!msg.ok;
+      state.accessibilityOk = state.inputBackend === "dsu" || !!msg.ok;
       updateBanner();
       break;
     case "ryujinx":
@@ -818,17 +820,18 @@ let statusTimer = null;
 let lastCardStatus;
 
 function updateCardNames() {
-  for (const n of [1, 2]) {
+  for (const n of [1, 2, 3, 4, 5, 6]) {
+    $$(`[data-player-label="${n}"]`).forEach(el => { el.textContent = t("player", { n: el.classList.contains("card-player") ? String(n).padStart(2, "0") : n }); });
     $(`[data-card-name="${n}"]`).textContent = settings.names[n] || t("player", { n });
   }
 }
 
 function updateCards(data) {
-  const ready = data?.ryujinx?.synced && data.native && data.accessibility === true;
+  const ready = data?.ryujinx?.synced && (data.inputBackend === "dsu" || (data.native && data.accessibility === true));
   $("#lobby-status").textContent = t(!data ? "lobby.offline" : ready ? "lobby.ready" : "lobby.needsSetup");
   $("#lobby-dot").className = `dot ${data ? ready ? "free" : "busy" : ""}`;
   lastCardStatus = data;
-  for (const n of [1, 2]) {
+  for (const n of [1, 2, 3, 4, 5, 6]) {
     const dot = $(`[data-card-dot="${n}"]`);
     const txt = $(`[data-card-status="${n}"]`);
     const p = data && data.players && data.players[n];
@@ -837,6 +840,7 @@ function updateCards(data) {
       txt.textContent = t(data === null ? "serverOffline" : "searching");
       continue;
     }
+    $(`.card[data-player="${n}"]`).disabled = p.connected || (n > 2 && data.inputBackend !== "dsu");
     if (p.connected) {
       dot.className = "dot busy";
       txt.textContent = p.name ? t("occupiedBy", { name: p.name }) : t("occupied");
@@ -1091,7 +1095,7 @@ function buildThemeGrid() {
 }
 
 function bindNames() {
-  for (const n of [1, 2]) {
+  for (const n of [1, 2, 3, 4, 5, 6]) {
     const input = $(`#name-${n}`);
     input.value = settings.names[n];
     input.placeholder = t("player", { n });
@@ -1279,7 +1283,7 @@ function init() {
 onLanguageChange(() => {
   updateCardNames();
   if (state.player) elPillName.textContent = settings.names[state.player] || t("player", { n: state.player });
-  for (const n of [1, 2]) $(`#name-${n}`).placeholder = t("player", { n });
+  for (const n of [1, 2, 3, 4, 5, 6]) $(`#name-${n}`).placeholder = t("player", { n });
   updateCards(lastCardStatus);
   if (bannerFlashKey) elBanner.textContent = t(bannerFlashKey);
   else updateBanner();

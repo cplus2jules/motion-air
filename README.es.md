@@ -2,6 +2,8 @@
 
 Usa tu **Android o iPhone como mando inalámbrico** para juegos con movimiento en **Mac o Windows**.
 
+La actualización local 0.3.0 añade hasta seis teléfonos con Joy-Con independientes para Just Dance. Requiere actualizar las apps, el puente y el emulador; consulta la [guía multijugador](docs/multiplayer.md#español). Todavía no está publicada en los enlaces de descarga.
+
 [Descargar Motion Air](https://github.com/cplus2jules/motion-air/releases) · [Capturas de pantalla](#capturas-de-pantalla) · [Instrucciones](#1-descarga-los-archivos) · [Read in English](README.md)
 
 [Reportar un problema](https://github.com/cplus2jules/motion-air/issues/new?template=01-bug-report.yml) · [Dar mi opinión](https://github.com/cplus2jules/motion-air/issues/new?template=03-feedback.yml) · [Contribuir](CONTRIBUTING.es.md)
@@ -64,10 +66,21 @@ Necesitas el ZIP del equipo **y** una app para el teléfono. Puedes ignorar los 
 El iPhone requiere una instalación externa, llamada **sideloading**. Una herramienta en el ordenador firma la app con tu cuenta de Apple y la instala. Abrir el IPA directamente en el teléfono no lo instala.
 
 1. Configura tu herramienta, como [AltStore Classic](https://faq.altstore.io/) o [Sideloadly](https://sideloadly.io/), siguiendo su guía.
-2. Importa el IPA descargado y sigue los pasos para firmarlo e instalarlo.
-3. Abre **Motion Air** en el iPhone y permite el acceso a la **red local** cuando lo pida.
+2. Conecta y desbloquea el iPhone, confía en el ordenador cuando lo pida y selecciona ese teléfono en la herramienta. Importa **MotionAir-iPhone-unsigned.ipa** y sigue los pasos para firmarlo e instalarlo. Si descargaste un ZIP de Actions, extráelo primero para encontrar el IPA.
+3. Activa **Ajustes → Privacidad y seguridad → Modo de desarrollador**, reinicia el iPhone y confirma la activación. Si no aparece la opción, sigue las [instrucciones de Apple para enlazar el dispositivo](https://developer.apple.com/documentation/xcode/enabling-developer-mode-on-a-device).
+4. Si aparece **Desarrollador no fiable**, abre **Ajustes → General → VPN y gestión de dispositivos** y confía en la cuenta que usaste para firmar la app. Este paso es independiente del modo de desarrollador.
+5. Abre **Motion Air** en el iPhone y permite el acceso a la **red local** cuando lo pida.
 
-Tu método de firma determina cuándo debes renovar la app. Consulta los [detalles de instalación en iPhone](docs/ios-releases.md#download-a-build).
+El archivo se distribuye sin firma a propósito: la herramienta añade una firma y un perfil de aprovisionamiento para tu cuenta y teléfono. Puedes usar una cuenta gratuita de Apple, pero sus perfiles caducan a los **7 días**, por lo que debes renovar la app. Una app firmada para un teléfono no queda autorizada automáticamente para otro. Consulta los [límites de las cuentas gratuitas de Apple](https://developer.apple.com/help/account/basics/about-your-developer-account) y los [detalles de instalación en iPhone](docs/ios-releases.md#download-a-build).
+
+<details>
+<summary>Ayuda para firmar e instalar la app en iPhone</summary>
+
+Si Sideloadly se detiene en **Obtaining team ID** con **Invalid file**, el registro sitúa el fallo en la consulta del equipo de firma de Apple. Ese mensaje por sí solo no demuestra que el IPA esté dañado ni que el modo de desarrollador haya causado el fallo. Aún hay que comprobar la gestión de la cuenta o sesión y la conexión. Guarda el registro sin datos de la cuenta y compara un intento con otra conexión a internet, usando el mismo IPA y la misma cuenta. Cambiar entre Local/Remote Anisette sirve para diagnosticar; no garantiza una solución.
+
+En un Mac con Xcode, los [pasos de instalación directa en iPhone](docs/local-device-setup.md#install-on-iphone) ofrecen una alternativa: compila la app desde este repositorio con tu propio equipo de firma y el iPhone seleccionado. Así evitas Sideloadly, pero sigues necesitando la firma de Apple, el modo de desarrollador y la renovación. Esta alternativa no diagnostica ni repara el error de Sideloadly. La descarga actual no es una versión de TestFlight ni de App Store.
+
+</details>
 
 Ambas apps comienzan con tres lecciones breves. Pulsa **Vamos a probar** en Android o **Let's try it** en iPhone para practicar el stick, A y B sin conectar a un equipo. Estas capturas de iPhone muestran las lecciones en orden:
 

@@ -32,7 +32,7 @@ import { join } from 'node:path';
 const [root, sourceDir, appPath, sourceRevision, patchPath] = process.argv.slice(2);
 const hash = path => createHash('sha256').update(readFileSync(path)).digest('hex');
 writeFileSync(join(root, '.local', 'emulator-build.json'), JSON.stringify({
-  sourceRevision, sourceDir, appPath, patchSHA256: hash(patchPath),
+  sourceRevision, sourceDir, appPath, maxPlayers: 6, controllerInputVersion: 1, patchSHA256: hash(patchPath),
   executableSHA256: hash(join(appPath, 'Contents/MacOS/Ryujinx')),
   builtAt: new Date().toISOString(), tests: 'Emulator contract passed; physical scoring requires a separate test.',
 }, null, 2));

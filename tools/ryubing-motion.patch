@@ -28,6 +28,19 @@ index c8d71a8..b2e277b 100644
          <packageSource key="LibHacAlpha">
              <package pattern="Ryujinx.LibHac" />
          </packageSource>
+diff --git a/src/Ryujinx.Common/Configuration/Hid/Controller/Motion/CemuHookMotionConfigController.cs b/src/Ryujinx.Common/Configuration/Hid/Controller/Motion/CemuHookMotionConfigController.cs
+index 1c31fff..30170b9 100644
+--- a/src/Ryujinx.Common/Configuration/Hid/Controller/Motion/CemuHookMotionConfigController.cs
++++ b/src/Ryujinx.Common/Configuration/Hid/Controller/Motion/CemuHookMotionConfigController.cs
+@@ -5,6 +5,8 @@ namespace Ryujinx.Common.Configuration.Hid.Controller.Motion
+         /// <summary>
+         /// Motion Controller Slot
+         /// </summary>
++        public bool UseControllerInput { get; set; }
++
+         public int Slot { get; set; }
+
+         /// <summary>
 diff --git a/src/Ryujinx.Common/Configuration/Hid/Keyboard/GenericKeyboardInputConfig.cs b/src/Ryujinx.Common/Configuration/Hid/Keyboard/GenericKeyboardInputConfig.cs
 index ecddd31..5c96f63 100644
 --- a/src/Ryujinx.Common/Configuration/Hid/Keyboard/GenericKeyboardInputConfig.cs
@@ -51,7 +64,7 @@ index ecddd31..5c96f63 100644
      }
  }
 diff --git a/src/Ryujinx.Input/HLE/NpadController.cs b/src/Ryujinx.Input/HLE/NpadController.cs
-index b397900..e0ef9d5 100644
+index b397900..af958b5 100644
 --- a/src/Ryujinx.Input/HLE/NpadController.cs
 +++ b/src/Ryujinx.Input/HLE/NpadController.cs
 @@ -2,6 +2,7 @@ using Ryujinx.Common;
@@ -86,11 +99,11 @@ index b397900..e0ef9d5 100644
 +        private readonly record struct MotionSettings(
 +            Ryujinx.Common.Configuration.Hid.PlayerIndex Player, ConfigControllerType Type,
 +            bool Present, bool Enabled, MotionInputBackendType Backend,
-+            int Sensitivity, double Deadzone, string Host, int Port, int Slot, int AltSlot, bool Mirror);
++            int Sensitivity, double Deadzone, string Host, int Port, int Slot, int AltSlot, bool Mirror, bool ControllerInput);
++
++        private MotionSettings _motionSettings;
 
 -                if (needsMotionInputUpdate)
-+        private MotionSettings _motionSettings;
-+
 +        public void UpdateUserConfiguration(InputConfig config)
 +        {
 +            MotionConfigController motionConfig = GetMotionConfig(config);
@@ -99,7 +112,7 @@ index b397900..e0ef9d5 100644
 +                motionConfig != null, motionConfig?.EnableMotion ?? false,
 +                motionConfig?.MotionBackend ?? default, motionConfig?.Sensitivity ?? 100,
 +                motionConfig?.GyroDeadzone ?? 0, cemu?.DsuServerHost, cemu?.DsuServerPort ?? 0,
-+                cemu?.Slot ?? 0, cemu?.AltSlot ?? 0, cemu?.MirrorInput ?? false);
++                cemu?.Slot ?? 0, cemu?.AltSlot ?? 0, cemu?.MirrorInput ?? false, cemu?.UseControllerInput ?? false);
 +
 +            // NpadManager calls this every frame. Compare a value snapshot so
 +            // unchanged input keeps its socket, and in-place setting edits are detected.
@@ -171,9 +184,17 @@ index b397900..e0ef9d5 100644
 
                          // First of all ensure we are registered
                          _cemuHookClient.RegisterClient(clientId, cemuControllerConfig.DsuServerHost, cemuControllerConfig.DsuServerPort);
-@@ -331,7 +361,7 @@ namespace Ryujinx.Input.HLE
+@@ -330,8 +360,15 @@ namespace Ryujinx.Input.HLE
+                         // Then request and retrieve the data
                          _cemuHookClient.RequestData(clientId, cemuControllerConfig.Slot);
                          _cemuHookClient.TryGetData(clientId, cemuControllerConfig.Slot, out _leftMotionInput);
++                        if (cemuControllerConfig.UseControllerInput)
++                        {
++                            // Each phone owns a complete snapshot. Never mix another
++                            // player's desktop keys into a DSU-backed Joy-Con.
++                            _cemuHookClient.TryGetControllerState(clientId, cemuControllerConfig.Slot, out GamepadStateSnapshot state);
++                            State = state;
++                        }
 
 -                        if (controllerConfig.ControllerType == ConfigControllerType.JoyconPair)
 +                        if (_config.ControllerType == ConfigControllerType.JoyconPair)
@@ -181,7 +202,7 @@ index b397900..e0ef9d5 100644
                              if (!cemuControllerConfig.MirrorInput)
                              {
 diff --git a/src/Ryujinx.Input/Motion/CemuHook/Client.cs b/src/Ryujinx.Input/Motion/CemuHook/Client.cs
-index 21e31a7..21c1170 100644
+index 21e31a7..a50aed6 100644
 --- a/src/Ryujinx.Input/Motion/CemuHook/Client.cs
 +++ b/src/Ryujinx.Input/Motion/CemuHook/Client.cs
 @@ -3,6 +3,7 @@ using Ryujinx.Common;
@@ -192,23 +213,25 @@ index 21e31a7..21c1170 100644
  using Ryujinx.Common.Logging;
  using Ryujinx.Common.Memory;
  using Ryujinx.Input.HLE;
-@@ -28,6 +29,7 @@ namespace Ryujinx.Input.Motion.CemuHook
+@@ -28,6 +29,8 @@ namespace Ryujinx.Input.Motion.CemuHook
          private readonly Dictionary<int, IPEndPoint> _hosts;
          private readonly Dictionary<int, Dictionary<int, MotionInput>> _motionData;
          private readonly Dictionary<int, UdpClient> _clients;
 +        private readonly Dictionary<(int Player, int Slot), long> _lastReceived = new();
++        private readonly Dictionary<(int Player, int Slot), (GamepadStateSnapshot State, long Arrival, uint Packet, uint Server)> _controllerData = new();
 
          private readonly bool[] _clientErrorStatus = new bool[Enum.GetValues<PlayerIndex>().Length];
          private readonly long[] _clientRetryTimer = new long[Enum.GetValues<PlayerIndex>().Length];
-@@ -64,6 +66,7 @@ namespace Ryujinx.Input.Motion.CemuHook
+@@ -64,6 +67,8 @@ namespace Ryujinx.Input.Motion.CemuHook
                  _hosts.Clear();
                  _clients.Clear();
                  _motionData.Clear();
 +                _lastReceived.Clear();
++                _controllerData.Clear();
              }
          }
 
-@@ -96,7 +99,7 @@ namespace Ryujinx.Input.Motion.CemuHook
+@@ -96,7 +101,7 @@ namespace Ryujinx.Input.Motion.CemuHook
 
                      Task.Run(() =>
                      {
@@ -217,7 +240,7 @@ index 21e31a7..21c1170 100644
                      });
                  }
                  catch (FormatException formatException)
-@@ -144,7 +147,9 @@ namespace Ryujinx.Input.Motion.CemuHook
+@@ -144,7 +149,9 @@ namespace Ryujinx.Input.Motion.CemuHook
              {
                  if (_motionData.TryGetValue(player, out Dictionary<int, MotionInput> value))
                  {
@@ -228,7 +251,61 @@ index 21e31a7..21c1170 100644
                      {
                          return true;
                      }
-@@ -241,50 +246,56 @@ namespace Ryujinx.Input.Motion.CemuHook
+@@ -156,6 +163,53 @@ namespace Ryujinx.Input.Motion.CemuHook
+             return false;
+         }
+
++        public bool TryGetControllerState(int player, int slot, out GamepadStateSnapshot state)
++        {
++            lock (_motionData)
++            {
++                if (_controllerData.TryGetValue((player, slot), out var data) &&
++                    PerformanceCounter.ElapsedMilliseconds - data.Arrival <= 250)
++                {
++                    state = data.State;
++                    return true;
++                }
++            }
++            state = default;
++            return false;
++        }
++
++        private static GamepadStateSnapshot DecodeControllerState(byte[] data)
++        {
++            GamepadStateSnapshot state = new();
++            // Offsets refer to the standard DSU payload, after the 16-byte header.
++            if (data[5] != 2 || data[15] == 0) return state;
++            GamepadButtonInputId[] extra = { GamepadButtonInputId.Minus, GamepadButtonInputId.LeftStick,
++                GamepadButtonInputId.RightStick, GamepadButtonInputId.Plus, GamepadButtonInputId.DpadUp,
++                GamepadButtonInputId.DpadRight, GamepadButtonInputId.DpadDown, GamepadButtonInputId.DpadLeft };
++            GamepadButtonInputId[] main = { GamepadButtonInputId.LeftTrigger, GamepadButtonInputId.RightTrigger,
++                GamepadButtonInputId.LeftShoulder, GamepadButtonInputId.RightShoulder, GamepadButtonInputId.X,
++                GamepadButtonInputId.A, GamepadButtonInputId.B, GamepadButtonInputId.Y };
++            for (int i = 0; i < 8; i++)
++            {
++                state.SetPressed(extra[i], (data[20] & (1 << i)) != 0);
++                state.SetPressed(main[i], (data[21] & (1 << i)) != 0);
++            }
++            state.SetPressed(GamepadButtonInputId.Guide, data[22] != 0);
++            state.SetPressed(GamepadButtonInputId.Misc1, data[23] != 0);
++            static float Axis(byte value) => Math.Clamp((value - 128) / 127f, -1f, 1f);
++            state.SetStick(StickInputId.Left, Axis(data[24]), Axis(data[25]));
++            state.SetStick(StickInputId.Right, Axis(data[26]), Axis(data[27]));
++            // Optional Motion Air MA/v1 extension preserves both rail buttons.
++            if (data.Length >= 88 && data[84] == 0x4d && data[85] == 0x41 && data[86] == 1)
++            {
++                state.SetPressed(GamepadButtonInputId.SingleLeftTrigger0, (data[87] & 1) != 0);
++                state.SetPressed(GamepadButtonInputId.SingleLeftTrigger1, (data[87] & 1) != 0);
++                state.SetPressed(GamepadButtonInputId.SingleRightTrigger0, (data[87] & 2) != 0);
++                state.SetPressed(GamepadButtonInputId.SingleRightTrigger1, (data[87] & 2) != 0);
++            }
++            return state;
++        }
++
+         private void RemoveClient(int clientId)
+         {
+             _clients?.Remove(clientId);
+@@ -241,50 +295,60 @@ namespace Ryujinx.Input.Motion.CemuHook
              return _clientRetryTimer[clientId] == 0 || PerformanceCounter.ElapsedMilliseconds - 5000 > _clientRetryTimer[clientId];
          }
 
@@ -248,7 +325,23 @@ index 21e31a7..21c1170 100644
 +                lock (_motionData)
 +                {
 +                    _motionData.Remove(clientId);
-+                    for (int slot = 0; slot < 4; slot++) _lastReceived.Remove((clientId, slot));
++                    for (int slot = 0; slot < 4; slot++)
+                     {
+-                        while (_active)
+-                        {
+-                            byte[] data = Receive(clientId);
+-
+-                            if (data.Length == 0)
+-                            {
+-                                continue;
+-                            }
+-
+-                            Task.Run(() => HandleResponse(data, clientId));
+-                        }
++                        _lastReceived.Remove((clientId, slot));
++                        _controllerData.Remove((clientId, slot));
+                     }
+-                    catch (SocketException socketException)
 +                }
 +                ResetRetryTimer(clientId);
 +                _clientErrorStatus[clientId] = false;
@@ -265,27 +358,15 @@ index 21e31a7..21c1170 100644
 +                    byte[] data = client.Receive(ref endPoint);
 +                    lock (_clients)
                      {
--                        while (_active)
+-                        if (!_clientErrorStatus[clientId])
 +                        if (!_clients.TryGetValue(clientId, out UdpClient current) || current != client)
                          {
--                            byte[] data = Receive(clientId);
--
--                            if (data.Length == 0)
--                            {
--                                continue;
--                            }
--
--                            Task.Run(() => HandleResponse(data, clientId));
+-                            Logger.Warning?.PrintMsg(LogClass.Hid, $"Unable to receive data from motion source at {endPoint}. Error: {socketException.ErrorCode}");
 +                            return;
-                         }
--                    }
--                    catch (SocketException socketException)
--                    {
--                        if (!_clientErrorStatus[clientId])
++                        }
 +                        // Process in receive order; a Task per packet can reorder timestamps.
 +                        if (data.Length >= 20 && (BitConverter.ToUInt32(data, 16) != 0x100002 || data.Length >= 100))
-                         {
--                            Logger.Warning?.PrintMsg(LogClass.Hid, $"Unable to receive data from motion source at {endPoint}. Error: {socketException.ErrorCode}");
++                        {
 +                            HandleResponse(data, clientId);
                          }
 -
@@ -318,7 +399,24 @@ index 21e31a7..21c1170 100644
                      }
                  }
              }
-@@ -329,20 +340,32 @@ namespace Ryujinx.Input.Motion.CemuHook
+@@ -292,6 +356,8 @@ namespace Ryujinx.Input.Motion.CemuHook
+
+         public void HandleResponse(byte[] data, int clientId)
+         {
++            if (data.Length < 20) return;
++            uint serverId = BitConverter.ToUInt32(data, 12);
+             ResetRetryTimer(clientId);
+
+             MessageType type = (MessageType)BitConverter.ToUInt32(data.AsSpan().Slice(16, 4));
+@@ -309,6 +375,7 @@ namespace Ryujinx.Input.Motion.CemuHook
+                     ControllerInfoResponse contollerInfo = reader.ReadStruct<ControllerInfoResponse>();
+                     break;
+                 case MessageType.Data:
++                    if (data.Length < 84) return;
+                     ControllerDataResponse inputData = reader.ReadStruct<ControllerDataResponse>();
+
+                     Vector3 accelerometer = new()
+@@ -329,20 +396,54 @@ namespace Ryujinx.Input.Motion.CemuHook
 
                      InputConfig config = _npadManager.GetPlayerInputConfigByIndex(clientId);
 
@@ -347,6 +445,28 @@ index 21e31a7..21c1170 100644
 
 +                            if (slot != cemuHookConfig.Slot && slot != cemuHookConfig.AltSlot) break;
 +
++                            if (cemuHookConfig.UseControllerInput)
++                            {
++                                var key = (clientId, slot);
++                                uint packetId = BitConverter.ToUInt32(data, 16);
++                                if (_controllerData.TryGetValue(key, out var previous))
++                                {
++                                    if (previous.Server == serverId && unchecked((int)(packetId - previous.Packet)) <= 0) break;
++                                    if (previous.Server != serverId)
++                                    {
++                                        _motionData.Remove(clientId);
++                                        _lastReceived.Remove(key);
++                                    }
++                                }
++                                _controllerData[key] = (DecodeControllerState(data), PerformanceCounter.ElapsedMilliseconds, packetId, serverId);
++                                if (data[5] != 2 || data[15] == 0)
++                                {
++                                    _motionData.Remove(clientId);
++                                    _lastReceived.Remove(key);
++                                    break;
++                                }
++                            }
++
                              if (_motionData.TryGetValue(clientId, out Dictionary<int, MotionInput> motionDataItem))
                              {
                                  if (motionDataItem.TryGetValue(slot, out MotionInput previousData))
@@ -355,7 +475,7 @@ index 21e31a7..21c1170 100644
                                      previousData.Update(accelerometer, gyroscrope, timestamp, cemuHookConfig.Sensitivity, (float)cemuHookConfig.GyroDeadzone);
                                  }
                                  else
-@@ -362,6 +385,7 @@ namespace Ryujinx.Input.Motion.CemuHook
+@@ -362,6 +463,7 @@ namespace Ryujinx.Input.Motion.CemuHook
 
                                  _motionData.Add(clientId, new Dictionary<int, MotionInput> { { slot, input } });
                              }

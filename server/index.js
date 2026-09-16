@@ -17,7 +17,8 @@ import { validateMessage, makeRateLimiter, isPrivateAddress } from "./validate.j
 import { createStickEngine } from "./stick-engine.js";
 import { createFocusWatcher } from "./focus.js";
 import { checkAccessibility, accessibilityStatus, printAccessibilityHelp, requestAccessibility } from "./accessibility.js";
-import { createDsuServer } from "./dsu/server.js";
+import { createDsuHub } from "./dsu/hub.js";
+import { MAX_PLAYERS, PLAYER_NUMBERS, motionEndpoint } from './players.js';
 import { t } from "./i18n.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -54,16 +55,19 @@ let invalidMsgs = 0;
 // un Dolphin/Cemu en otra máquina).
 const dsu = process.env.DSU_OFF === "1"
   ? null
-  : createDsuServer({
+  : createDsuHub({
       host: process.env.DSU_HOST || "127.0.0.1",
       port: Number(process.env.DSU_PORT) || 26760,
       onError: err => { if (process.env.JOYPAD_STRICT_PORTS === "1" && err.code === "EADDRINUSE") process.exit(1); },
     });
 
-const players = {
-  1: createPlayerState(1),
-  2: createPlayerState(2),
-};
+const players = Object.fromEntries(PLAYER_NUMBERS.map(n => [n, createPlayerState(n)]));
+const dsuControls = process.env.DSU_CONTROLS === '1' && !!dsu;
+const emptyMapping = { buttons: {}, sticks: { L: {}, R: {} } };
+const mapping = p => dsuControls ? emptyMapping : MAPPINGS[p.num] ?? emptyMapping;
+function publishControls(p) {
+  if (dsuControls) dsu.updateControls(p.num - 1, { connected: p.connected, buttons: [...p.buttons], sticks: p.sticks });
+}
 
 function createPlayerState(num) {
   return {
@@ -78,6 +82,7 @@ function createPlayerState(num) {
     motionSeq: -1,
     motionDropped: 0,
     buttons: new Set(),
+    sticks: { L: { x: 0, y: 0 }, R: { x: 0, y: 0 } },
     stickEngines: { L: createStickEngine(), R: createStickEngine() },
     stickHeld: { L: new Set(), R: new Set() },
     rttMs: null,
@@ -92,7 +97,7 @@ function displayName(p) {
 }
 
 function releaseAllForPlayer(p) {
-  const map = MAPPINGS[p.num];
+  const map = mapping(p);
   for (const btn of p.buttons) {
     const key = map.buttons[btn];
     if (key) queue.push("up", key);
@@ -106,7 +111,9 @@ function releaseAllForPlayer(p) {
     }
     p.stickHeld[stick].clear();
     p.stickEngines[stick].reset();
+    p.sticks[stick] = { x: 0, y: 0 };
   }
+  publishControls(p);
 }
 
 // SOCD (izq+der o arriba+abajo simultáneos en el d-pad): last-input-wins
@@ -120,28 +127,29 @@ const OPPOSITES = {
 };
 
 function handleButton(p, btnName, isDown) {
-  const map = MAPPINGS[p.num];
+  const map = mapping(p);
   const key = map.buttons[btnName];
-  if (!key || typeof key !== "string") return;
 
   const has = p.buttons.has(btnName);
   if (isDown && !has) {
     const opp = OPPOSITES[btnName];
     if (opp && p.buttons.has(opp)) {
       p.buttons.delete(opp);
-      queue.push("up", map.buttons[opp]);
+      if (map.buttons[opp]) queue.push("up", map.buttons[opp]);
     }
     p.buttons.add(btnName);
-    queue.push("down", key);
+    if (key) queue.push("down", key);
   } else if (!isDown && has) {
     p.buttons.delete(btnName);
-    queue.push("up", key);
+    if (key) queue.push("up", key);
   }
+  publishControls(p);
 }
 
 function handleStick(p, stick, x, y) {
-  const sMap = MAPPINGS[p.num].sticks[stick];
+  const sMap = mapping(p).sticks[stick];
   if (!sMap) return;
+  p.sticks[stick] = { x, y };
 
   const want = p.stickEngines[stick].update(x, y);
   const held = p.stickHeld[stick];
@@ -150,15 +158,16 @@ function handleStick(p, stick, x, y) {
   for (const dir of [...held]) {
     if (!want.has(dir)) {
       held.delete(dir);
-      queue.push("up", sMap[dir]);
+      if (sMap[dir]) queue.push("up", sMap[dir]);
     }
   }
   for (const dir of want) {
     if (!held.has(dir)) {
       held.add(dir);
-      queue.push("down", sMap[dir]);
+      if (sMap[dir]) queue.push("down", sMap[dir]);
     }
   }
+  publishControls(p);
 }
 
 function applyConfig(p, msg) {
@@ -233,18 +242,19 @@ wss.on("connection", (socket, req) => {
     if (!sameOrigin) { socket.close(1008, "origin rejected"); return; }
   }
   const url = new URL(req.url, "http://x");
-  const playerNum = url.searchParams.get("p") === "2" ? 2 : 1;
+  const requested = url.searchParams.get('p');
+  const automatic = requested === null || requested === 'auto';
+  const preferred = Number(url.searchParams.get('preferred'));
+  const playerNum = automatic
+    ? (PLAYER_NUMBERS.includes(preferred) && !players[preferred].connected ? preferred : PLAYER_NUMBERS.find(n => !players[n].connected))
+    : Number(requested);
+  if (!automatic && !PLAYER_NUMBERS.includes(playerNum)) { socket.close(1008, 'Player must be 1–6'); return; }
+  if (!playerNum) { socket.close(4003, 'All six player slots are in use'); return; }
   const p = players[playerNum];
   const resumingFromIdle = !Object.values(players).some(player => player.connected);
 
-  // Takeover de slot: soltar las teclas del cliente viejo ANTES de reasignar.
-  // Sus handlers close/error comprueban identidad de socket y ya no tocarán
-  // el estado del nuevo.
-  if (p.connected && p.socket && p.socket !== socket) {
-    const old = p.socket;
-    releaseAllForPlayer(p);
-    old.close(4000, "replaced by another controller");
-  }
+  // A new phone never evicts the controller that already owns this slot.
+  if (p.connected) { socket.close(4004, 'Player slot is in use; choose a free player'); return; }
 
   p.connected = true;
   p.socket = socket;
@@ -254,6 +264,9 @@ wss.on("connection", (socket, req) => {
   p.orientation = "landscape-right";
   p.motionSeq = -1;
   p.motionDropped = 0;
+  p.name = null;
+  p.theme = null;
+  publishControls(p);
   socket.isAlive = true;
   const allowed = makeRateLimiter(300);
   console.log(t("ws.connected", { player: displayName(p), ip }));
@@ -264,6 +277,9 @@ wss.on("connection", (socket, req) => {
     t: "hello",
     motionProfiles: ["just-dance"],
     player: playerNum,
+    maxPlayers: MAX_PLAYERS,
+    inputBackend: dsuControls ? 'dsu' : 'keyboard',
+    motionEndpoint: motionEndpoint(playerNum, Number(process.env.DSU_PORT) || 26760),
     kb: keyboard.name,
     native: keyboard.isNative,
     accessibility: accessibilityStatus(),
@@ -293,7 +309,7 @@ wss.on("connection", (socket, req) => {
       invalidMsgs++;
       return;
     }
-    const msg = validateMessage(parsed, MAPPINGS[p.num]);
+    const msg = validateMessage(parsed, MAPPINGS[1]);
     if (!msg) {
       invalidMsgs++;
       return;
@@ -337,8 +353,8 @@ wss.on("connection", (socket, req) => {
   socket.on("close", () => {
     if (p.socket !== socket) return; // socket viejo tras un takeover
     console.log(t("ws.disconnected", { player: displayName(p) }));
-    releaseAllForPlayer(p);
     p.connected = false;
+    releaseAllForPlayer(p);
     p.socket = null;
     p.rttMs = null;
     p.motion = false;
@@ -373,7 +389,7 @@ const motionStatus = setInterval(() => {
   for (const p of Object.values(players)) {
     if (p.connected) send(p.socket, {
       t: "motion-status",
-      receivers: state?.subscribers ?? 0,
+      receivers: state?.receivers[p.num - 1] ?? 0,
       motionAgeMs: state?.slots[p.num - 1]?.ageMs ?? null,
     });
   }
@@ -449,6 +465,8 @@ app.get("/status", async (req, res) => {
     displayName: "Motion Air",
     v: 1,
     version: VERSION,
+    maxPlayers: MAX_PLAYERS,
+    inputBackend: dsuControls ? 'dsu' : 'keyboard',
     port: activePort,
     urls: getLocalIPs().map(ip => `http://${ip}:${activePort}`),
     ryujinx: ryujinxState,

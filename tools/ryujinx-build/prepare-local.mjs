@@ -17,7 +17,7 @@ cpSync(join(DEFAULT_CONFIG_DIR,'profiles'),join(baseline,'profiles'),{recursive:
 const config = JSON.parse(readFileSync(join(dest,'Config.json'),'utf8'));
 config.update_checker_type='Off';
 writeFileSync(join(dest,'Config.json'),JSON.stringify(config,null,2));
-const result=configureRyujinx({configDir:dest,preset:'just-dance'});
+const result=configureRyujinx({configDir:dest,preset:'just-dance',playerCount:6,controllerInput:true});
 const hash=b=>createHash('sha256').update(b).digest('hex');
 if(hash(original)!==hash(readFileSync(join(DEFAULT_CONFIG_DIR,'Config.json'))))throw new Error('Original configuration changed while copying; recheck baseline.');
 writeFileSync(join(baseline,'baseline.json'),JSON.stringify({created:new Date().toISOString(),source:DEFAULT_CONFIG_DIR,configSHA256:hash(original),emulatorRevision:'e2143d43bcb6762340d8a01f20e7b5fdf104f02f',testData:dest},null,2));

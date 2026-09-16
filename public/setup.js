@@ -12,7 +12,7 @@ const local = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
 $('configure').disabled = !local;
 if (!local) configureNotice = { key: 'setup.localOnly' };
 
-for (const n of [1, 2]) {
+for (const n of [1, 2, 3, 4, 5, 6]) {
   const row = document.createElement('div'); row.className = 'live-player';
   const number = document.createElement('span'); number.className = 'player-number'; number.textContent = n;
   const info = document.createElement('div');
@@ -59,7 +59,7 @@ function renderStatus() {
     $('server-version').textContent = `MOTION AIR / ${s.version}`;
   }
   let connected = 0;
-  for (const n of [1, 2]) {
+  for (const n of [1, 2, 3, 4, 5, 6]) {
     const p = s?.players?.[n]; connected += p?.connected ? 1 : 0;
     $(`player-${n}-name`).textContent = p?.connected ? p.name || t('player', { n }) : t('player', { n });
     const held = [
@@ -72,11 +72,11 @@ function renderStatus() {
       : t('setup.waitingPhone');
     $(`player-${n}-status`).className = p?.connected ? 'online' : '';
   }
-  $('player-count').textContent = `${connected} / 2`;
+  $('player-count').textContent = `${connected} / ${s?.maxPlayers ?? 6}`;
   if (offline) {
     $('ready-count').textContent = t('setup.serverOffline');
     ['backend', 'access', 'ryu', 'focus'].forEach(id => check(id, null, t('setup.serverRecheck')));
-    for (const n of [1, 2]) { $(`player-${n}-status`).textContent = t('setup.unknownConnection'); $(`player-${n}-status`).className = ''; }
+    for (const n of [1, 2, 3, 4, 5, 6]) { $(`player-${n}-status`).textContent = t('setup.unknownConnection'); $(`player-${n}-status`).className = ''; }
   }
 }
 

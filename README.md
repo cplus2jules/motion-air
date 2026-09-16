@@ -2,6 +2,8 @@
 
 Use your **Android phone or iPhone as a wireless controller** for motion games on a **Mac or Windows PC**.
 
+The local 0.3.0 update adds up to six phones with separate Joy-Cons for Just Dance. It requires updated phone apps, bridge and emulator; see [multiplayer setup](docs/multiplayer.md). This update is not yet published to the download links.
+
 [Download Motion Air](https://github.com/cplus2jules/motion-air/releases) · [Screenshots](#screenshots) · [Setup instructions](#1-download-the-right-files) · [Leer en español](README.es.md)
 
 [Report a problem](https://github.com/cplus2jules/motion-air/issues/new?template=01-bug-report.yml) · [Send feedback](https://github.com/cplus2jules/motion-air/issues/new?template=03-feedback.yml) · [Contribute](CONTRIBUTING.md)
@@ -64,10 +66,21 @@ You need the computer ZIP **and** one phone app. You can ignore the other files.
 The iPhone download needs **sideloading**: a computer tool signs the app with your Apple account and installs it on your phone. Tapping the IPA on the iPhone will not install it.
 
 1. Set up your preferred sideloading tool, such as [AltStore Classic](https://faq.altstore.io/) or [Sideloadly](https://sideloadly.io/), using its own installation guide.
-2. Import the downloaded IPA into that tool and follow its signing and installation steps.
-3. Open **Motion Air** on your iPhone. Allow **Local Network** access when asked.
+2. Connect and unlock the iPhone, trust the computer when asked, and select that phone in your tool. Import **MotionAir-iPhone-unsigned.ipa** and follow the signing and installation steps. If you downloaded an Actions artifact ZIP, extract it first to find the IPA.
+3. Enable **Settings → Privacy & Security → Developer Mode**, restart, and confirm on the iPhone. If the setting is missing, follow [Apple's device-pairing instructions](https://developer.apple.com/documentation/xcode/enabling-developer-mode-on-a-device).
+4. If **Untrusted Developer** appears, open **Settings → General → VPN & Device Management** and trust the account you used to sign the app. This is separate from Developer Mode.
+5. Open **Motion Air** on your iPhone. Allow **Local Network** access when asked.
 
-Your signing method determines when the app needs refreshing. See [iPhone installation details](docs/ios-releases.md#download-a-build).
+The unsigned download is intentional: your tool adds a signature and provisioning profile for your account and phone. A free Apple account can be used, but its provisioning profiles expire after **7 days**, so the app needs refreshing. An app signed for one phone is not automatically authorized for another. See [Apple's free-account limits](https://developer.apple.com/help/account/basics/about-your-developer-account) and [iPhone installation details](docs/ios-releases.md#download-a-build).
+
+<details>
+<summary>iPhone signing and installation help</summary>
+
+If Sideloadly stops at **Obtaining team ID** with **Invalid file**, the log places the failure at the Apple signing-team lookup. That message alone does not establish that the IPA is corrupt or that Developer Mode caused the failure. Account/session handling and the network still need checking. Save the log with account details removed; compare one retry on another internet connection, keeping the same IPA and account. Switching Local/Remote Anisette is a diagnostic, not a guaranteed fix.
+
+On a Mac with Xcode, the [direct iPhone installation steps](docs/local-device-setup.md#install-on-iphone) provide a fallback: build the app from this repository using your own team and selected iPhone. This bypasses Sideloadly but still requires Apple signing, Developer Mode and renewal. It does not diagnose or repair the Sideloadly error. Our current download is not a TestFlight or App Store release.
+
+</details>
 
 Both apps open with three short lessons. Tap **Let's try it** to practice the stick, A and B without connecting to a computer. These iPhone screenshots show the lessons in order:
 

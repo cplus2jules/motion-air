@@ -326,7 +326,7 @@ class MainActivity : Activity() {
         val healthy = session.ready
         if (!locked) {
             if (footerState != "${session.ready}:${session.connecting}:${session.computer?.id}") controllerActions(healthy)
-            headline?.text = if (healthy) t("Let's play.", "Vamos a jugar.") else t("Ready, player one?", "¿Listo, jugador uno?")
+            headline?.text = if (healthy) t("Let's play.", "Vamos a jugar.") else t("Ready to play?", "¿Listo para jugar?")
             subtitle?.text = if (healthy) t("A selects. B goes back. You know the drill.", "A selecciona. B vuelve atrás. Ya sabes cómo.") else t("Your phone. Your computer. One more game.", "Tu teléfono. Tu equipo. Una partida más.")
         }
         status?.text = when {
@@ -334,7 +334,7 @@ class MainActivity : Activity() {
             !healthy -> if (session.computer != null) t("Disconnected", "Desconectado") else t("Connect your computer\nPair once, then tap to reconnect", "Conecta tu equipo\nConecta una vez y vuelve con un toque")
             locked && session.motion && session.receivers > 0 && (session.receivedMotionAge ?: 9999.0) < 500 -> t("Sending motion", "Enviando movimiento")
             locked -> t("Waiting for the game", "Esperando al juego")
-            else -> (session.computer?.name ?: t("Connected", "Conectado")) + "\n" + t("Connected · Player 1", "Conectado · Jugador 1")
+            else -> (session.computer?.name ?: t("Connected", "Conectado")) + "\n" + t("Connected · Player ${session.player}", "Conectado · Jugador ${session.player}")
         }
         detail?.text = when {
             session.error.isNotEmpty() -> errorText(session.error)
@@ -358,6 +358,8 @@ class MainActivity : Activity() {
         "pair_again", "identity_changed" -> t("Pair this computer again using its current QR code.", "Empareja de nuevo este equipo con su QR actual.")
         "update_bridge", "protocol_error" -> t("The bridge could not confirm the controller profile. Restart or update Motion Air on your computer.", "El puente no confirmó el perfil del mando. Reinicia o actualiza Motion Air en el equipo.")
         "sensors_missing" -> t("The motion sensors are unavailable on this phone.", "Los sensores de movimiento no están disponibles en este teléfono.")
+        "server_full" -> t("All six players are connected. Wait for a player to disconnect, then reconnect.", "Los seis jugadores están conectados. Espera a que uno se desconecte y vuelve a conectar.")
+        "already_connected" -> t("This phone is already connected. Wait a few seconds, then reconnect.", "Este teléfono ya está conectado. Espera unos segundos y vuelve a conectar.")
         "connection_lost" -> t("Connection lost. Keep both devices on the same Wi-Fi and tap Reconnect. Motion starts off.", "Se perdió la conexión. Conecta ambos equipos a la misma Wi-Fi y pulsa Reconectar. El movimiento empieza desactivado.")
         else -> t("Could not connect. Keep the launcher open and both devices on the same Wi-Fi. If the computer’s address changed, scan a new QR.", "No se pudo conectar. Mantén el lanzador abierto y ambos equipos en la misma Wi-Fi. Si cambió la dirección del equipo, escanea un nuevo QR.")
     }

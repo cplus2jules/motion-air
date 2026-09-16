@@ -44,6 +44,7 @@
     "ryujinx:build": "bash tools/ryujinx-build/build-local.sh",
     "ryujinx:prepare": "node tools/ryujinx-build/prepare-local.mjs",
     "ryujinx:launch": "bash tools/ryujinx-build/launch-local.sh",
+    "test:multiplayer": "node --test tools/multiplayer-test.mjs",
     "test:motion": "node --test tools/motion-test.mjs",
     "test:pairing": "node --test tools/pairing-test.mjs",
     "test:launcher": "node --test tools/launcher-test.mjs",

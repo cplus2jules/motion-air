@@ -32,7 +32,7 @@ try {
     Invoke-Checked dotnet @('run', '--project', (Join-Path $PSScriptRoot 'tests\MotionContract.csproj'), "-p:RyujinxSource=$source", '-p:RyujinxRuntime=win-x64', '--', (Join-Path $build 'profile.json'), (Join-Path $build 'motion-0.bin'), (Join-Path $build 'motion-1.bin'))
     $executable = Join-Path $publish 'Ryujinx.exe'
     if (!(Test-Path -LiteralPath $executable)) { throw 'The build did not produce Ryujinx.exe.' }
-    $manifest = @{ executable = $executable; sourceRevision = $pin; patchSHA256 = (Get-FileHash $patch -Algorithm SHA256).Hash; builtAt = [DateTime]::UtcNow.ToString('o') }
+    $manifest = @{ executable = $executable; maxPlayers = 6; controllerInputVersion = 1; sourceRevision = $pin; patchSHA256 = (Get-FileHash $patch -Algorithm SHA256).Hash; builtAt = [DateTime]::UtcNow.ToString('o') }
     $manifest | ConvertTo-Json | Set-Content -Encoding UTF8 (Join-Path $root '.local\windows-motion-build.json')
     Write-Host "Built: $executable"
     Write-Host 'Open Motion Air.cmd. The new build will be selected, using your existing Ryujinx data.'

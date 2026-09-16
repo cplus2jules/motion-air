@@ -30,6 +30,7 @@ public struct PingPacket: Encodable, Sendable {
 public struct BridgeMessage: Decodable, Sendable {
     public let t: String
     public let player: Int?
+    public let inputBackend: String?
     public let motionProfiles: [String]?
     public let motionProfile: String?
     public let orientation: String?
@@ -40,12 +41,13 @@ public struct BridgeMessage: Decodable, Sendable {
     public let receivers: Int?
     public let motionAgeMs: Double?
     private enum CodingKeys: String, CodingKey {
-        case t, player, motionProfiles, motionProfile, orientation, motion, native, accessibility, ts, receivers, motionAgeMs
+        case t, player, inputBackend, motionProfiles, motionProfile, orientation, motion, native, accessibility, ts, receivers, motionAgeMs
     }
     public init(from decoder: any Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         t = try values.decode(String.self, forKey: .t)
         player = try values.decodeIfPresent(Int.self, forKey: .player)
+        inputBackend = try values.decodeIfPresent(String.self, forKey: .inputBackend)
         motionProfiles = try values.decodeIfPresent([String].self, forKey: .motionProfiles)
         motionProfile = try values.decodeIfPresent(String.self, forKey: .motionProfile)
         orientation = try values.decodeIfPresent(String.self, forKey: .orientation)
@@ -73,7 +75,7 @@ public enum BridgeEndpoint {
         parts.host = host
         parts.port = portNumber
         parts.path = "/"
-        parts.queryItems = [URLQueryItem(name: "p", value: "1")]
+        parts.queryItems = [URLQueryItem(name: "p", value: "auto")]
         return parts.url
     }
 

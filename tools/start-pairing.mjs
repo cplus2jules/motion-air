@@ -42,6 +42,7 @@ try {
   if (launchDesktop) launcherUI.step('Checking the local dance profile…', 'Revisando el perfil local de baile…');
   const upstreamPort = port('PAIRING_BRIDGE_PORT', 3001);
   const dsuPort = port('PAIRING_DSU_PORT', 26760);
+  if (dsuPort > 65534) throw new Error('DSU needs two consecutive UDP ports, at most 65534–65535.');
   const httpsPort = port('PAIRING_HTTPS_PORT', 3443);
   const setupPort = port('PAIRING_SETUP_PORT', 3444);
   if (new Set([upstreamPort, httpsPort, setupPort]).size !== 3) throw new Error('HTTP, setup and internal bridge ports must differ.');
@@ -49,7 +50,7 @@ try {
     desktop = await prepareWindowsDesktop({ dsuPort, reset: process.argv.includes('--setup') });
     configDir = desktop.configDir;
   }
-  if (process.env.FORCE_LOG !== '1' && !inspectRyujinx(configDir, { preset:'just-dance', dsuPort }).synced) {
+  if (process.env.FORCE_LOG !== '1' && !inspectRyujinx(configDir, { preset:'just-dance', dsuPort, playerCount: 6, controllerInput: true }).synced) {
     throw new Error(spanish ? 'Falta el perfil local de Just Dance. Consulta docs/motion-implementation-status.md.' : 'The isolated Just Dance profile is missing or changed. See docs/motion-implementation-status.md.');
   }
   if (launchDesktop) {
@@ -69,7 +70,7 @@ try {
   let ready = false, startupTail = '';
   child = spawn(process.execPath, ['server/index.js'], {
     cwd: root,
-    env: { ...process.env, PORT:String(upstreamPort), DSU_PORT:String(dsuPort), DSU_HOST:'127.0.0.1', DSU_OFF:'0',
+    env: { ...process.env, PORT:String(upstreamPort), DSU_PORT:String(dsuPort), DSU_HOST:'127.0.0.1', DSU_OFF:'0', DSU_CONTROLS:'1',
       JOYPAD_PARENT_PID:String(process.pid), JOYPAD_BIND_HOST:'127.0.0.1', JOYPAD_QUIET_STARTUP:'1', JOYPAD_STRICT_PORTS:'1', RYUJINX_CONFIG_DIR:configDir },
     stdio: ['ignore','pipe','pipe'],
   });

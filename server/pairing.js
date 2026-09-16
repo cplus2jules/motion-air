@@ -135,6 +135,7 @@ export async function startPairingServer({ directory, httpsPort = 3443, setupPor
   const identity = await loadPairingIdentity(directory);
   const authority = createPairingAuthority(identity);
   const sessions = new Map();
+  const lastPlayer = new Map();
   const networkEvents = [];
   const recordNetwork = (stage, socket, code = null) => {
     // Local setup diagnostics only: never retain request bodies, codes, or tokens.
@@ -171,7 +172,11 @@ export async function startPairingServer({ directory, httpsPort = 3443, setupPor
     }
     if (sessions.size >= 16) { socket.end('HTTP/1.1 503 Service Unavailable\r\nConnection: close\r\n\r\n'); return; }
     wss.handleUpgrade(req, socket, head, client => {
-      const upstream = new WebSocket(`ws://127.0.0.1:${upstreamPort}/?p=1`, { maxPayload: 64 * 1024, handshakeTimeout: 5000 });
+      if ([...sessions.values()].some(session => session.clientID === paired.id)) {
+        client.close(4004, 'This phone is already connected; wait for its previous connection to close');
+        return;
+      }
+      const upstream = new WebSocket(`ws://127.0.0.1:${upstreamPort}/?p=auto&preferred=${lastPlayer.get(paired.id) ?? ''}`, { maxPayload: 64 * 1024, handshakeTimeout: 5000 });
       sessions.set(client, { upstream, clientID: paired.id, lastPongAt: performance.now() });
       client.on('pong', () => { const session = sessions.get(client); if (session) session.lastPongAt = performance.now(); });
       const close = (code = 1011, message = 'Connection closed') => {
@@ -180,6 +185,16 @@ export async function startPairingServer({ directory, httpsPort = 3443, setupPor
         sessions.delete(client);
       };
       upstream.on('message', (data, binary) => {
+        if (!binary) {
+          try {
+            const message = JSON.parse(data.toString());
+            if (message.t === 'hello') {
+              lastPlayer.set(paired.id, message.player);
+              const session = sessions.get(client);
+              if (session) session.player = message.player;
+            }
+          } catch { /* The bridge validates its own messages. */ }
+        }
         if (client.readyState !== WebSocket.OPEN) return;
         if (client.bufferedAmount > MAX_BUFFER) return close(1013, 'Phone is not receiving current input status');
         client.send(data, { binary });
@@ -188,7 +203,8 @@ export async function startPairingServer({ directory, httpsPort = 3443, setupPor
         if (upstream.readyState !== WebSocket.OPEN || binary || upstream.bufferedAmount > MAX_BUFFER) return close(1013, 'Controller relay stalled');
         upstream.send(data, { binary: false });
       });
-      upstream.on('close', code => close(code === 4000 ? 4000 : 1011, code === 4000 ? 'Replaced by another controller' : 'Bridge connection closed'));
+      upstream.on('close', (code, reason) => close([4000, 4003, 4004].includes(code) ? code : 1011,
+        [4000, 4003, 4004].includes(code) ? reason.toString() : 'Bridge connection closed'));
       upstream.on('error', () => close());
       client.on('error', () => close());
       client.on('close', () => close());
@@ -219,7 +235,11 @@ export async function startPairingServer({ directory, httpsPort = 3443, setupPor
       return sendJSON(res, 200, { name: identity.state.name, invitation: text, expiresAt: payload.expiresAt,
         networkEvents,
         qr: await QRCode.toDataURL(text, { width: 420, margin: 2, errorCorrectionLevel: 'M' }),
-        paired: identity.state.paired.map(({ id, name, createdAt }) => ({ id, name, createdAt, connected: [...sessions.values()].some(session => session.clientID === id) })) });
+        maxPlayers: 6,
+        paired: identity.state.paired.map(({ id, name, createdAt }) => {
+          const session = [...sessions.values()].find(session => session.clientID === id);
+          return { id, name, createdAt, connected: !!session?.player, player: session?.player ?? null };
+        }) });
     }
     if (req.method === 'POST') {
       if (req.headers.origin !== `http://${expectedHost}` || req.headers['x-joypad-pairing'] !== '1') return sendJSON(res, 403, { error: 'Use the local pairing page.' });
@@ -228,6 +248,7 @@ export async function startPairingServer({ directory, httpsPort = 3443, setupPor
         if (url.pathname === '/api/revoke') {
           const body = await readJSON(req);
           authority.revoke(body.id);
+          lastPlayer.delete(body.id);
           for (const [client, session] of sessions) if (session.clientID === body.id) { client.close(4001, 'Pairing removed on Mac'); session.upstream.terminate(); sessions.delete(client); }
           return sendJSON(res, 200, { ok: true });
         }

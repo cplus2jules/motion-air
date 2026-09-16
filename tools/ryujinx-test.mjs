@@ -78,3 +78,19 @@ test('renamed and existing Joypad Air dance profiles are discovered without rewr
     assert.equal(readFileSync(join(dir, 'Config.json'), 'utf8'), before);
   }
 }));
+test('six-player dance setup assigns separate right Joy-Cons across two DSU ports', () => fixture(dir => {
+  save(dir, base());
+  const options = { configDir: dir, preset: 'just-dance', playerCount: 6, controllerInput: true, dsuPort: 26800 };
+  const configured = configureRyujinx(options, stopped);
+  assert.equal(configured.synced, true);
+  assert.deepEqual(read(dir).input_config.map(p => [p.player_index, p.controller_type, p.motion.dsu_server_port, p.motion.slot, p.motion.use_controller_input]),
+    Array.from({ length: 6 }, (_, i) => [`Player${i + 1}`, 'JoyconRight', 26800 + Math.floor(i / 4), i % 4, true]));
+  const config = read(dir); config.input_config[5].motion.slot = 0; save(dir, config);
+  assert.equal(inspectRyujinx(dir, options).synced, false, 'a shared slot cannot be reported ready');
+}));
+test('invalid multiplayer counts and DSU port overflow do not change settings', () => fixture(dir => {
+  save(dir, base());
+  for (const playerCount of [0, 7, 2.5]) assert.throws(() => configureRyujinx({ configDir: dir, playerCount }, stopped), { code: 'invalid_player_count' });
+  assert.throws(() => configureRyujinx({ configDir: dir, playerCount: 6, dsuPort: 65535, controllerInput: true }, stopped), { code: 'invalid_dsu_port' });
+  assert.equal(readdirSync(dir).length, 1);
+}));

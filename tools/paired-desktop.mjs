@@ -26,7 +26,7 @@ export async function runningPairing({ setupPort, upstreamPort, httpsPort, dsuPo
     if (invitationURL.protocol !== 'joypadair:' || invitationURL.hostname !== 'pair') return false;
     const invitation = JSON.parse(Buffer.from(invitationURL.searchParams.get('data'), 'base64url').toString());
     return invitation.v === 1 && invitation.port === httpsPort && Array.isArray(pairing.paired) &&
-      bridge.app === 'joypad-air' && bridge.port === upstreamPort &&
+      bridge.app === 'joypad-air' && bridge.port === upstreamPort && bridge.maxPlayers === 6 && bridge.inputBackend === 'dsu' &&
       bridge.dsu?.listening === true && bridge.dsu.host === '127.0.0.1' && bridge.dsu.port === dsuPort;
   } catch { return false; }
 }

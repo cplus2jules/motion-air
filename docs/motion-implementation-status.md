@@ -1,5 +1,7 @@
 # Local Swift motion implementation
 
+For the September 14, 2026 six-player update, see [multiplayer setup and validation](multiplayer.md). The historical single-player evidence below describes the earlier build.
+
 Updated September 8, 2026. Phase 1 is implemented for testing; the physical Just Dance scoring gate is still open. This document distinguishes compiled/tested code from gameplay proof.
 
 ## Available now

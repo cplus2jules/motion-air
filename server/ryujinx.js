@@ -6,13 +6,16 @@ import { windowsRunning } from "./windows.js";
 import { MAPPINGS } from "./mappings.js";
 import { toRyujinxKey } from "../tools/hid-key-table.mjs";
 
+import { MAX_PLAYERS, PLAYER_NUMBERS, motionEndpoint } from "./players.js";
+
 const DSU_PORT = 26760;
 function setupError(code, message) { return Object.assign(new Error(message), { code }); }
 export const DEFAULT_CONFIG_DIR = process.platform === 'win32'
   ? join(process.env.APPDATA || join(homedir(), 'AppData', 'Roaming'), 'Ryujinx')
   : join(homedir(), "Library", "Application Support", "Ryujinx");
-export function buildProfile(playerNum, controllerType, withMotion, { dsuPort = DSU_PORT, deadzone = 1 } = {}) {
-  const m = MAPPINGS[playerNum];
+export function buildProfile(playerNum, controllerType, withMotion, { dsuPort = DSU_PORT, deadzone = 1, controllerInput = false } = {}) {
+  const m = MAPPINGS[playerNum] ?? { buttons: {}, sticks: { L: {}, R: {} } };
+  const endpoint = motionEndpoint(playerNum, dsuPort);
   const btn = (name) => toRyujinxKey(m.buttons[name] ?? null);
   const stick = (s, dir) => toRyujinxKey(m.sticks[s][dir]);
 
@@ -67,11 +70,12 @@ export function buildProfile(playerNum, controllerType, withMotion, { dsuPort = 
       sensitivity: 100,
       gyro_deadzone: deadzone,
       enable_motion: true,
-      slot: playerNum - 1,
-      alt_slot: playerNum - 1,
+      slot: endpoint.slot,
+      alt_slot: endpoint.slot,
       mirror_input: false,
       dsu_server_host: "127.0.0.1",
-      dsu_server_port: dsuPort,
+      dsu_server_port: endpoint.port,
+      ...(controllerInput ? { use_controller_input: true } : {}),
     };
   }
   return profile;
@@ -92,21 +96,22 @@ export function ryujinxRunning() {
     throw setupError("process_check_failed", "Cannot check whether Ryujinx is running. Close Ryujinx and restart Motion Air.");
   }
 }
-export function inspectRyujinx(configDir = DEFAULT_CONFIG_DIR, { preset, dsuPort = DSU_PORT } = {}) {
+export function inspectRyujinx(configDir = DEFAULT_CONFIG_DIR, { preset, dsuPort = DSU_PORT, playerCount, controllerInput = false } = {}) {
   const path = join(configDir, "Config.json");
   if (!existsSync(path)) return { found: false, synced: false, players: [], issue: "Open Ryujinx once to create its configuration." };
   try {
     const config = JSON.parse(readFileSync(path, "utf8"));
     const flags = config.enable_keyboard === true && config.use_input_global_config === true;
-    const dance = preset === "just-dance" || (preset === undefined && config.input_config?.length === 1 && ["Motion Air Just Dance", "Joypad Air Just Dance"].includes(config.input_config[0].name));
-    const players = (dance ? [1] : [1,2]).map(n => {
+    const dance = preset === "just-dance" || (preset === undefined && config.input_config?.some(p => /^(Motion Air|Joypad Air) Just Dance(?: · Player [1-6])?$/.test(p.name)));
+    const count = dance ? playerCount ?? config.input_config?.length ?? 1 : 2;
+    const players = (dance ? PLAYER_NUMBERS.slice(0, count) : [1,2]).map(n => {
       const actual = config.input_config?.find(p => p.player_index === `Player${n}`);
       const supported = ["ProController", "JoyconPair", "JoyconLeft", "JoyconRight"].includes(actual?.controller_type);
-      const expected = buildProfile(n, dance ? "JoyconRight" : actual?.controller_type, dance, { dsuPort, deadzone: dance ? 0 : 1 });
+      const expected = buildProfile(n, dance ? "JoyconRight" : actual?.controller_type, dance, { dsuPort, deadzone: dance ? 0 : 1, controllerInput });
       delete expected.name;
       return { player: n, type: actual?.controller_type ?? null, synced: flags && supported && matches(actual, expected) };
     });
-    const synced = players.every(p => p.synced) && (!dance || config.input_config.length === 1);
+    const synced = players.every(p => p.synced) && (!dance || (count >= 1 && count <= MAX_PLAYERS && config.input_config.length === count));
     return { found: true, synced, preset: dance ? "just-dance" : "standard", configVersion: config.version, players, issue: synced ? null : "Configure the Motion Air input profiles with Ryujinx closed." };
   } catch {
     return { found: true, synced: false, players: [], issue: "Ryujinx Config.json could not be read. Check it before running setup." };
@@ -117,8 +122,10 @@ function atomicJson(path, data) {
   writeFileSync(temporary, JSON.stringify(data, null, 2) + "\n");
   renameSync(temporary, path);
 }
-export function configureRyujinx({ configDir = DEFAULT_CONFIG_DIR, types = ["ProController", "ProController"], motion = false, preset, dsuPort = DSU_PORT } = {}, { isRunning = ryujinxRunning } = {}) {
-  if (!Number.isInteger(dsuPort) || dsuPort < 1024 || dsuPort > 65535) throw setupError("invalid_dsu_port", "DSU port must be an integer from 1024 to 65535.");
+export function configureRyujinx({ configDir = DEFAULT_CONFIG_DIR, types = ["ProController", "ProController"], motion = false, preset, dsuPort = DSU_PORT, playerCount = 1, controllerInput = false } = {}, { isRunning = ryujinxRunning } = {}) {
+  if (!Number.isInteger(dsuPort) || dsuPort < 1024 || dsuPort > (playerCount > 4 ? 65534 : 65535)) throw setupError("invalid_dsu_port", "DSU port must be an integer from 1024 to 65535.");
+  if (!Number.isInteger(playerCount) || playerCount < 1 || playerCount > MAX_PLAYERS) throw setupError("invalid_player_count", "Choose 1–6 players.");
+  if (playerCount > 2 && !controllerInput) throw setupError("controller_input_required", "Three or more players require the multiplayer emulator and DSU controller input.");
   if (types.length !== 2 || types.some(t => !["ProController","JoyconLeft","JoyconRight"].includes(t))) throw setupError("unsupported_layout", "Unsupported controller layout.");
   if (isRunning()) throw setupError("ryujinx_running", "Quit Ryujinx first, then try again. Ryujinx saves its old settings when it closes.");
   const path = join(configDir, "Config.json");
@@ -129,8 +136,8 @@ export function configureRyujinx({ configDir = DEFAULT_CONFIG_DIR, types = ["Pro
   const backup = `Config.json.backup-${Date.now()}`;
   copyFileSync(path, join(configDir, backup));
   const dance = preset === "just-dance";
-  const profiles = (dance ? ["JoyconRight"] : types).map((type, i) => buildProfile(i + 1, type, dance || motion, { dsuPort, deadzone: dance ? 0 : 1 }));
-  if (dance) profiles[0].name = "Motion Air Just Dance";
+  const profiles = (dance ? Array(playerCount).fill("JoyconRight") : types).map((type, i) => buildProfile(i + 1, type, dance || motion, { dsuPort, deadzone: dance ? 0 : 1, controllerInput }));
+  if (dance) profiles.forEach((profile, i) => { profile.name = playerCount === 1 ? "Motion Air Just Dance" : `Motion Air Just Dance · Player ${i + 1}`; });
   config.enable_keyboard = true;
   config.use_input_global_config = true;
   config.input_config = dance ? profiles : [...profiles, ...(config.input_config ?? []).filter(p => !["Player1","Player2"].includes(p.player_index))];
@@ -138,5 +145,5 @@ export function configureRyujinx({ configDir = DEFAULT_CONFIG_DIR, types = ["Pro
   mkdirSync(dir, { recursive: true });
   profiles.forEach((profile, i) => atomicJson(join(dir, `Chocorramito_${i+1}.json`), profile));
   atomicJson(path, config);
-  return { backup, ...inspectRyujinx(configDir, { preset, dsuPort }) };
+  return { backup, ...inspectRyujinx(configDir, { preset, dsuPort, playerCount, controllerInput }) };
 }

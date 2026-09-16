@@ -15,13 +15,14 @@ function endpoints(overrides = {}) {
   const invitation = { v: 1, port: 3443, ...overrides.invitation };
   return {
     pairing: { invitation: `joypadair://pair?data=${Buffer.from(JSON.stringify(invitation)).toString('base64url')}`, paired: [] },
-    bridge: { app: 'joypad-air', port: 3001, dsu: { listening: true, host: '127.0.0.1', port: 26760 }, ...overrides.bridge },
+    bridge: { app: 'joypad-air', port: 3001, maxPlayers: 6, inputBackend: 'dsu', dsu: { listening: true, host: '127.0.0.1', port: 26760 }, ...overrides.bridge },
   };
 }
 const reader = ({ pairing, bridge }) => async url => url.endsWith('/api/state') ? pairing : bridge;
 
-test('reuses an already running paired bridge, including the pre-launcher API', async () => {
+test('reuses an already running paired bridge, with multiplayer capability', async () => {
   assert.equal(await runningPairing(ports, reader(endpoints())), true);
+  assert.equal(await runningPairing(ports, reader(endpoints({ bridge: { maxPlayers: 2 } }))), false);
   assert.equal(await runningPairing(ports, reader({ pairing: null, bridge: null })), false);
   assert.equal(await runningPairing(ports, reader({ ...endpoints(), pairing: {} })), false);
   assert.equal(await runningPairing(ports, reader(endpoints({ invitation: { port: 9999 } }))), false);

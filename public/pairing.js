@@ -22,7 +22,7 @@ const strings={
     "updateError": "That didn’t go through. Check the launcher and try again.",
     "qrAlt": "One-time pairing QR code",
     "payloadLabel": "Pairing code",
-    "emptyDetail": "Pair a phone to save it here for next time.",
+    "emptyDetail": "Pair up to six phones to play together. Each phone joins a different player.",
     "ready": "Ready to pair",
     "live": "Phone connected",
     "offline": "Launcher unavailable",
@@ -46,6 +46,7 @@ const strings={
     "confirmRemove": "Forget phone",
     "savedDetail": "Ready to reconnect from phone",
     "connectedDetail": "Connected to this computer",
+    "player": "Player",
     "newCode": "New code ready. Scan it with your phone.",
     "footer": "Made for one more round.",
     "credits": "Built on Joypad Air by David García.",
@@ -75,7 +76,7 @@ const strings={
     "updateError": "No se pudo completar la acción. Revisa el lanzador y vuelve a intentarlo.",
     "qrAlt": "Código QR de un solo uso",
     "payloadLabel": "Código de conexión",
-    "emptyDetail": "Empareja un teléfono para guardarlo aquí.",
+    "emptyDetail": "Empareja hasta seis teléfonos para jugar juntos. Cada teléfono será un jugador distinto.",
     "ready": "Listo para emparejar",
     "live": "Teléfono conectado",
     "offline": "Lanzador no disponible",
@@ -99,6 +100,7 @@ const strings={
     "confirmRemove": "Olvidar teléfono",
     "savedDetail": "Listo para reconectar desde el teléfono",
     "connectedDetail": "Conectado a este equipo",
+    "player": "Jugador",
     "newCode": "Nuevo código listo. Escanéalo con tu teléfono.",
     "footer": "Siempre hay otra partida.",
     "credits": "Basado en Joypad Air de David García.",
@@ -145,7 +147,7 @@ function renderDevices() {
     const icon = document.createElement('span'); icon.className = 'device-icon'; icon.innerHTML = teléfonoIcon;
     const info = document.createElement('div'); info.className = 'device-info';
     const name = document.createElement('strong'); name.textContent = teléfono.name;
-    const detail = document.createElement('p'); detail.textContent = text(teléfono.connected ? 'connectedDetail' : 'savedDetail');
+    const detail = document.createElement('p'); detail.textContent = teléfono.connected && teléfono.player ? `${text('player')} ${teléfono.player} · ${text('connectedDetail')}` : text('savedDetail');
     info.append(name, detail);
     const button = document.createElement('button'); button.className = 'secondary'; button.textContent = text('remove');
     button.setAttribute('aria-label', text('remove') + ' ' + teléfono.name);

@@ -94,10 +94,11 @@ export function encodeInfoResponse(serverId, slot, connected) {
 }
 
 // sample: { ax, ay, az (g), pitch, yaw, roll (°/s), tsUs (BigInt|number µs) }
-export function encodeDataResponse(serverId, slot, packetId, sample) {
-  return packet(MAGIC_SERVER, serverId, 84, (buf, o) => {
-    o = writeShared(buf, o, MSG.DATA, slot, true);
-    buf.writeUInt8(1, o); o += 1;                      // connected
+export function encodeDataResponse(serverId, slot, packetId, sample, controls) {
+  return packet(MAGIC_SERVER, serverId, controls ? 88 : 84, (buf, o) => {
+    const connected = controls?.connected ?? true;
+    o = writeShared(buf, o, MSG.DATA, slot, connected);
+    buf.writeUInt8(connected ? 1 : 0, o); o += 1;       // connected
     buf.writeUInt32LE(packetId >>> 0, o); o += 4;      // packetId
     buf.writeUInt8(0, o); o += 1;                      // extraButtons
     buf.writeUInt8(0, o); o += 1;                      // mainButtons
@@ -117,6 +118,24 @@ export function encodeDataResponse(serverId, slot, packetId, sample) {
     buf.writeFloatLE(sample.pitch, o); o += 4;
     buf.writeFloatLE(sample.yaw, o); o += 4;
     buf.writeFloatLE(sample.roll, o); o += 4;
+    if (controls) {
+      const held = new Set(controls.buttons);
+      const bits = names => names.reduce((value, name, bit) => value | (held.has(name) ? 1 << bit : 0), 0);
+      buf[36] = bits(['minus', 'lstick', 'rstick', 'plus', 'dpad_up', 'dpad_right', 'dpad_down', 'dpad_left']);
+      buf[37] = bits(['zl', 'zr', 'l', 'r', 'x', 'a', 'b', 'y']);
+      buf[38] = held.has('home') ? 1 : 0;
+      buf[39] = held.has('capture') ? 1 : 0;
+      const axis = value => Math.round(128 + Math.max(-1, Math.min(1, value ?? 0)) * 127);
+      for (const [stick, offset] of [['L', 40], ['R', 42]]) {
+        buf[offset] = axis(controls.sticks?.[stick]?.x);
+        // Controller messages use screen coordinates; DSU Y points up.
+        buf[offset + 1] = axis(-(controls.sticks?.[stick]?.y ?? 0));
+      }
+      ['dpad_left', 'dpad_down', 'dpad_right', 'dpad_up', 'y', 'b', 'a', 'x', 'r', 'l', 'zr', 'zl']
+        .forEach((name, i) => { buf[44 + i] = held.has(name) ? 255 : 0; });
+      // Motion Air extension: standard 100-byte DSU prefix, then MA, v1, SL/SR.
+      buf.set([0x4d, 0x41, 1, bits(['sl', 'sr'])], 100);
+    }
   });
 }
 

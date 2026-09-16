@@ -36,6 +36,11 @@ The tool must sign the IPA with your Apple account. Opening the unsigned IPA
 directly on an iPhone will not install it. This workflow does not upload to
 TestFlight or the App Store.
 
+Follow the phone setup and installation troubleshooting in the
+[English guide](../README.md#iphone) or [Spanish guide](../README.es.md#iphone).
+These cover Developer Mode, trusting the signing account, free-account renewal,
+and the direct Xcode installation fallback when Sideloadly fails.
+
 Keep the same signing account and bundle identity for updates where possible.
 A sideloading tool may rewrite the bundle ID and create a separate installation,
 so saved Mac pairing is not guaranteed across different signing methods. Refresh

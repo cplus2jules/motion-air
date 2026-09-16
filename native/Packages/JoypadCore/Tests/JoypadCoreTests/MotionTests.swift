@@ -110,7 +110,7 @@ func invalidSensorTimeCannotReachJSON(time: Double) {
 func acceptsLocalEndpoints(host: String) throws {
     let url = try #require(BridgeEndpoint.url(host: host, port: "3001"))
     #expect(url.scheme == "ws")
-    #expect(url.query == "p=1")
+    #expect(url.query == "p=auto")
     #expect(url.port == 3001)
 }
 
@@ -188,4 +188,14 @@ func navigationButtonsHaveStableWireIdentifiers(button: ControllerButtonID) thro
     let json = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
     #expect(json["k"] as? String == button.rawValue)
     #expect(json["d"] as? Bool == true)
+}
+
+@Test func multiplayerHelloKeepsAssignedPlayerAndBackend() throws {
+    for player in 1...6 {
+        let data = Data("{\"t\":\"hello\",\"player\":\(player),\"inputBackend\":\"dsu\",\"motionProfiles\":[\"just-dance\"]}".utf8)
+        let message = try JSONDecoder().decode(BridgeMessage.self, from: data)
+        #expect(message.player == player)
+        #expect(message.inputBackend == "dsu")
+        #expect(message.supportsDance)
+    }
 }

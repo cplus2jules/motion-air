@@ -8,6 +8,7 @@ import JoypadCore
 final class ProbeSession {
     private(set) var status = "Disconnected"
     private(set) var notice = "Connect a paired Mac or scan its QR code to start playing."
+    private(set) var player: Int?
     private(set) var connected = false
     private(set) var connecting = false
     private(set) var compatible = false
@@ -143,8 +144,12 @@ final class ProbeSession {
             } catch {
                 guard let self, self.connectionID == id, !Task.isCancelled else { return }
                 let reason: String
-                if socket.closeCode.rawValue == 4000 {
-                    reason = "Another controller took Player 1. Connect again when ready."
+                if socket.closeCode.rawValue == 4003 {
+                    reason = "All six players are connected. Wait for a player to disconnect, then try again."
+                } else if socket.closeCode.rawValue == 4004 {
+                    reason = "This phone is already connected. Wait a few seconds, then reconnect."
+                } else if socket.closeCode.rawValue == 4000 {
+                    reason = "This controller connection was replaced. Connect again when ready."
                 } else if socket.closeCode.rawValue == 4001 || (socket.response as? HTTPURLResponse)?.statusCode == 401 {
                     reason = "This pairing was removed on the Mac. Forget this Mac and scan its QR code again."
                 } else if socket.closeCode.rawValue == 4002 {
@@ -224,6 +229,7 @@ final class ProbeSession {
         motionReceivers = nil
         bridgeMotionAgeMilliseconds = nil
         keyboardReady = "Unknown"
+        player = nil
         status = "Disconnected"
         notice = reason
         UIApplication.shared.isIdleTimerDisabled = false
@@ -344,14 +350,15 @@ final class ProbeSession {
     private func receive(_ message: BridgeMessage) {
         switch message.t {
         case "hello":
-            guard message.player == 1, !connected else { return }
+            guard let assignedPlayer = message.player, (1...6).contains(assignedPlayer), !connected else { return }
+            player = assignedPlayer
             connected = true
             connecting = false
             compatible = message.supportsDance
             lastPong = now
-            status = "Connected · Player 1"
+            status = "Connected · Player \(assignedPlayer)"
             feedback.play(.success)
-            keyboardReady = message.native == true && message.accessibility == true ? "Available; focus Ryujinx" : "Check Mac Accessibility / keyboard backend"
+            keyboardReady = message.inputBackend == "dsu" ? "Available · separate Joy-Con input" : message.native == true && message.accessibility == true ? "Available; focus Ryujinx" : "Check Mac Accessibility / keyboard backend"
             UIApplication.shared.isIdleTimerDisabled = true
             if compatible { requestConfiguration(motion: false) }
             else { notice = "This bridge needs the dance-profile update. The A-button test is still available." }

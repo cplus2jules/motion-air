@@ -8,6 +8,8 @@ const has = flag => args.includes(flag);
 const value = (flag, fallback) => args.includes(flag) ? args[args.indexOf(flag)+1] ?? fallback : fallback;
 const configDir = value("--config-dir", DEFAULT_CONFIG_DIR);
 const preset = has("--just-dance") ? "just-dance" : undefined;
+const playerCount = Number(value("--players", 1));
+const controllerInput = has("--controller-input") || playerCount > 2;
 const dsuPort = Number(value("--dsu-port", 26760));
 try {
   if (has("--restore")) {
@@ -18,7 +20,7 @@ try {
     copyFileSync(src, join(configDir, "Config.json"));
     console.log(t("ryujinx.restored", { path: src }));
   } else if (has("--check")) {
-    const state = inspectRyujinx(configDir, { preset, dsuPort });
+    const state = inspectRyujinx(configDir, { preset, dsuPort, playerCount, controllerInput });
     if (has("--json")) console.log(JSON.stringify(state));
     else {
       const issueKey = !state.found ? "ryujinx.missing" : state.players.length === 0 ? "ryujinx.unreadable" : "ryujinx.unsynced";
@@ -33,8 +35,8 @@ try {
     if ((has("--motion") || preset) && !has("--patched")) throw new Error(t("ryujinx.motion"));
     const side = (n, fallback) => value(`--p${n}`, fallback) === "right" ? "JoyconRight" : "JoyconLeft";
     const types = has("--sideways") ? [side(1,"left"),side(2,"right")] : ["ProController","ProController"];
-    const result = configureRyujinx({ configDir, types, motion: has("--motion"), preset, dsuPort });
-    console.log(t(preset ? "ryujinx.danceConfigured" : "ryujinx.configured", { backup: result.backup }));
+    const result = configureRyujinx({ configDir, types, motion: has("--motion"), preset, dsuPort, playerCount, controllerInput });
+    console.log(t(preset ? "ryujinx.danceConfigured" : "ryujinx.configured", { backup: result.backup, count: playerCount }));
   }
 } catch (error) {
   const key = `error.${error.code}`;

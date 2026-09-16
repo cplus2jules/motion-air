@@ -3,7 +3,7 @@
 //   node tools/smoke-test.mjs
 //
 // Verifica: orden FIFO de la cola con backend async, stick engine (histéresis
-// radial y angular, círculo completo), SOCD del d-pad, takeover de slot,
+// radial y angular, círculo completo), SOCD del d-pad, protección de slot,
 // validación de basura, ping/pong y /status.
 
 import { spawn } from "node:child_process";
@@ -111,7 +111,7 @@ console.log("\n[2] stick-engine: histéresis radial + angular");
 }
 
 // ── 3. Server integrado (FORCE_LOG, puerto de test) ─────────────────────────
-console.log("\n[3] server integrado: ws + validación + SOCD + takeover + /status");
+console.log("\n[3] server integrado: ws + validación + SOCD + occupied slots + /status");
 
 let serverLog = "";
 const proc = spawn("node", ["server/index.js"], {
@@ -221,30 +221,21 @@ const logSince = (mark) => serverLog.slice(mark);
   const namedStatus = await (await fetch(`http://127.0.0.1:${PORT}/status`)).json();
   check("config aplica nombre", namedStatus.players?.["1"]?.name === "Wanda");
 
-  // takeover: cliente nuevo en slot 1 mientras este retiene una tecla
-  ws.send(JSON.stringify({ t: "btn", k: "b", d: true })); // X física
+  // A second connection must not evict or release the occupied player.
+  ws.send(JSON.stringify({ t: "btn", k: "b", d: true }));
   await sleep(100);
   mark = logMark();
-  const closedCode = new Promise((resolve) => ws.on("close", (code) => resolve(code)));
-  const second = await connect(1);
-  await sleep(250);
-  check("takeover suelta la tecla retenida (UP X)", logSince(mark).includes("UP   X"));
-  check("socket viejo cerrado con 4000", (await closedCode) === 4000);
-
-  // el nuevo cliente funciona
-  mark = logMark();
-  second.ws.send(JSON.stringify({ t: "btn", k: "a", d: true }));
-  second.ws.send(JSON.stringify({ t: "btn", k: "a", d: false }));
-  await sleep(200);
-  check("nuevo cliente inyecta teclas tras takeover", logSince(mark).includes("DOWN Z"));
-
-  // desconexión con tecla retenida → release
-  second.ws.send(JSON.stringify({ t: "btn", k: "x", d: true })); // C física
+  const incoming = new WebSocket(wsUrl(1));
+  const code = await new Promise((resolve, reject) => { incoming.on("close", resolve); incoming.on("error", reject); });
+  check("occupied slot rejects incoming controller with 4004", code === 4004);
+  check("existing player remains connected with held input", ws.readyState === WebSocket.OPEN && !logSince(mark).includes("UP   X"));
+  ws.send(JSON.stringify({ t: "btn", k: "x", d: true }));
   await sleep(100);
   mark = logMark();
-  second.ws.close();
+  ws.close();
   await sleep(300);
-  check("close suelta teclas retenidas (UP C)", logSince(mark).includes("UP   C"));
+  check("disconnect releases held controls", logSince(mark).includes("UP   C") && logSince(mark).includes("UP   X"));
+
 }
 
 // /status

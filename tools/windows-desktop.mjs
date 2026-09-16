@@ -47,15 +47,15 @@ export async function prepareWindowsDesktop({
     configDir = dirname(configFile);
   }
   configDir = resolve(configDir);
-  if (!inspectRyujinx(configDir, { preset: 'just-dance', dsuPort }).synced) {
-    const result = configure({ configDir, preset: 'just-dance', dsuPort });
+  if (!inspectRyujinx(configDir, { preset: 'just-dance', dsuPort, playerCount: 6, controllerInput: true }).synced) {
+    const result = configure({ configDir, preset: 'just-dance', dsuPort, playerCount: 6, controllerInput: true });
     log(`Controller profile ready. Previous settings saved to ${join(configDir, result.backup)}`);
   }
   mkdirSync(directory, { recursive: true });
   const temporary = `${path}.tmp`;
   writeFileSync(temporary, JSON.stringify({ executable, configDir, motionBuildSeen: motionBuild || saved.motionBuildSeen }, null, 2));
   renameSync(temporary, path);
-  log('For motion, choose a Ryujinx build with the keyboard + CemuHook patch. Stock Ryujinx supports buttons only.');
+  log('Six players require the matching Motion Air multiplayer emulator build. Rebuild it with tools/ryujinx-build/build-windows.ps1; stock and older motion builds cannot read separate phone controls.');
   log('Allow Node.js on your private network if Windows Firewall asks. Keep Ryujinx focused while playing.');
   return { executable, configDir };
 }

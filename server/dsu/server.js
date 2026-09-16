@@ -51,7 +51,7 @@ export function createDsuServer({ port = 26760, host = "127.0.0.1", onError = ()
 
   function slotState(n) {
     if (!slots.has(n)) {
-      slots.set(n, { packetId: 0, hzCount: 0, hz: 0, lastSample: null, lastRawTs: null, pubTs: 0, lastArrival: 0 });
+      slots.set(n, { packetId: 0, hzCount: 0, hz: 0, lastSample: null, lastRawTs: null, pubTs: 0, lastArrival: 0, controls: null, idleSample: null });
     }
     return slots.get(n);
   }
@@ -90,7 +90,7 @@ export function createDsuServer({ port = 26760, host = "127.0.0.1", onError = ()
     if (req.type === MSG.INFO) {
       for (const slot of req.ports) {
         if (slot >= NUM_SLOTS) continue;
-        const connected = slots.get(slot)?.lastSample != null;
+        const connected = slots.get(slot)?.controls?.connected ?? (slots.get(slot)?.lastSample != null);
         socket.send(encodeInfoResponse(serverId, slot, connected), rinfo.port, rinfo.address);
       }
       return;
@@ -156,7 +156,8 @@ export function createDsuServer({ port = 26760, host = "127.0.0.1", onError = ()
     s.pubTs += NOMINAL_DELTA_US;
     const still = { ...s.lastSample, pitch: 0, yaw: 0, roll: 0, tsUs: s.pubTs };
     s.packetId = (s.packetId + 1) >>> 0;
-    sendToSubscribers(slot, encodeDataResponse(serverId, slot, s.packetId, still));
+    sendToSubscribers(slot, encodeDataResponse(serverId, slot, s.packetId, still, s.controls));
+    s.idleSample = still;
     s.lastSample = null;
     s.lastRawTs = null;
     s.hz = 0;
@@ -170,7 +171,25 @@ export function createDsuServer({ port = 26760, host = "127.0.0.1", onError = ()
   }, 50);
   staleTick.unref?.();
 
+  function publishControls(slot, s) {
+    const sample = s.lastSample ?? s.idleSample ?? { ax: 0, ay: 0, az: 1, pitch: 0, yaw: 0, roll: 0, tsUs: s.pubTs };
+    s.packetId = (s.packetId + 1) >>> 0;
+    sendToSubscribers(slot, encodeDataResponse(serverId, slot, s.packetId, sample, s.controls));
+  }
+  // Repeat complete input snapshots so a lost UDP release cannot leave a key
+  // held. Sensor timestamps advance only when a new sensor sample arrives.
+  const controlsTick = setInterval(() => {
+    for (const [slot, s] of slots) if (s.controls) publishControls(slot, s);
+  }, 20);
+  controlsTick.unref?.();
+
   return {
+    updateControls(slot, controls) {
+      if (!Number.isInteger(slot) || slot < 0 || slot >= NUM_SLOTS) return;
+      const s = slotState(slot);
+      s.controls = structuredClone(controls);
+      publishControls(slot, s);
+    },
     // sample crudo del iPhone (marco device); orientation del player
     updateSlot(slot, sample, orientation, motionProfile) {
       if (slot < 0 || slot >= NUM_SLOTS) return;
@@ -182,7 +201,7 @@ export function createDsuServer({ port = 26760, host = "127.0.0.1", onError = ()
       s.hzCount++;
       s.packetId = (s.packetId + 1) >>> 0;
 
-      sendToSubscribers(slot, encodeDataResponse(serverId, slot, s.packetId, dsuSample));
+      sendToSubscribers(slot, encodeDataResponse(serverId, slot, s.packetId, dsuSample, s.controls));
     },
 
     // GIRO apagado o player desconectado: publicar un último sample con el
@@ -196,6 +215,7 @@ export function createDsuServer({ port = 26760, host = "127.0.0.1", onError = ()
       if (s) {
         s.lastSample = null;
         s.lastRawTs = null;
+        s.idleSample = null;
       }
     },
 
@@ -208,7 +228,9 @@ export function createDsuServer({ port = 26760, host = "127.0.0.1", onError = ()
         listening,
         host,
         port,
-        subscribers: subscribers.size,
+        subscribers: [...subscribers.values()].filter(s => Date.now() - s.lastSeen <= SUBSCRIBER_TTL_MS).length,
+        receivers: Object.fromEntries(Array.from({ length: NUM_SLOTS }, (_, slot) => [slot,
+          [...subscribers.values()].filter(s => Date.now() - s.lastSeen <= SUBSCRIBER_TTL_MS && (s.all || s.slots.has(slot))).length])),
         slots: out,
       };
     },
@@ -216,6 +238,7 @@ export function createDsuServer({ port = 26760, host = "127.0.0.1", onError = ()
     close() {
       clearInterval(hzTick);
       clearInterval(staleTick);
+      clearInterval(controlsTick);
       try { socket.close(); } catch { /* ya cerrado */ }
     },
   };
