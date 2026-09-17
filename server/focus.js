@@ -12,6 +12,12 @@
 import { execFile } from "node:child_process";
 import { windowsAction } from "./windows.js";
 
+export function parseFrontApp(output) {
+  if (!output || typeof output !== 'string') return null;
+  const m = output.match(/=\s*"([^"]+)"/) || output.match(/^"([^"]+)"/) || output.match(/"([^"]+)"/);
+  return m ? m[1].trim() : null;
+}
+
 function getFrontApp() {
   if (process.platform === 'win32') return windowsAction('Focus').catch(() => null);
   return new Promise((resolve) => {
@@ -24,9 +30,7 @@ function getFrontApp() {
         { timeout: 1500 },
         (err2, out2) => {
           if (err2 || !out2) return resolve(null);
-          // formato esperado: "LSDisplayName"="Ryujinx"
-          const m = out2.match(/=\s*"([^"]+)"/);
-          resolve(m ? m[1].trim() : null);
+          resolve(parseFrontApp(out2));
         }
       );
     });

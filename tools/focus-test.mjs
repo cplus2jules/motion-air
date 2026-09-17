@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { setImmediate as settle } from 'node:timers/promises';
-import { createFocusWatcher } from '../server/focus.js';
+import { createFocusWatcher, parseFrontApp } from '../server/focus.js';
 
 function watcher(t, options) {
   t.mock.timers.enable({ apis: ['setInterval'] });
@@ -71,4 +71,13 @@ test('configured emulator names match case insensitively without repeated notifi
   t.mock.timers.tick(100); await settle();
   assert.deepEqual(focus.last, { ok: true, app: 'DOLPHIN' });
   assert.equal(count, 1);
+});
+
+test('parseFrontApp extracts app name from modern and legacy lsappinfo output formats', () => {
+  assert.equal(parseFrontApp('"Ryujinx 1.3.3+e2143d4-motion-multiplayer" ASN:0x0-0x282282: (in front)\n    bundleID=[ NULL ]'), 'Ryujinx 1.3.3+e2143d4-motion-multiplayer');
+  assert.equal(parseFrontApp('"LSDisplayName"="Ryujinx"'), 'Ryujinx');
+  assert.equal(parseFrontApp('"CFBundleName"="Ryujinx Motion"'), 'Ryujinx Motion');
+  assert.equal(parseFrontApp('"Dia" ASN:0x0-0x281281: (in front)'), 'Dia');
+  assert.equal(parseFrontApp(''), null);
+  assert.equal(parseFrontApp(null), null);
 });
