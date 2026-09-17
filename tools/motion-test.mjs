@@ -30,9 +30,14 @@ test('unknown motion profiles fail validation instead of falling back to steerin
 });
 
 async function freePort(udp=false) {
-  const s=udp?dgram.createSocket('udp4'):net.createServer();
-  if(udp)s.bind(0,'127.0.0.1');else s.listen(0,'127.0.0.1');
-  await once(s,'listening');const port=s.address().port;await new Promise(r=>s.close(r));return port;
+  if(!udp){const s=net.createServer();s.listen(0,'127.0.0.1');await once(s,'listening');const port=s.address().port;await new Promise(r=>s.close(r));return port;}
+  for (;;) {
+    const a=dgram.createSocket('udp4'), b=dgram.createSocket('udp4');
+    a.bind(0,'127.0.0.1');await once(a,'listening');const base=a.address().port;
+    if(base>=65535){a.close();continue;}
+    try { b.bind(base+1,'127.0.0.1');await once(b,'listening');await Promise.all([new Promise(r=>a.close(r)),new Promise(r=>b.close(r))]);return base; }
+    catch { await Promise.all([new Promise(r=>a.close(r)),new Promise(r=>b.close(r))]); }
+  }
 }
 async function until(fn,label,timeout=5000) {
   const end=Date.now()+timeout;

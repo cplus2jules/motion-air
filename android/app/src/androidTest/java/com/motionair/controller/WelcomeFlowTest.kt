@@ -50,7 +50,7 @@ class WelcomeFlowTest {
             assertTrue(device.wait(Until.hasObject(By.text("Scan computer QR")), 5000))
             assertTrue(preferences.getBoolean("welcomeComplete", false))
             click("Done")
-            assertTrue(device.wait(Until.hasObject(By.text("Ready, player one?")), 5000))
+            assertTrue(device.wait(Until.hasObject(By.text("Ready to play?")), 5000))
             screenshot("qa-controller-offline.png")
         }
         ActivityScenario.launch(MainActivity::class.java).use {

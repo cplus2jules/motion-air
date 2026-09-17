@@ -15,12 +15,29 @@ import { encodeDataRequest, decodeResponse, MSG } from '../../server/dsu/packets
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 async function freePort(udp = false) {
-  const socket = udp ? dgram.createSocket('udp4') : net.createServer();
-  if (udp) socket.bind(0, '127.0.0.1'); else socket.listen(0, '127.0.0.1');
-  await once(socket, 'listening');
-  const port = socket.address().port;
-  await new Promise(resolve => socket.close(resolve));
-  return port;
+  if (!udp) {
+    const socket = net.createServer();
+    socket.listen(0, '127.0.0.1');
+    await once(socket, 'listening');
+    const port = socket.address().port;
+    await new Promise(resolve => socket.close(resolve));
+    return port;
+  }
+  for (;;) {
+    const a = dgram.createSocket('udp4'), b = dgram.createSocket('udp4');
+    a.bind(0, '127.0.0.1');
+    await once(a, 'listening');
+    const base = a.address().port;
+    if (base >= 65535) { a.close(); continue; }
+    try {
+      b.bind(base + 1, '127.0.0.1');
+      await once(b, 'listening');
+      await Promise.all([new Promise(r => a.close(r)), new Promise(r => b.close(r))]);
+      return base;
+    } catch {
+      await Promise.all([new Promise(r => a.close(r)), new Promise(r => b.close(r))]);
+    }
+  }
 }
 async function run(command, args, options = {}) {
   const child = spawn(command, args, { stdio: 'inherit', ...options });

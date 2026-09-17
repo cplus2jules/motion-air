@@ -57,12 +57,29 @@ test('browser failure leaves a usable URL and still opens the emulator; emulator
 });
 
 async function freePort(udp = false) {
-  const socket = udp ? dgram.createSocket('udp4') : net.createServer();
-  if (udp) socket.bind(0, '127.0.0.1'); else socket.listen(0, '127.0.0.1');
-  await once(socket, 'listening');
-  const port = socket.address().port;
-  await new Promise(resolve => socket.close(resolve));
-  return port;
+  if (!udp) {
+    const socket = net.createServer();
+    socket.listen(0, '127.0.0.1');
+    await once(socket, 'listening');
+    const port = socket.address().port;
+    await new Promise(resolve => socket.close(resolve));
+    return port;
+  }
+  for (;;) {
+    const a = dgram.createSocket('udp4'), b = dgram.createSocket('udp4');
+    a.bind(0, '127.0.0.1');
+    await once(a, 'listening');
+    const base = a.address().port;
+    if (base >= 65535) { a.close(); continue; }
+    try {
+      b.bind(base + 1, '127.0.0.1');
+      await once(b, 'listening');
+      await Promise.all([new Promise(r => a.close(r)), new Promise(r => b.close(r))]);
+      return base;
+    } catch {
+      await Promise.all([new Promise(r => a.close(r)), new Promise(r => b.close(r))]);
+    }
+  }
 }
 async function until(check, label) {
   for (let i = 0; i < 160; i++) { if (await check()) return; await sleep(50); }
@@ -94,11 +111,14 @@ test('paired startup becomes reusable, then closing Terminal releases its own TC
   const [code] = await exited;
   if (process.platform !== 'win32') assert.equal(code, 0);
   for (const [name, port] of Object.entries(selected)) {
-    await until(() => new Promise(resolve => {
-      const socket = name === 'dsuPort' ? dgram.createSocket('udp4') : net.createServer();
-      socket.once('error', () => { if (name === 'dsuPort') socket.close(); resolve(false); });
-      socket.once('listening', () => socket.close(() => resolve(true)));
-      if (name === 'dsuPort') socket.bind(port, '127.0.0.1'); else socket.listen(port, '127.0.0.1');
-    }), `${name} released after launcher exit`);
+    const ports = name === 'dsuPort' ? [port, port + 1] : [port];
+    for (const p of ports) {
+      await until(() => new Promise(resolve => {
+        const socket = name === 'dsuPort' ? dgram.createSocket('udp4') : net.createServer();
+        socket.once('error', () => { if (name === 'dsuPort') socket.close(); resolve(false); });
+        socket.once('listening', () => socket.close(() => resolve(true)));
+        if (name === 'dsuPort') socket.bind(p, '127.0.0.1'); else socket.listen(p, '127.0.0.1');
+      }), `${name}:${p} released after launcher exit`);
+    }
   }
 });

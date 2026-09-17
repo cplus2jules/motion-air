@@ -592,6 +592,7 @@ async function shutdown() {
   // Dejar de procesar mensajes nuevos para que la cola pueda drenar los
   // releases (bajo inundación, los 'up' finales quedan detrás del backlog).
   shuttingDown = true;
+  if (dsu) dsu.close();
   for (const p of Object.values(players)) releaseAllForPlayer(p);
   await Promise.race([queue.flush(), new Promise((r) => setTimeout(r, 1500))]);
   process.exit(0);
